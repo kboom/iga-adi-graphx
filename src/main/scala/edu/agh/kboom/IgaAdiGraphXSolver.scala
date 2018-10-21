@@ -5,22 +5,15 @@ import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
-case class Node(
-                 start: Double = 0,
-                 end: Double = 1,
-                 mA: Array[Array[Double]] = Array.ofDim[Double](7, 7),
-                 mB: Array[Array[Double]] = Array.ofDim[Double](7, 7),
-                 mX: Array[Array[Double]] = Array.ofDim[Double](7, 7)
-               )
 
-object GraphXExample {
+object IgaAdiGraphXSolver {
 
   def main(args: Array[String]) {
     val spark = SparkSession.builder.appName("IGA ADI GraphX").master("local[*]").getOrCreate()
 
     val sc = spark.sparkContext
 
-    val problemTree = ProblemTree(12)
+    val problemTree = ProblemTree(6144)
 
     val vertices: RDD[(VertexId, Node)] =
       sc.parallelize(Seq((0, Node())))
@@ -36,9 +29,9 @@ object GraphXExample {
 
     val result =
       dataItemGraph.pregel(Node(), activeDirection = EdgeDirection.Out)(
-        (_, vd, msg) => Node(), //msg + vd.start,
-        t => Iterator((t.dstId, t.srcAttr)),
-        (x, y) => Node()
+        VertexProgram.run,
+        VertexProgram.sendMsg,
+        VertexProgram.mergeMsg
       )
 
     result.vertices.collect().foreach(println)
