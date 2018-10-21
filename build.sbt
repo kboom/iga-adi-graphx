@@ -1,27 +1,27 @@
-name := "hellospark"
-version := "1.0"
-scalaVersion := "2.11.12"
+name          := "iga-adi-graphx"
+organization  := "edu.agh.kboom"
+description   := "Alternate Directions Implicit Solver For Isogeometric Analysis"
+version       := "0.1.0"
+scalaVersion  := "2.11.8"
+scalacOptions := Seq("-deprecation", "-unchecked", "-encoding", "utf8", "-Xlint")
+excludeFilter in unmanagedSources := (HiddenFileFilter || "*-script.scala")
+unmanagedResourceDirectories in Compile += baseDirectory.value / "conf"
+unmanagedResourceDirectories in Test += baseDirectory.value / "conf"
+fork := true
+parallelExecution in Test := false
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "2.3.0" % "provided"
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.3.0" % "provided"
+val sparkVersion = "2.3.2"
+val scalaTestVersion = "3.0.5"
+val scalaCheckVersion = "1.13.4"
 
-assemblyMergeStrategy in assembly := {
-  case PathList("org", "aopalliance", xs@_*) => MergeStrategy.last
-  case PathList("javax", "inject", xs@_*) => MergeStrategy.last
-  case PathList("javax", "servlet", xs@_*) => MergeStrategy.last
-  case PathList("javax", "activation", xs@_*) => MergeStrategy.last
-  case PathList("org", "apache", xs@_*) => MergeStrategy.last
-  case PathList("com", "google", xs@_*) => MergeStrategy.last
-  case PathList("com", "esotericsoftware", xs@_*) => MergeStrategy.last
-  case PathList("com", "codahale", xs@_*) => MergeStrategy.last
-  case PathList("com", "yammer", xs@_*) => MergeStrategy.last
-  case "about.html" => MergeStrategy.rename
-  case "META-INF/ECLIPSEF.RSA" => MergeStrategy.last
-  case "META-INF/mailcap" => MergeStrategy.last
-  case "META-INF/mimetypes.default" => MergeStrategy.last
-  case "plugin.properties" => MergeStrategy.last
-  case "log4j.properties" => MergeStrategy.last
-  case x =>
-    val oldStrategy = (assemblyMergeStrategy in assembly).value
-    oldStrategy(x)
-}
+libraryDependencies ++= Seq(
+  "org.apache.spark" %% "spark-core" % sparkVersion,
+  "org.apache.spark" %% "spark-streaming" % sparkVersion,
+  "org.apache.spark" %% "spark-sql" % sparkVersion,
+  "org.apache.spark" %% "spark-hive" % sparkVersion,
+  "org.apache.spark" %% "spark-repl" % sparkVersion,
+  "org.apache.spark" %% "spark-graphx" % sparkVersion,
+
+  "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test"
+)
