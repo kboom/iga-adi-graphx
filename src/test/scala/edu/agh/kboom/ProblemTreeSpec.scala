@@ -3,58 +3,68 @@ package edu.agh.kboom
 import edu.agh.kboom.ProblemTree._
 import org.scalatest._
 
-class ProblemTreeSpec extends FlatSpec {
+class ProblemTreeSpec extends FunSpec {
 
-  "total height of 12 element tree" should "be 4" in {
-    assert(totalHeightOf(ProblemTree(12)) == 4)
-  }
+  describe("Vertices in size 12 tree") {
+    implicit val problemTree: ProblemTree = ProblemTree(12)
 
-  "regular height of 12 element tree" should "be 3" in {
-    assert(regularHeightOf(ProblemTree(12)) == 3)
-  }
+    it("has total height of 4") {
+      assert(leafHeight == 4)
+    }
 
-  "first index of penultimate row of 12 element tree" should "be 4" in {
-    assert(firstIndexOfPenultimateRow(ProblemTree(12)) == 4)
-  }
+    it("has branching height of 3") {
+      assert(branchingHeight == 3)
+    }
 
-  "last index of penultimate row of 12 element tree" should "be 7" in {
-    assert(lastIndexOfPenultimateRow(ProblemTree(12)) == 7)
-  }
+    it("has first index of branching row equal to 4") {
+      assert(firstIndexOfBranchingRow == 4)
+    }
 
-  "first index of last row of 12 element tree" should "be 8" in {
-    assert(firstIndexOfLastRow(ProblemTree(12)) == 8)
-  }
+    it("has last index of branching row equal to 7") {
+      assert(lastIndexOfBranchingRow == 7)
+    }
 
-  "last index of last row of 12 element tree" should "be 19" in {
-    assert(lastIndexOfLastRow(ProblemTree(12)) == 19)
-  }
+    it("has first index of leaf row equal to 8") {
+      assert(firstIndexOfLeafRow == 8)
+    }
 
-  "left child of 3 in 12 element tree" should "be 6" in {
-    assert(leftChildOf(3)(ProblemTree(12)).get == 6)
-  }
+    it("has last index of leaf row equal to 19") {
+      assert(lastIndexOfLeafRow == 19)
+    }
 
-  "left child of 4 in 12 element tree" should "be 8" in {
-    assert(leftChildOf(4)(ProblemTree(12)).get == 8)
-  }
+    it("has first index of 1 row equal to 1") {
+      assert(firstIndexOfRow(1) == 1)
+    }
 
-  "left child of 7 in 12 element tree" should "be 17" in {
-    assert(leftChildOf(7)(ProblemTree(12)).get == 17)
-  }
+    it("has first index of 2 row equal to 2") {
+      assert(firstIndexOfRow(2) == 2)
+    }
 
-  "children of 2 in 12 element tree" should "be 4 and 5" in {
-    assert(childIndicesOf(2)(ProblemTree(12)) == Seq(4, 5))
-  }
+    it("has first index of 3 row equal to 4") {
+      assert(firstIndexOfRow(3) == 4)
+    }
 
-  "children of 3 in 12 element tree" should "be 6 and 7" in {
-    assert(childIndicesOf(3)(ProblemTree(12)) == Seq(6, 7))
-  }
+    it("has first index of 4 row equal to 8") {
+      assert(firstIndexOfRow(4) == 8)
+    }
 
-  "children of 4 in 12 element tree" should "be 8, 9, 10" in {
-    assert(childIndicesOf(4)(ProblemTree(12)) == Seq(8, 9, 10))
-  }
+    it("has strength of 1st row equal to 1") {
+      assert(strengthOfRow(1) == 1)
+    }
 
-  "children of 5 in 12 element tree" should "be 11, 12, 13" in {
-    assert(childIndicesOf(5)(ProblemTree(12)) == Seq(11, 12, 13))
+    it("has strength of 2nd row equal to 2") {
+      assert(strengthOfRow(2) == 2)
+    }
+
+    it("has strength of 3rd row equal to 4") {
+      assert(strengthOfRow(3) == 4)
+    }
+
+    it("has strength of 4th row equal to 12") {
+      assert(strengthOfRow(4) == 12)
+    }
+
+
   }
 
 }

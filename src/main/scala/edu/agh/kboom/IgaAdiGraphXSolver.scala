@@ -1,6 +1,7 @@
 package edu.agh.kboom
 
 import edu.agh.kboom.ProblemTree._
+import edu.agh.kboom.Vertex._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -13,19 +14,21 @@ object IgaAdiGraphXSolver {
 
     val sc = spark.sparkContext
 
-    val problemTree = ProblemTree(6144)
+    val problemTree = ProblemTree(12)
 
     val vertices: RDD[(VertexId, Node)] =
       sc.parallelize(Seq((0, Node())))
 
     val edges: RDD[Edge[Int]] =
       sc.parallelize(
-        (1 to lastIndexOfPenultimateRow(problemTree)).flatMap(
-          idx => childIndicesOf(idx)(problemTree).map(Edge(idx, _, 0))
+        (1 to lastIndexOfBranchingRow(problemTree)).flatMap(
+          idx => childIndicesOf(vertexOf(idx)(problemTree))(problemTree).map(v => Edge(idx, v.id, 0))
         )
       )
 
     val dataItemGraph = Graph(vertices, edges, Node())
+
+    implicit val program: VertexProgram = VertexProgram()
 
     val result =
       dataItemGraph.pregel(Node(), activeDirection = EdgeDirection.Out)(
