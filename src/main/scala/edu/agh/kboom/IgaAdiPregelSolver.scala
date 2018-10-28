@@ -1,6 +1,6 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.production.Ax
+import edu.agh.kboom.production.InitializeLeaf
 import edu.agh.kboom.tree.ProblemTree._
 import edu.agh.kboom.tree.Vertex._
 import edu.agh.kboom.tree.{Element, InterimVertex, ProblemTree, Vertex}
@@ -24,8 +24,13 @@ object IgaAdiPregelSolver {
 
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(
-        (1 to lastIndexOfBranchingRow(problemTree)).flatMap(
-          idx => childIndicesOf(vertexOf(idx)(problemTree))(problemTree).map(v => Edge(idx, v.id, IgaOperation.operationFor(Vertex.vertexOf(idx)(problemTree), v)))
+        (1 to lastIndexOfLeafRow(problemTree)).flatMap(
+          idx => childIndicesOf(vertexOf(idx)(problemTree))(problemTree).flatMap(
+            v1 => Some(Vertex.vertexOf(idx)(problemTree)).map(v2 => Seq(
+              IgaOperation.operationFor(v1, v2).map(Edge(v1.id, v2.id, _)),
+              IgaOperation.operationFor(v2, v1).map(Edge(v2.id, v1.id, _))
+            )).map(_.flatten)
+          ).flatten
         )
       )
 
@@ -34,7 +39,7 @@ object IgaAdiPregelSolver {
     implicit val program: VertexProgram = VertexProgram(IgaContext(igaMesh, (x, y) => 1))
 
     val result =
-      dataItemGraph.pregel(IgaMessage(Ax()), activeDirection = EdgeDirection.In)(
+      dataItemGraph.pregel(IgaMessage(InitializeLeaf()), activeDirection = EdgeDirection.In)(
         VertexProgram.run,
         VertexProgram.sendMsg,
         VertexProgram.mergeMsg
