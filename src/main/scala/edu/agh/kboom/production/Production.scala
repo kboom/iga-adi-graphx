@@ -35,6 +35,7 @@ object Production {
     case LeafVertex(_) => runOnLeaf(p, e)
     case BranchVertex(_) => Unit
     case InterimVertex(_) => Unit
+    case RootVertex() => Unit
   }
 
 

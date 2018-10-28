@@ -16,7 +16,10 @@ object VertexProgram {
     implicit val taskCtx: IgaTaskContext = IgaTaskContext.create(id)
     println(s"[$taskCtx] Running on ($id) and element ($e) production ($m)")
     Production.run(m.production, e)
-    println(s"[$taskCtx] Finished on ($id) and element ($e) production ($m)")
+    println(s"""
+[$taskCtx] Finished on ($id) and element ($e) production ($m)
+${Element.print(e)}
+    """.stripMargin)
     e
   }
 
