@@ -1,4 +1,4 @@
-package edu.agh.kboom
+package edu.agh.kboom.tree
 
 import breeze.numerics.{log2, pow}
 

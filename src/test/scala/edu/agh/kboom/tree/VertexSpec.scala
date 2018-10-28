@@ -1,6 +1,6 @@
-package edu.agh.kboom
+package edu.agh.kboom.tree
 
-import edu.agh.kboom.Vertex._
+import edu.agh.kboom.tree.Vertex._
 import org.scalatest.FunSpec
 
 class VertexSpec extends FunSpec {
@@ -8,8 +8,8 @@ class VertexSpec extends FunSpec {
   describe("Vertices in size 12 tree") {
     implicit val problemTree: ProblemTree = ProblemTree(12)
 
-    it("vertex 1 should be interim") {
-      assert(vertexOf(1) == InterimVertex(1))
+    it("vertex 1 should be root") {
+      assert(vertexOf(1) == RootVertex())
     }
 
     it("vertex 2 should be interim") {
@@ -183,6 +183,27 @@ class VertexSpec extends FunSpec {
     it("segment of 19 should be (11, 12)") {
       assert(segmentOf(LeafVertex(19)) == (11, 12))
     }
+  }
+
+  describe("Vertices in size 24 tree") {
+    implicit val problemTree: ProblemTree = ProblemTree(24)
+
+    it("vertex 2 should be interim") {
+      assert(vertexOf(2) == InterimVertex(2))
+    }
+
+    it("vertex 4 should be interim") {
+      assert(vertexOf(4) == InterimVertex(4))
+    }
+
+    it("vertex 8 should be branch") {
+      assert(vertexOf(8) == BranchVertex(8))
+    }
+
+    it("vertex 16 should be leaf") {
+      assert(vertexOf(16) == LeafVertex(16))
+    }
+
   }
 
 

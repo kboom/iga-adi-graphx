@@ -1,6 +1,6 @@
-package edu.agh.kboom
+package edu.agh.kboom.tree
 
-import edu.agh.kboom.ProblemTree._
+import edu.agh.kboom.tree.ProblemTree._
 import org.scalatest._
 
 class ProblemTreeSpec extends FunSpec {
@@ -64,6 +64,34 @@ class ProblemTreeSpec extends FunSpec {
       assert(strengthOfRow(4) == 12)
     }
 
+  }
+
+  describe("Vertices in size 24 tree") {
+    implicit val problemTree: ProblemTree = ProblemTree(24)
+
+    it("has total height of 5") {
+      assert(leafHeight == 5)
+    }
+
+    it("has branching height of 4") {
+      assert(branchingHeight == 4)
+    }
+
+    it("has first index of branching row equal to 8") {
+      assert(firstIndexOfBranchingRow == 8)
+    }
+
+    it("has last index of branching row equal to 15") {
+      assert(lastIndexOfBranchingRow == 15)
+    }
+
+    it("has first index of leaf row equal to 16") {
+      assert(firstIndexOfLeafRow == 16)
+    }
+
+    it("has last index of leaf row equal to 39") {
+      assert(lastIndexOfLeafRow == 39)
+    }
 
   }
 
