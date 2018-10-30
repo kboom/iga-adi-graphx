@@ -5,7 +5,9 @@ import edu.agh.kboom.core.Array2D.{moveDown, moveUp}
 import edu.agh.kboom.core.{Array2D, ArrayX}
 import edu.agh.kboom.tree.{BoundElement, Vertex}
 
-case class BackwardsSubstituteBranchMessage(cx: ArrayX)
+sealed case class BackwardsSubstituteBranchMessage(cx: ArrayX) extends ProductionMessage {
+  override val production: Production = BackwardsSubstituteBranch()
+}
 
 /*
         T = partial_backward_substitution(T, 2, 6, mesh.getDofsY());
@@ -25,7 +27,9 @@ case class BackwardsSubstituteBranchMessage(cx: ArrayX)
 /**
   * BS_2_6
   */
-sealed case class BackwardsSubstituteBranch() extends Production[BackwardsSubstituteBranchMessage] {
+case object BackwardsSubstituteBranch extends Production
+  with SendAndReceive[BackwardsSubstituteBranchMessage]
+  with Prepare {
 
   override def prepare(src: BoundElement)(implicit ctx: IgaTaskContext): Unit = {
     partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(src)

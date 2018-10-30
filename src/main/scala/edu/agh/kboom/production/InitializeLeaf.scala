@@ -3,7 +3,7 @@ package edu.agh.kboom.production
 import edu.agh.kboom._
 import edu.agh.kboom.tree.{Vertex, _}
 
-case class InitializeLeaf() extends Production {
+object InitializeLeaf extends Production {
 
   override def reduce(e: BoundElement, msg: Map[Vertex, ProductionMessage])(implicit ctx: IgaTaskContext): Unit = {
     MethodCoefficients.bind(e.mA)

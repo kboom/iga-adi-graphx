@@ -1,6 +1,6 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.production.{MergeAndEliminateLeaf, Production, ProductionExecutor, ProductionMessage}
+import edu.agh.kboom.production._
 import edu.agh.kboom.tree.{BoundElement, Element, Vertex}
 import org.apache.spark.graphx.{EdgeTriplet, VertexId}
 
@@ -19,13 +19,14 @@ object VertexProgram {
     }
   }
 
-  def mergeMsg(a: ProductionMessage, b: ProductionMessage)(implicit program: VertexProgram): ProductionMessage[Any] = {
-    implicit val taskCtx: IgaTaskContext = IgaTaskContext.create(t.srcId)
-    println(s"[$taskCtx] Merging messages from ($a) and ($b)")
-    a.production.merge(a, b)
+  def mergeMsg(a: ProductionMessage, b: ProductionMessage)(implicit program: VertexProgram): ProductionMessage = {
+    println(s"Merging messages from ($a) and ($b)")
+    a.production match {
+      case p: MergeAndEliminateLeaf => p.merge(a.asInstanceOf[MergeAndEliminateLeafMessage], b.asInstanceOf[MergeAndEliminateLeafMessage])
+    }
   }
 
-  def run(id: VertexId, e: Element, m: ProductionMessage[Any])(implicit program: VertexProgram): Element = {
+  def run(id: VertexId, e: Element, m: ProductionMessage)(implicit program: VertexProgram): Element = {
     implicit val taskCtx: IgaTaskContext = IgaTaskContext.create(id)
     println(s"[$taskCtx] Running on ($id) and element ($e) production ($m)")
     ProductionExecutor.run(m.production, e)
