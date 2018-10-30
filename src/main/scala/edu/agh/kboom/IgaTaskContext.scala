@@ -1,10 +1,12 @@
 package edu.agh.kboom
 
+import edu.agh.kboom.tree.ProblemTree
 import org.apache.spark.graphx.VertexId
 
 case class IgaTaskContext(
                            vid: Int,
                            ec: ExecutionContext,
+                           tree: ProblemTree,
                            mc: IgaContext
                          ) {
 
@@ -14,6 +16,6 @@ case class IgaTaskContext(
 
 object IgaTaskContext {
 
-  def create(vid: VertexId)(implicit program: VertexProgram): IgaTaskContext = IgaTaskContext(vid.toInt, ExecutionContext(), program.ctx)
+  def create(vid: VertexId)(implicit program: VertexProgram): IgaTaskContext = IgaTaskContext(vid.toInt, ExecutionContext(), program.ctx.xTree(), program.ctx)
 
 }

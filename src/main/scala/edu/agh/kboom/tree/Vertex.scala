@@ -3,6 +3,11 @@ package edu.agh.kboom.tree
 import breeze.numerics.{floor, log2}
 import edu.agh.kboom.tree.ProblemTree._
 
+abstract class ChildPosition
+case object LEFT_CHILD extends ChildPosition
+case object MIDDLE_CHILD extends ChildPosition
+case object RIGHT_CHILD extends ChildPosition
+
 sealed abstract class Vertex {
   def id: Int
 }
@@ -39,6 +44,8 @@ object Vertex {
   }
 
   def strengthOf(v: Vertex)(implicit tree: ProblemTree): Int = strengthOfRow(rowIndexOf(v))
+
+  def childPositionOf(v: Vertex)(implicit tree: ProblemTree): ChildPosition = LEFT_CHILD
 
   def offsetLeft(v: Vertex)(implicit tree: ProblemTree): Int = v.id - firstIndexOfRow(rowIndexOf(v))
 

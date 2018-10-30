@@ -1,5 +1,6 @@
 package edu.agh.kboom.tree
 
+import edu.agh.kboom.core.{Array2D, ArrayA, ArrayB, ArrayX}
 import edu.agh.kboom.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 import edu.agh.kboom.{IgaContext, Mesh, Spline}
 
@@ -7,17 +8,17 @@ sealed case class BoundElement(
                                 v: Vertex,
                                 e: Element
                               ) {
-  def mA: Array[Array[Double]] = e.mA
+  def mA: ArrayA = e.mA
 
-  def mB: Array[Array[Double]] = e.mB
+  def mB: ArrayB = e.mB
 
-  def mX: Array[Array[Double]] = e.mX
+  def mX: ArrayX = e.mX
 }
 
-case class Element(elements: Int) {
-  val mA: Array[Array[Double]] = Array.ofDim[Double](ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
-  val mB: Array[Array[Double]] = Array.ofDim[Double](ROWS_BOUND_TO_NODE, elements)
-  val mX: Array[Array[Double]] = Array.ofDim[Double](ROWS_BOUND_TO_NODE, elements)
+class Element(elements: Int) {
+  val mA: ArrayA = Array2D.ofSize(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
+  val mB: ArrayB = Array2D.ofSize(ROWS_BOUND_TO_NODE, elements)
+  val mX: ArrayX = Array2D.ofSize(ROWS_BOUND_TO_NODE, elements)
 }
 
 object Element {
