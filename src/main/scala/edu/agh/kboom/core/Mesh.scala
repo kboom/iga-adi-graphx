@@ -1,4 +1,4 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
 case class Mesh(xSize: Int, ySize: Int, xRes: Int, yRes: Int) {
   val xDofs: Int = xSize + Mesh.SPLINE_ORDER

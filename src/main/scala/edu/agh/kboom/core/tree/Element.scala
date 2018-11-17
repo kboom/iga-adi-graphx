@@ -1,8 +1,7 @@
-package edu.agh.kboom.tree
+package edu.agh.kboom.core.tree
 
-import edu.agh.kboom.core.{ArrayA, ArrayB, ArrayX}
-import edu.agh.kboom.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
-import edu.agh.kboom.{IgaContext, Mesh}
+import edu.agh.kboom.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
+import edu.agh.kboom.core._
 
 sealed case class BoundElement(v: Vertex, e: Element) {
   def mA: ArrayA = e.mA

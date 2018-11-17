@@ -1,7 +1,7 @@
-package edu.agh.kboom.tree
+package edu.agh.kboom.core.tree
 
 import breeze.numerics.{floor, log2}
-import edu.agh.kboom.tree.ProblemTree._
+import edu.agh.kboom.core.tree.ProblemTree._
 
 abstract class ChildPosition
 case object LEFT_CHILD extends ChildPosition

@@ -1,7 +1,7 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
-import edu.agh.kboom.production._
-import edu.agh.kboom.tree._
+import edu.agh.kboom.core.production._
+import edu.agh.kboom.core.tree._
 
 case class IgaOperation(src: Vertex, dst: Vertex, p: Production)
 

@@ -1,6 +1,6 @@
-package edu.agh.kboom.tree
+package edu.agh.kboom.core.tree
 
-import edu.agh.kboom.tree.Vertex._
+import edu.agh.kboom.core.tree.Vertex._
 import org.scalatest.FunSpec
 
 class VertexSpec extends FunSpec {

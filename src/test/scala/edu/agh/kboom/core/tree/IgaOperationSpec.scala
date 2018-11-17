@@ -1,7 +1,7 @@
-package edu.agh.kboom.tree
+package edu.agh.kboom.core.tree
 
-import edu.agh.kboom.IgaOperation
-import edu.agh.kboom.production._
+import edu.agh.kboom.core.IgaOperation
+import edu.agh.kboom.core.production._
 import org.scalatest.FunSpec
 
 class IgaOperationSpec extends FunSpec {

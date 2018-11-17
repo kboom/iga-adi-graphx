@@ -1,6 +1,7 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
-import edu.agh.kboom.tree.ProblemTree
+import edu.agh.kboom.core.tree.ProblemTree
+import edu.agh.kboom.{ExecutionContext, VertexProgram}
 import org.apache.spark.graphx.VertexId
 
 case class IgaTaskContext(

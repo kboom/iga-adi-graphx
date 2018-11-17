@@ -1,6 +1,6 @@
-package edu.agh.kboom.tree
+package edu.agh.kboom.core.tree
 
-import edu.agh.kboom.tree.ProblemTree._
+import edu.agh.kboom.core.tree.ProblemTree._
 import org.scalatest._
 
 class ProblemTreeSpec extends FunSpec {

@@ -1,9 +1,8 @@
-package edu.agh.kboom.production
+package edu.agh.kboom.core.production
 
-import edu.agh.kboom.IgaTaskContext
-import edu.agh.kboom.core.Array2D.{moveToDest, moveFromSource}
-import edu.agh.kboom.core.ArrayX
-import edu.agh.kboom.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
+import edu.agh.kboom.core.Array2D.{moveFromSource, moveToDest}
+import edu.agh.kboom.core.{ArrayX, IgaTaskContext}
+import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
 
 sealed case class BackwardsSubstituteInterimMessage(cx: ArrayX) extends ProductionMessage {
   override val production: Production = BackwardsSubstituteInterim()

@@ -1,7 +1,6 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
 abstract class Spline(lb: Int, ub: Int) {
-
   final def getValue(x: Double): Double = if (belongsToDomain(x)) functionValueAt(x) else Spline.VALUE_OUTSIDE_DOMAIN
 
   def functionValueAt(x: Double): Double
@@ -11,7 +10,6 @@ abstract class Spline(lb: Int, ub: Int) {
   def secondDerivativeValueAt(x: Double): Double
 
   protected def belongsToDomain(x: Double): Boolean = x >= lb && x <= ub
-
 }
 
 sealed case class Spline1() extends Spline(0, 1) {

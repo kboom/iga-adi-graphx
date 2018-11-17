@@ -1,4 +1,4 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
 abstract class Problem {
   def valueAt(x: Double, y: Double): Double

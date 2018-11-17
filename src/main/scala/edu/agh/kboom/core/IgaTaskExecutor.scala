@@ -1,12 +1,12 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
-import edu.agh.kboom.production.{BackwardsSubstituteBranch, BackwardsSubstituteInterim, MergeAndEliminateBranch, MergeAndEliminateInterim, SolveRoot, _}
-import edu.agh.kboom.tree.{BoundElement, Element, LeafVertex, Vertex}
+import edu.agh.kboom.core.production._
+import edu.agh.kboom.core.tree.{BoundElement, Element, LeafVertex, Vertex}
 
 object IgaTaskExecutor {
 
   def sendMessage(op: IgaOperation)(src: Element, dst: Element)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
-    println(s"[$taskCtx] Sending messages from (${op.src}) to (${op.dst}) for production (${t.attr.production})")
+    println(s"[$taskCtx] Sending messages from (${op.src}) to (${op.dst}) for production (${op.p})")
     op.p.asInstanceOf[BaseProduction].emit(BoundElement(op.src, src), BoundElement(op.dst, dst))
   }
 

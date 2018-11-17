@@ -1,8 +1,8 @@
-package edu.agh.kboom.tree
+package edu.agh.kboom.core.tree
 
 import edu.agh.kboom.IgaFSM.initialState
 import edu.agh.kboom.{IgaFSM, InitialState, InitializeState}
-import edu.agh.kboom.tree.ProblemTree.{branchingHeight, leafHeight}
+import edu.agh.kboom.core.tree.ProblemTree.{branchingHeight, leafHeight}
 import org.scalatest.FunSpec
 
 class IgaFsmSpec extends FunSpec {

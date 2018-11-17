@@ -1,6 +1,6 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
-import edu.agh.kboom.tree.BoundElement
+import edu.agh.kboom.core.tree.BoundElement
 
 package object production {
 

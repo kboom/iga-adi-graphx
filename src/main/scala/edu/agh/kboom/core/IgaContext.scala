@@ -1,6 +1,6 @@
-package edu.agh.kboom
+package edu.agh.kboom.core
 
-import edu.agh.kboom.tree.ProblemTree
+import edu.agh.kboom.core.tree.ProblemTree
 
 sealed case class IgaContext(mesh: Mesh, problem: (Double, Double) => Double) {
   def xTree(): ProblemTree = ProblemTree(mesh.xSize)

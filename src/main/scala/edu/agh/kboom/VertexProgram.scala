@@ -1,13 +1,13 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.production._
-import edu.agh.kboom.tree.Element
+import edu.agh.kboom.core.production.ProductionMessage
+import edu.agh.kboom.core.tree.Element
+import edu.agh.kboom.core.{IgaContext, IgaOperation, IgaTaskContext, IgaTaskExecutor}
 import org.apache.spark.graphx.{EdgeTriplet, VertexId}
 
 case class VertexProgram(ctx: IgaContext)
 
 object VertexProgram {
-
   def sendMsg(t: EdgeTriplet[Element, IgaOperation])(implicit program: VertexProgram): Iterator[(VertexId, ProductionMessage)] = {
     implicit val taskCtx: IgaTaskContext = IgaTaskContext.create(t.srcId)
     IgaTaskExecutor.sendMessage(t.attr)(t.srcAttr, t.dstAttr).map((t.dstId, _)).iterator
@@ -21,5 +21,4 @@ object VertexProgram {
     IgaTaskExecutor.receiveMessage(e, m)
     e
   }
-
 }

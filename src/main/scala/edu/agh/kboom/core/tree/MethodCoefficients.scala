@@ -1,4 +1,4 @@
-package edu.agh.kboom.tree
+package edu.agh.kboom.core.tree
 
 object MethodCoefficients {
 
