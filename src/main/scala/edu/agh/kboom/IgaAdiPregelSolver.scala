@@ -49,6 +49,11 @@ object IgaAdiPregelSolver {
 
     result.vertices.collect().foreach(println)
 
+
+    // transpose the matrix
+
+    // https://stackoverflow.com/questions/30556478/matrix-transpose-on-rowmatrix-in-spark
+
     spark.stop()
   }
 

@@ -10,6 +10,8 @@ sealed case class MoveOperation(down: Int, right: Int) extends ArrayOperation {
 
 abstract class Array2D[T](v: Array[Array[Double]]) {
 
+  def row(r: Int): Array[Double] = v(r)
+
   def select(r: Int, c: Int, s: Int): T = select(r, s, c, s)
 
   def select(r: Int, rs: Int, c: Int, cs: Int): T = {
@@ -100,7 +102,13 @@ object Array2D {
 }
 
 object ArrayA {
+  def ofDim(rows: Int, cols: Int): ArrayA = ArrayA(Array.ofDim[Double](rows, cols))
+}
 
-  def toA(rows: Int, cols: Int): ArrayA = ArrayA(Array.ofDim[Double](rows, cols))
+object ArrayB {
+  def ofDim(rows: Int, cols: Int): ArrayB = ArrayB(Array.ofDim[Double](rows, cols))
+}
 
+object ArrayX {
+  def ofDim(rows: Int, cols: Int): ArrayX = ArrayX(Array.ofDim[Double](rows, cols))
 }
