@@ -1,7 +1,7 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.production.{BaseProduction, MergeAndEliminateLeaf, MergeAndEliminateLeafMessage, ProductionMessage}
-import edu.agh.kboom.tree.{BoundElement, Element, Vertex}
+import edu.agh.kboom.production.{BackwardsSubstituteBranch, BackwardsSubstituteInterim, MergeAndEliminateBranch, MergeAndEliminateInterim, SolveRoot, _}
+import edu.agh.kboom.tree.{BoundElement, Element, LeafVertex, Vertex}
 
 object IgaTaskExecutor {
 
@@ -17,15 +17,34 @@ object IgaTaskExecutor {
         a.asInstanceOf[MergeAndEliminateLeafMessage],
         b.asInstanceOf[MergeAndEliminateLeafMessage]
       )
+      case MergeAndEliminateBranch => MergeAndEliminateBranch.merge(
+        a.asInstanceOf[MergeAndEliminateBranchMessage],
+        b.asInstanceOf[MergeAndEliminateBranchMessage]
+      )
+      case MergeAndEliminateInterim => MergeAndEliminateInterim.merge(
+        a.asInstanceOf[MergeAndEliminateInterimMessage],
+        b.asInstanceOf[MergeAndEliminateInterimMessage]
+      )
+      case SolveRoot => SolveRoot.merge(
+        a.asInstanceOf[SolveRootMessage],
+        b.asInstanceOf[SolveRootMessage]
+      )
     }
   }
 
   def receiveMessage(e: Element, m: ProductionMessage)(implicit taskCtx: IgaTaskContext): Unit = {
     println(s"[$taskCtx] Running on (${taskCtx.vid}) and element ($e) production ($m)")
-    val element = BoundElement(Vertex.vertexOf(taskCtx.vid)(taskCtx.mc.xTree()), e)
+    val vertex = Vertex.vertexOf(taskCtx.vid)(taskCtx.mc.xTree())
+    val element = BoundElement(vertex, e)
 
     m.production match {
+      case InitializeLeaf => if(vertex.isInstanceOf[LeafVertex]) InitializeLeaf.initialize(element)
       case MergeAndEliminateLeaf => MergeAndEliminateLeaf.consume(element, m.asInstanceOf[MergeAndEliminateLeafMessage])
+      case MergeAndEliminateBranch => MergeAndEliminateBranch.consume(element, m.asInstanceOf[MergeAndEliminateBranchMessage])
+      case MergeAndEliminateInterim => MergeAndEliminateInterim.consume(element, m.asInstanceOf[MergeAndEliminateInterimMessage])
+      case SolveRoot => SolveRoot.consume(element, m.asInstanceOf[SolveRootMessage])
+      case BackwardsSubstituteInterim => BackwardsSubstituteInterim.consume(element, m.asInstanceOf[BackwardsSubstituteInterimMessage])
+      case BackwardsSubstituteBranch => BackwardsSubstituteBranch.consume(element, m.asInstanceOf[BackwardsSubstituteBranchMessage])
     }
 
     println(

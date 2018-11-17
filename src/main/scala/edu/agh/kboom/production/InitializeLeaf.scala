@@ -3,13 +3,13 @@ package edu.agh.kboom.production
 import edu.agh.kboom._
 import edu.agh.kboom.tree.{Vertex, _}
 
-sealed case class InitializeLeafProductionMessage() extends ProductionMessage {
-  override val production: Production = InitializeLeafProduction()
+sealed case class InitializeLeafMessage() extends ProductionMessage {
+  override val production: Production = InitializeLeaf()
 }
 
-object InitializeLeafProduction extends Production {
+object InitializeLeaf extends Production {
 
-  override def reduce(e: BoundElement, msg: Map[Vertex, ProductionMessage])(implicit ctx: IgaTaskContext): Unit = {
+  override def initialize(e: BoundElement)(implicit ctx: IgaTaskContext): Unit = {
     MethodCoefficients.bind(e.mA)
     for (i <- 1 to ctx.mc.mesh.xDofs) {
       fillRightHandSide(e, Spline1(), 1, i)

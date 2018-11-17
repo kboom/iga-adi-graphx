@@ -10,7 +10,7 @@ sealed case class MergeAndEliminateInterimMessage(ca: ArrayA, cb: ArrayB) extend
   override val production: Production = MergeAndEliminateInterim()
 }
 
-case class MergeAndEliminateInterim() extends Production
+case object MergeAndEliminateInterim extends Production
   with BaseProduction[MergeAndEliminateInterimMessage]
   with MergingProduction[MergeAndEliminateInterimMessage] {
 

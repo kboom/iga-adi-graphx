@@ -10,7 +10,7 @@ sealed case class SolveRootMessage(ca: ArrayA, cb: ArrayB) extends ProductionMes
   override val production: Production = MergeAndEliminateInterim()
 }
 
-case class SolveRoot() extends Production
+case object SolveRoot extends Production
   with BaseProduction[SolveRootMessage]
   with MergingProduction[SolveRootMessage] {
 
