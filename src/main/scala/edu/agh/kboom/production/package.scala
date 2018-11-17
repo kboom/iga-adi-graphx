@@ -6,26 +6,23 @@ package object production {
 
   trait Production
 
-  trait ProductionMessage {
-    val production: Production
-  }
-
-  trait Prepare {
-    def prepare(src: BoundElement)(implicit ctx: IgaTaskContext): Unit
-  }
-
-  trait SendAndReceive[MSG] {
-    def send(src: BoundElement)(implicit ctx: IgaTaskContext): Seq[MSG]
+  trait BaseProduction[MSG <: ProductionMessage] {
+    def send(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MSG] = None
 
     def receive(dst: BoundElement, msg: MSG)(implicit ctx: IgaTaskContext): Unit
   }
 
-  trait Merge[MSG] {
-    def merge(a: MSG, b: MSG): MSG = {
-      throw new IllegalStateException()
-    }
+  trait PreparingProduction {
+    def prepare(src: BoundElement)(implicit ctx: IgaTaskContext): Unit
   }
 
+  trait MergingProduction[MSG <: ProductionMessage] {
+    def merge(a: MSG, b: MSG): MSG
+  }
+
+  trait ProductionMessage {
+    val production: Production
+  }
 
   def swapDofs(a: Int, b: Int, size: Int, nrhs: Int)(implicit p: BoundElement): Unit = {
     for (i <- 1 to size) {

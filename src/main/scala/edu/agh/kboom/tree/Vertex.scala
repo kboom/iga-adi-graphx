@@ -18,7 +18,9 @@ case class RootVertex() extends Vertex {
 
 case class InterimVertex(id: Int) extends Vertex
 
-case class BranchVertex(id: Int) extends Vertex
+case class UpperBranchVertex(id: Int) extends Vertex
+
+case class LowerBranchVertex(id: Int) extends Vertex
 
 case class LeafVertex(id: Int) extends Vertex
 
@@ -27,14 +29,14 @@ object Vertex {
   def vertexOf(id: Int)(implicit tree: ProblemTree): Vertex = id match {
     case 1 => RootVertex()
     case _ if id < firstIndexOfBranchingRow(tree) => InterimVertex(id)
-    case _ if id < firstIndexOfLeafRow(tree) => BranchVertex(id)
+    case _ if id < firstIndexOfLeafRow(tree) => LowerBranchVertex(id)
     case _ => LeafVertex(id)
   }
 
   def rowIndexOf(v: Vertex)(implicit tree: ProblemTree): Int = v match {
     case RootVertex() => 1
     case LeafVertex(_) => leafHeight(tree)
-    case BranchVertex(_) => branchingHeight(tree)
+    case LowerBranchVertex(_) => branchingHeight(tree)
     case InterimVertex(_) => floor(log2(v.id)).toInt + 1
   }
 
@@ -51,14 +53,14 @@ object Vertex {
 
   def leftChildOf(v: Vertex)(implicit tree: ProblemTree): Option[Vertex] = v match {
     case RootVertex() => Some(InterimVertex(2))
-    case InterimVertex(id) => if (onTopOfBranchingRow(v)) Some(BranchVertex(2 * id)) else Some(InterimVertex(2 * id))
-    case BranchVertex(id) => Some(LeafVertex(firstIndexOfLeafRow(tree) + 3 * (id - firstIndexOfBranchingRow(tree))))
+    case InterimVertex(id) => if (onTopOfBranchingRow(v)) Some(LowerBranchVertex(2 * id)) else Some(InterimVertex(2 * id))
+    case LowerBranchVertex(id) => Some(LeafVertex(firstIndexOfLeafRow(tree) + 3 * (id - firstIndexOfBranchingRow(tree))))
     case LeafVertex(_) => None
   }
 
   def childIndicesOf(v: Vertex)(implicit tree: ProblemTree): Seq[Vertex] = leftChildOf(v) match {
     case Some(InterimVertex(id)) => Seq(id, id + 1).map(InterimVertex)
-    case Some(BranchVertex(id)) => Seq(id, id + 1).map(BranchVertex)
+    case Some(LowerBranchVertex(id)) => Seq(id, id + 1).map(LowerBranchVertex)
     case Some(LeafVertex(id)) => Seq(id, id + 1, id + 2).map(LeafVertex)
     case None => Nil
   }

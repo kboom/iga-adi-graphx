@@ -7,11 +7,11 @@ import org.scalatest.FunSpec
 class IgaOperationSpec extends FunSpec {
 
   it("LeafVertex(16) -> BranchVertex(8) = MergeAndEliminateLeaves") {
-    assert(IgaOperation.operationFor(LeafVertex(16), BranchVertex(8)) == IgaOperation(MergeAndEliminateLeaf()))
+    assert(IgaOperation.operationFor(LeafVertex(16), LowerBranchVertex(8)) == IgaOperation(MergeAndEliminateLeaf()))
   }
 
   it("BranchVertex(8) -> InterimVertex(4) = MergeAndEliminateBranch") {
-    assert(IgaOperation.operationFor(BranchVertex(8), InterimVertex(4)) == IgaOperation(MergeAndEliminateBranch()))
+    assert(IgaOperation.operationFor(LowerBranchVertex(8), InterimVertex(4)) == IgaOperation(MergeAndEliminateLowerBranch()))
   }
 
   it("InterimVertex(4) -> InterimVertex(2) = MergeAndEliminateInterim") {
@@ -31,7 +31,7 @@ class IgaOperationSpec extends FunSpec {
   }
 
   it("InterimVertex(4) -> BranchVertex(8) = BackwardsSubstituteBranch") {
-    assert(IgaOperation.operationFor(InterimVertex(4), BranchVertex(8)) == IgaOperation(BackwardsSubstituteBranch()))
+    assert(IgaOperation.operationFor(InterimVertex(4), LowerBranchVertex(8)) == IgaOperation(BackwardsSubstituteBranch()))
   }
 
 }

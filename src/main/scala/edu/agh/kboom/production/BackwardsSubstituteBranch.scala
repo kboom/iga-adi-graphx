@@ -1,13 +1,9 @@
 package edu.agh.kboom.production
 
 import edu.agh.kboom.IgaTaskContext
-import edu.agh.kboom.core.Array2D.{moveDown, moveUp}
-import edu.agh.kboom.core.{Array2D, ArrayX}
-import edu.agh.kboom.tree.{BoundElement, Vertex}
-
-sealed case class BackwardsSubstituteBranchMessage(cx: ArrayX) extends ProductionMessage {
-  override val production: Production = BackwardsSubstituteBranch()
-}
+import edu.agh.kboom.core.Array2D.moveDown
+import edu.agh.kboom.core.ArrayX
+import edu.agh.kboom.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
 
 /*
         T = partial_backward_substitution(T, 2, 6, mesh.getDofsY());
@@ -27,9 +23,13 @@ sealed case class BackwardsSubstituteBranchMessage(cx: ArrayX) extends Productio
 /**
   * BS_2_6
   */
+sealed case class BackwardsSubstituteBranchMessage(cx: ArrayX) extends ProductionMessage {
+  override val production: Production = BackwardsSubstituteBranch()
+}
+
 case object BackwardsSubstituteBranch extends Production
-  with SendAndReceive[BackwardsSubstituteBranchMessage]
-  with Prepare {
+  with BaseProduction[BackwardsSubstituteBranchMessage]
+  with PreparingProduction {
 
   override def prepare(src: BoundElement)(implicit ctx: IgaTaskContext): Unit = {
     partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(src)
@@ -37,14 +37,14 @@ case object BackwardsSubstituteBranch extends Production
     swapDofs(2, 4, 6, ctx.mc.mesh.yDofs)(src)
   }
 
-  override def send(src: BoundElement)(implicit ctx: IgaTaskContext): Seq[BackwardsSubstituteBranchMessage] = Seq(
-    BackwardsSubstituteBranchMessage(
+  override def send(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteBranchMessage] = Vertex.childPositionOf(dst.v)(ctx.tree) match {
+    case LEFT_CHILD => Some(BackwardsSubstituteBranchMessage(
       src.mX.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)()(moveDown(1))
-    ),
-    BackwardsSubstituteBranchMessage(
+    ))
+    case RIGHT_CHILD => Some(BackwardsSubstituteBranchMessage(
       src.mX.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)(moveDown(2))(moveDown(1))
-    )
-  )
+    ))
+  }
 
   override def receive(dst: BoundElement, msg: BackwardsSubstituteBranchMessage)(implicit ctx: IgaTaskContext): Unit = {
     dst.mX += msg.cx

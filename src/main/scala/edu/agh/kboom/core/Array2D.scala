@@ -93,7 +93,9 @@ sealed class ArrayX(v: Array[Array[Double]]) extends Array2D[ArrayX](v) {
 
 object Array2D {
 
-  def move(down: Int, right: Int): ArrayOperation = MoveOperation(down, right)
+  def moveToDest(down: Int, right: Int): ArrayOperation = MoveOperation(down, right)
+
+  def moveFromSource(up: Int, left: Int): ArrayOperation = MoveOperation(-up, -left)
 
   def moveDown(down: Int): ArrayOperation = MoveOperation(down, 0)
 
