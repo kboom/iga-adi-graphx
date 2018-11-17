@@ -7,7 +7,7 @@ object IgaTaskExecutor {
 
   def sendMessage(op: IgaOperation)(src: Element, dst: Element)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
     println(s"[$taskCtx] Sending messages from (${op.src}) to (${op.dst}) for production (${t.attr.production})")
-    op.p.asInstanceOf[BaseProduction].send(BoundElement(op.src, src), BoundElement(op.dst, dst))
+    op.p.asInstanceOf[BaseProduction].emit(BoundElement(op.src, src), BoundElement(op.dst, dst))
   }
 
   def mergeMessages(a: ProductionMessage, b: ProductionMessage): ProductionMessage = {
@@ -25,7 +25,7 @@ object IgaTaskExecutor {
     val element = BoundElement(Vertex.vertexOf(taskCtx.vid)(taskCtx.mc.xTree()), e)
 
     m.production match {
-      case MergeAndEliminateLeaf => MergeAndEliminateLeaf.receive(element, m.asInstanceOf[MergeAndEliminateLeafMessage])
+      case MergeAndEliminateLeaf => MergeAndEliminateLeaf.consume(element, m.asInstanceOf[MergeAndEliminateLeafMessage])
     }
 
     println(

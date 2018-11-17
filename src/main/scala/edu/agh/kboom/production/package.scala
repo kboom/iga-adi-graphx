@@ -7,9 +7,9 @@ package object production {
   trait Production
 
   trait BaseProduction[MSG <: ProductionMessage] {
-    def send(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MSG] = None
+    def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MSG] = None
 
-    def receive(dst: BoundElement, msg: MSG)(implicit ctx: IgaTaskContext): Unit
+    def consume(dst: BoundElement, msg: MSG)(implicit ctx: IgaTaskContext): Unit
   }
 
   trait MergingProduction[MSG <: ProductionMessage] {

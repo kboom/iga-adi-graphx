@@ -23,15 +23,15 @@ class IgaOperationSpec extends FunSpec {
   }
 
   it("RootVertex -> InterimVertex(2) = BackwardsSubstituteRoot") {
-    assert(IgaOperation.operationFor(RootVertex(), InterimVertex(2)) == IgaOperation(BackwardsSubstituteRoot()))
+    assert(IgaOperation.operationFor(RootVertex(), InterimVertex(2)) == IgaOperation(BackwardsSubstituteInterim()))
   }
 
   it("InterimVertex(2) -> InterimVertex(4) = BackwardsSubstituteIntermediate") {
-    assert(IgaOperation.operationFor(InterimVertex(2), InterimVertex(4)) == IgaOperation(BackwardsSubstituteInterim()))
+    assert(IgaOperation.operationFor(InterimVertex(2), InterimVertex(4)) == IgaOperation(BackwardsSubstituteBranch()))
   }
 
   it("InterimVertex(4) -> BranchVertex(8) = BackwardsSubstituteBranch") {
-    assert(IgaOperation.operationFor(InterimVertex(4), BranchVertex(8)) == IgaOperation(BackwardsSubstituteBranch()))
+    assert(IgaOperation.operationFor(InterimVertex(4), BranchVertex(8)) == IgaOperation(BackwardsSubstituteLeaf()))
   }
 
 }

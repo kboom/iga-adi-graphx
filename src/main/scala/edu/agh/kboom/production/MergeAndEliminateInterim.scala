@@ -14,7 +14,7 @@ case class MergeAndEliminateInterim() extends Production
   with BaseProduction[MergeAndEliminateInterimMessage]
   with MergingProduction[MergeAndEliminateInterimMessage] {
 
-  override def send(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateInterimMessage] = childPositionOf(src.v)(ctx.tree) match {
+  override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateInterimMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateInterimMessage(
       src.mA.transformedBy(1 to 4, 1 to 4)(moveFromSource(2, 2))(),
       src.mB.transformedBy(1 to 4, 1 to 4)(moveFromSource(2, 0))()
@@ -30,7 +30,7 @@ case class MergeAndEliminateInterim() extends Production
     a.cb + b.cb
   )
 
-  override def receive(dst: BoundElement, msg: MergeAndEliminateInterimMessage)(implicit ctx: IgaTaskContext): Unit = {
+  override def consume(dst: BoundElement, msg: MergeAndEliminateInterimMessage)(implicit ctx: IgaTaskContext): Unit = {
     dst.mA += msg.ca
     dst.mB += msg.cb
 

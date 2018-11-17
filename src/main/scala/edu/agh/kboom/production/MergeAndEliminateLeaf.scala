@@ -35,7 +35,7 @@ case object MergeAndEliminateLeaf extends Production
   with BaseProduction[MergeAndEliminateLeafMessage]
   with MergingProduction[MergeAndEliminateLeafMessage] {
 
-  override def send(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateLeafMessage] = childPositionOf(src.v)(ctx.tree) match {
+  override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateLeafMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateLeafMessage(
       src.mA,
       src.mB
@@ -55,7 +55,7 @@ case object MergeAndEliminateLeaf extends Production
     a.cb + b.cb
   )
 
-  override def receive(dst: BoundElement, msg: MergeAndEliminateLeafMessage)(implicit ctx: IgaTaskContext): Unit = {
+  override def consume(dst: BoundElement, msg: MergeAndEliminateLeafMessage)(implicit ctx: IgaTaskContext): Unit = {
     dst.mA += msg.ca
     dst.mB += msg.cb
 

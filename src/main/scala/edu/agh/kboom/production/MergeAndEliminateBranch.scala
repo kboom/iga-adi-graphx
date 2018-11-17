@@ -13,7 +13,7 @@ case class MergeAndEliminateBranch() extends Production
   with BaseProduction[MergeAndEliminateBranchMessage]
   with MergingProduction[MergeAndEliminateBranchMessage] {
 
-  override def send(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateBranchMessage] = childPositionOf(src.v)(ctx.tree) match {
+  override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateBranchMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateBranchMessage(
       src.mA.transformedBy(1 to 4, 1 to 4)(moveFromSource(1, 1))(),
       src.mB.transformedBy(1 to 4, 1 to 4)(moveFromSource(1, 0))()
@@ -29,7 +29,7 @@ case class MergeAndEliminateBranch() extends Production
     a.cb + b.cb
   )
 
-  override def receive(dst: BoundElement, msg: MergeAndEliminateBranchMessage)(implicit ctx: IgaTaskContext): Unit = {
+  override def consume(dst: BoundElement, msg: MergeAndEliminateBranchMessage)(implicit ctx: IgaTaskContext): Unit = {
     dst.mA += msg.ca
     dst.mB += msg.cb
 
