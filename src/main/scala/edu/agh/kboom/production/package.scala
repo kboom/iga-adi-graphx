@@ -12,10 +12,6 @@ package object production {
     def receive(dst: BoundElement, msg: MSG)(implicit ctx: IgaTaskContext): Unit
   }
 
-  trait PreparingProduction {
-    def prepare(src: BoundElement)(implicit ctx: IgaTaskContext): Unit
-  }
-
   trait MergingProduction[MSG <: ProductionMessage] {
     def merge(a: MSG, b: MSG): MSG
   }

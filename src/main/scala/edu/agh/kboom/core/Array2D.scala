@@ -97,10 +97,6 @@ object Array2D {
 
   def moveFromSource(up: Int, left: Int): ArrayOperation = MoveOperation(-up, -left)
 
-  def moveDown(down: Int): ArrayOperation = MoveOperation(down, 0)
-
-  def moveUp(up: Int): ArrayOperation = MoveOperation(-up, 0)
-
 }
 
 object ArrayA {
