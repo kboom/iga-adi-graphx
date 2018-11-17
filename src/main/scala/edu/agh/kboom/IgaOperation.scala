@@ -12,7 +12,7 @@ object IgaOperation {
     case (LeafVertex(_), LowerBranchVertex(_)) => Some(IgaOperation(srcV, dstV, MergeAndEliminateLeaf()))
     case (LowerBranchVertex(_), UpperBranchVertex(_)) => Some(IgaOperation(srcV, dstV, MergeAndEliminateLowerBranch()))
     case (UpperBranchVertex(_), InterimVertex(_)) => Some(IgaOperation(srcV, dstV, MergeAndEliminateLowerBranch()))
-    case (InterimVertex(_), RootVertex()) => Some(IgaOperation(srcV, dstV, MergeAndEliminateRoot()))
+    case (InterimVertex(_), RootVertex()) => Some(IgaOperation(srcV, dstV, SolveRoot()))
 
     // shared
     case (InterimVertex(a), InterimVertex(b)) => if (a < b) Some(IgaOperation(srcV, dstV, BackwardsSubstituteInterim())) else Some(IgaOperation(srcV, dstV, MergeAndEliminateInterim()))

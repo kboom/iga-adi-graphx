@@ -19,7 +19,7 @@ class IgaOperationSpec extends FunSpec {
   }
 
   it("InterimVertex(2) -> RootVertex = MergeAndEliminateRoot") {
-    assert(IgaOperation.operationFor(InterimVertex(2), RootVertex()) == IgaOperation(MergeAndEliminateRoot()))
+    assert(IgaOperation.operationFor(InterimVertex(2), RootVertex()) == IgaOperation(SolveRoot()))
   }
 
   it("RootVertex -> InterimVertex(2) = BackwardsSubstituteRoot") {
