@@ -14,7 +14,7 @@ object ProductionExecutor {
 
   private def doRun(p: Production, e: BoundElement)(implicit ctx: IgaTaskContext): Unit = e.v match {
     case LeafVertex(_) => runOnLeaf(p, e)
-    case LowerBranchVertex(_) => Unit
+    case BranchVertex(_) => Unit
     case InterimVertex(_) => Unit
     case RootVertex() => Unit
   }

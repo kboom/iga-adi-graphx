@@ -17,11 +17,11 @@ class VertexSpec extends FunSpec {
     }
 
     it("vertex 4 should be branching") {
-      assert(vertexOf(4) == LowerBranchVertex(4))
+      assert(vertexOf(4) == BranchVertex(4))
     }
 
     it("vertex 7 should be branching") {
-      assert(vertexOf(7) == LowerBranchVertex(7))
+      assert(vertexOf(7) == BranchVertex(7))
     }
 
     it("vertex 8 should be leaf") {
@@ -45,11 +45,11 @@ class VertexSpec extends FunSpec {
     }
 
     it("row index of 4 should be 3") {
-      assert(rowIndexOf(LowerBranchVertex(4)) == 3)
+      assert(rowIndexOf(BranchVertex(4)) == 3)
     }
 
     it("row index of 7 should be 3") {
-      assert(rowIndexOf(LowerBranchVertex(7)) == 3)
+      assert(rowIndexOf(BranchVertex(7)) == 3)
     }
 
     it("row index of 8 should be 4") {
@@ -69,35 +69,35 @@ class VertexSpec extends FunSpec {
     }
 
     it("left child of I2 should be B4") {
-      assert(leftChildOf(InterimVertex(2)).contains(LowerBranchVertex(4)))
+      assert(leftChildOf(InterimVertex(2)).contains(BranchVertex(4)))
     }
 
     it("left child of I3 should be B6") {
-      assert(leftChildOf(InterimVertex(3)).contains(LowerBranchVertex(6)))
+      assert(leftChildOf(InterimVertex(3)).contains(BranchVertex(6)))
     }
 
     it("left child of B4 should be L8") {
-      assert(leftChildOf(LowerBranchVertex(4)).contains(LeafVertex(8)))
+      assert(leftChildOf(BranchVertex(4)).contains(LeafVertex(8)))
     }
 
     it("left child of B7 should be L17") {
-      assert(leftChildOf(LowerBranchVertex(7)).contains(LeafVertex(17)))
+      assert(leftChildOf(BranchVertex(7)).contains(LeafVertex(17)))
     }
 
     it("children of I2 should be B4 and B5") {
-      assert(childIndicesOf(InterimVertex(2)) == Seq(LowerBranchVertex(4), LowerBranchVertex(5)))
+      assert(childIndicesOf(InterimVertex(2)) == Seq(BranchVertex(4), BranchVertex(5)))
     }
 
     it("children of I3 should be B6 and B7") {
-      assert(childIndicesOf(InterimVertex(3)) == Seq(LowerBranchVertex(6), LowerBranchVertex(7)))
+      assert(childIndicesOf(InterimVertex(3)) == Seq(BranchVertex(6), BranchVertex(7)))
     }
 
     it("children of B4 should be L8, L9, L10") {
-      assert(childIndicesOf(LowerBranchVertex(4)) == Seq(LeafVertex(8), LeafVertex(9), LeafVertex(10)))
+      assert(childIndicesOf(BranchVertex(4)) == Seq(LeafVertex(8), LeafVertex(9), LeafVertex(10)))
     }
 
     it("children of B5 should be L11, L12, L13") {
-      assert(childIndicesOf(LowerBranchVertex(5)) == Seq(LeafVertex(11), LeafVertex(12), LeafVertex(13)))
+      assert(childIndicesOf(BranchVertex(5)) == Seq(LeafVertex(11), LeafVertex(12), LeafVertex(13)))
     }
 
     it("I1 should have strength of 1") {
@@ -113,11 +113,11 @@ class VertexSpec extends FunSpec {
     }
 
     it("B4 should have strength of 4") {
-      assert(strengthOf(LowerBranchVertex(4)) == 4)
+      assert(strengthOf(BranchVertex(4)) == 4)
     }
 
     it("B7 should have strength of 4") {
-      assert(strengthOf(LowerBranchVertex(7)) == 4)
+      assert(strengthOf(BranchVertex(7)) == 4)
     }
 
     it("L8 should have strength of 12") {
@@ -137,7 +137,7 @@ class VertexSpec extends FunSpec {
     }
 
     it("offset left of 7 should be 3") {
-      assert(offsetLeft(LowerBranchVertex(7)) == 3)
+      assert(offsetLeft(BranchVertex(7)) == 3)
     }
 
     it("offset left of 15 should be 7") {
@@ -157,19 +157,19 @@ class VertexSpec extends FunSpec {
     }
 
     it("segment of 4 should be (0, 3)") {
-      assert(segmentOf(LowerBranchVertex(4)) == (0, 3))
+      assert(segmentOf(BranchVertex(4)) == (0, 3))
     }
 
     it("segment of 5 should be (3, 6)") {
-      assert(segmentOf(LowerBranchVertex(5)) == (3, 6))
+      assert(segmentOf(BranchVertex(5)) == (3, 6))
     }
 
     it("segment of 6 should be (6, 9)") {
-      assert(segmentOf(LowerBranchVertex(6)) == (6, 9))
+      assert(segmentOf(BranchVertex(6)) == (6, 9))
     }
 
     it("segment of 7 should be (9, 12)") {
-      assert(segmentOf(LowerBranchVertex(7)) == (9, 12))
+      assert(segmentOf(BranchVertex(7)) == (9, 12))
     }
 
     it("segment of 8 should be (0, 1)") {
@@ -197,7 +197,7 @@ class VertexSpec extends FunSpec {
     }
 
     it("vertex 8 should be branch") {
-      assert(vertexOf(8) == LowerBranchVertex(8))
+      assert(vertexOf(8) == BranchVertex(8))
     }
 
     it("vertex 16 should be leaf") {

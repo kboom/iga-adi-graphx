@@ -7,7 +7,7 @@ import edu.agh.kboom.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
 import edu.agh.kboom.tree.Vertex.childPositionOf
 
 sealed case class SolveRootMessage(ca: ArrayA, cb: ArrayB) extends ProductionMessage {
-  override val production: Production = MergeAndEliminateUpperBranch()
+  override val production: Production = MergeAndEliminateInterim()
 }
 
 case class SolveRoot() extends Production
