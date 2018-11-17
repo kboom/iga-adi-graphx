@@ -13,9 +13,8 @@ object VertexProgram {
     IgaTaskExecutor.sendMessage(t.attr)(t.srcAttr, t.dstAttr).map((t.dstId, _)).iterator
   }
 
-  def mergeMsg(a: ProductionMessage, b: ProductionMessage)(implicit program: VertexProgram): ProductionMessage = {
+  def mergeMsg(a: ProductionMessage, b: ProductionMessage)(implicit program: VertexProgram): ProductionMessage =
     IgaTaskExecutor.mergeMessages(a, b)
-  }
 
   def run(id: VertexId, e: Element, m: ProductionMessage)(implicit program: VertexProgram): Element = {
     implicit val taskCtx: IgaTaskContext = IgaTaskContext.create(id)

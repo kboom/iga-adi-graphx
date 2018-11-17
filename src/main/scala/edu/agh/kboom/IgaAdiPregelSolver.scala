@@ -1,9 +1,9 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.production.InitializeLeaf
+import edu.agh.kboom.production.{InitializeLeafProduction, InitializeLeafProductionMessage, ProductionMessage}
 import edu.agh.kboom.tree.ProblemTree._
 import edu.agh.kboom.tree.Vertex._
-import edu.agh.kboom.tree.{Element, InterimVertex, ProblemTree, Vertex}
+import edu.agh.kboom.tree._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -38,8 +38,10 @@ object IgaAdiPregelSolver {
 
     implicit val program: VertexProgram = VertexProgram(IgaContext(igaMesh, (x, y) => 1))
 
+    val initialMessage = InitializeLeafProductionMessage().asInstanceOf[ProductionMessage]
+
     val result =
-      dataItemGraph.pregel(IgaMessage(InitializeLeaf()), activeDirection = EdgeDirection.In)(
+      dataItemGraph.pregel(initialMessage, activeDirection = EdgeDirection.In)(
         VertexProgram.run,
         VertexProgram.sendMsg,
         VertexProgram.mergeMsg
