@@ -6,7 +6,7 @@ import edu.agh.kboom.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
 
 sealed case class MergeAndEliminateInterimMessage(ca: ArrayA, cb: ArrayB) extends ProductionMessage {
-  override val production: Production = MergeAndEliminateInterim()
+  override val production: Production = MergeAndEliminateInterim
 }
 
 case object MergeAndEliminateInterim extends Production

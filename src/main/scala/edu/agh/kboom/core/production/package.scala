@@ -4,22 +4,6 @@ import edu.agh.kboom.core.tree.BoundElement
 
 package object production {
 
-  trait Production
-
-  trait BaseProduction[MSG <: ProductionMessage] {
-    def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MSG] = None
-
-    def consume(dst: BoundElement, msg: MSG)(implicit ctx: IgaTaskContext): Unit
-  }
-
-  trait MergingProduction[MSG <: ProductionMessage] {
-    def merge(a: MSG, b: MSG): MSG
-  }
-
-  trait ProductionMessage {
-    val production: Production
-  }
-
   def swapDofs(a: Int, b: Int, size: Int, nrhs: Int)(implicit p: BoundElement): Unit = {
     for (i <- 1 to size) {
       p.mA.swap(a, i, b, i)
@@ -35,20 +19,20 @@ package object production {
 
   def partialForwardElimination(elim: Int, size: Int, nrhs: Int)(implicit p: BoundElement): Unit = {
     for (irow <- 1 to elim) {
-      val diag = elim(irow)(irow)
+      val diag = p.mA(irow)(irow)
       for (icol <- irow to size) {
-        p.mA(irow)(icol) /= diag
+        p.mA.replace(irow, icol)(_ / diag)
       }
       for (irhs <- 1 to nrhs) {
-        p.mB(irow)(irhs) /= diag
+        p.mB.replace(irow, irhs)(_ / diag)
       }
       for (isub <- irow + 1 to size) {
         val mult = p.mA(isub)(irow)
         for (icol <- irow to size) {
-          p.mA(isub)(icol) -= p.mA(irow)(icol) * mult
+          p.mA.replace(isub, icol)(_ - p.mA(irow)(icol) * mult)
         }
         for (irhs <- 1 to nrhs) {
-          p.mB(isub)(irhs) -= p.mB(irow)(irhs) * mult
+          p.mB.replace(isub, irhs)(_ - p.mB(irow)(irhs) * mult)
         }
       }
     }
@@ -57,11 +41,11 @@ package object production {
   def partialBackwardsSubstitution(elim: Int, size: Int, nrhs: Int)(implicit p: BoundElement): Unit = {
     for (irhs <- 1 to nrhs) {
       for (irow <- elim to 1 by -1) {
-        p.mX(irow)(irhs) = p.mB(irow)(irhs)
+        p.mX.replace(irow, irhs, p.mB(irow)(irhs))
         for (icol <- irow + 1 to size) {
-          p.mX(irow)(irhs) -= p.mA(irow)(icol) * p.mX(icol)(irhs)
+          p.mX.replace(irow, irhs)(_ - p.mA(irow)(icol) * p.mX(icol)(irhs))
         }
-        p.mX(irow)(irhs) /= p.mA(irow)(irow)
+        p.mX.replace(irow, irhs)(_ / p.mA(irow)(irow))
       }
     }
   }

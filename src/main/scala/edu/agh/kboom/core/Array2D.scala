@@ -10,6 +10,13 @@ sealed case class MoveOperation(down: Int, right: Int) extends ArrayOperation {
 
 abstract class Array2D[T](v: Array[Array[Double]]) {
 
+  def replace(r: Int, c: Int, v: Double): Array2D[T] = {
+    v(r)(c) = v
+    this
+  }
+
+  def replace(r: Int, c: Int)(vm: Double => Double): Array2D[T] = replace(r, c, vm(v(r)(c)))
+
   def row(r: Int): Array[Double] = v(r)
 
   def select(r: Int, c: Int, s: Int): T = select(r, s, c, s)
@@ -80,25 +87,23 @@ abstract class Array2D[T](v: Array[Array[Double]]) {
 
 }
 
-sealed class ArrayA(v: Array[Array[Double]]) extends Array2D[ArrayA](v) {
+sealed case class ArrayA(v: Array[Array[Double]]) extends Array2D[ArrayA](v) {
   override def create(v: Array[Array[Double]]): ArrayA = new ArrayA(v)
 }
 
-sealed class ArrayB(v: Array[Array[Double]]) extends Array2D[ArrayB](v) {
+sealed case class ArrayB(v: Array[Array[Double]]) extends Array2D[ArrayB](v) {
   override def create(v: Array[Array[Double]]): ArrayB = new ArrayB(v)
 }
 
-sealed class ArrayX(v: Array[Array[Double]]) extends Array2D[ArrayX](v) {
+sealed case class ArrayX(v: Array[Array[Double]]) extends Array2D[ArrayX](v) {
   override def create(v: Array[Array[Double]]): ArrayX = new ArrayX(v)
 }
 
 
 object Array2D {
-
   def moveToDest(down: Int, right: Int): ArrayOperation = MoveOperation(down, right)
 
   def moveFromSource(up: Int, left: Int): ArrayOperation = MoveOperation(-up, -left)
-
 }
 
 object ArrayA {

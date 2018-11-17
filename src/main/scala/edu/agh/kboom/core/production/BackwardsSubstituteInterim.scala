@@ -5,7 +5,7 @@ import edu.agh.kboom.core.{ArrayX, IgaTaskContext}
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
 
 sealed case class BackwardsSubstituteInterimMessage(cx: ArrayX) extends ProductionMessage {
-  override val production: Production = BackwardsSubstituteInterim()
+  override val production: Production = BackwardsSubstituteInterim
 }
 
 case object BackwardsSubstituteInterim extends Production

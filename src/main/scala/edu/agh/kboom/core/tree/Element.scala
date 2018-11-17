@@ -9,7 +9,7 @@ sealed case class BoundElement(v: Vertex, e: Element) {
   def mX: ArrayX = e.mX
 }
 
-class Element(elements: Int) {
+case class Element(elements: Int) {
   val mA: ArrayA = ArrayA.ofDim(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
   val mB: ArrayB = ArrayB.ofDim(ROWS_BOUND_TO_NODE, elements)
   val mX: ArrayX = ArrayX.ofDim(ROWS_BOUND_TO_NODE, elements)

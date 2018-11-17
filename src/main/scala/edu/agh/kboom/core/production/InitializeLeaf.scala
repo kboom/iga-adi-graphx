@@ -1,11 +1,10 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom._
-import edu.agh.kboom.core.{IgaTaskContext, Mesh}
+import edu.agh.kboom.core._
 import edu.agh.kboom.core.tree.{Vertex, _}
 
 sealed case class InitializeLeafMessage() extends ProductionMessage {
-  override val production: Production = InitializeLeaf()
+  override val production: Production = InitializeLeaf
 }
 
 object InitializeLeaf extends Production {
