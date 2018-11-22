@@ -3,7 +3,7 @@ package edu.agh.kboom.core.production
 import edu.agh.kboom.core.IgaTaskContext
 import edu.agh.kboom.core.tree.BoundElement
 
-trait Production
+trait Production extends Serializable
 
 trait BaseProduction[MSG <: ProductionMessage] {
   def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[MSG] = None
@@ -15,6 +15,6 @@ trait MergingProduction[MSG <: ProductionMessage] {
   def merge(a: MSG, b: MSG): MSG
 }
 
-trait ProductionMessage {
+trait ProductionMessage extends Serializable {
   val production: Production
 }

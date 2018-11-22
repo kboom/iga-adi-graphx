@@ -8,7 +8,7 @@ sealed case class MoveOperation(down: Int, right: Int) extends ArrayOperation {
   override def map(r: Int, c: Int): (Int, Int) = (r + down, c + right)
 }
 
-abstract class Array2D[T](arr: Array[Array[Double]]) {
+abstract class Array2D[T](arr: Array[Array[Double]]) extends Serializable {
 
   def replace(r: Int, c: Int, v: Double): Array2D[T] = {
     arr(r)(c) = v
