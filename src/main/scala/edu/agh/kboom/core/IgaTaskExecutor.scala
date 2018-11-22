@@ -7,7 +7,7 @@ object IgaTaskExecutor {
 
   def sendMessage(op: IgaOperation)(src: Element, dst: Element)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
     println(s"[$taskCtx] Sending messages from (${op.src}) to (${op.dst}) for production (${op.p})")
-    op.p.asInstanceOf[BaseProduction[Any]].emit(BoundElement(op.src, src), BoundElement(op.dst, dst))
+    op.p.asInstanceOf[BaseProduction[ProductionMessage]].emit(BoundElement(op.src, src), BoundElement(op.dst, dst))
   }
 
   def mergeMessages(a: ProductionMessage, b: ProductionMessage): ProductionMessage = {

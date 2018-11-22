@@ -14,7 +14,8 @@ object IgaOperation {
     case (InterimVertex(_), RootVertex()) => Some(IgaOperation(srcV, dstV, SolveRoot))
 
     // shared
-    case (InterimVertex(a), InterimVertex(b)) => if (a < b) Some(IgaOperation(srcV, dstV, BackwardsSubstituteBranch)) else Some(IgaOperation(srcV, dstV, MergeAndEliminateInterim))
+    case (InterimVertex(a), InterimVertex(b)) => if (a < b) Some(IgaOperation(srcV, dstV, BackwardsSubstituteBranch))
+      else Some(IgaOperation(srcV, dstV, MergeAndEliminateInterim))
 
     // down
     case (RootVertex(), InterimVertex(_)) => Some(IgaOperation(srcV, dstV, BackwardsSubstituteInterim))

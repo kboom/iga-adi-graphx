@@ -30,8 +30,8 @@ case object SolveRoot extends Production
   )
 
   override def consume(dst: BoundElement, msg: SolveRootMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mA += msg.ca
-    dst.mB += msg.cb
+    dst.mA.add(msg.ca)
+    dst.mB.add(msg.cb)
 
     partialForwardElimination(6, 6, ctx.mc.mesh.yDofs)(dst)
     partialBackwardsSubstitution(6, 6, ctx.mc.mesh.yDofs)(dst)

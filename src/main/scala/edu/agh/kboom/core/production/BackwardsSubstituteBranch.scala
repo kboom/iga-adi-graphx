@@ -27,7 +27,7 @@ case object BackwardsSubstituteBranch extends Production
   }
 
   override def consume(dst: BoundElement, msg: BackwardsSubstituteBranchMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mX += msg.cx
+    dst.mX.add(msg.cx)
     partialBackwardsSubstitution(1, 5, ctx.mc.mesh.yDofs)(dst)
     swapDofs(1, 2, 5, ctx.mc.mesh.yDofs)(dst)
     swapDofs(2, 3, 5, ctx.mc.mesh.yDofs)(dst)

@@ -27,7 +27,7 @@ case object BackwardsSubstituteInterim extends Production
   }
 
   override def consume(dst: BoundElement, msg: BackwardsSubstituteInterimMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mX += msg.cx
+    dst.mX.add(msg.cx)
   }
 
 }

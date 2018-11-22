@@ -30,8 +30,8 @@ case object MergeAndEliminateInterim extends Production
   )
 
   override def consume(dst: BoundElement, msg: MergeAndEliminateInterimMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mA += msg.ca
-    dst.mB += msg.cb
+    dst.mA.add(msg.ca)
+    dst.mB.add(msg.cb)
 
     swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(dst)
     swapDofs(2, 4, 6, ctx.mc.mesh.yDofs)(dst)

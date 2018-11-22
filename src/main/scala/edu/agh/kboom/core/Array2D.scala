@@ -8,16 +8,16 @@ sealed case class MoveOperation(down: Int, right: Int) extends ArrayOperation {
   override def map(r: Int, c: Int): (Int, Int) = (r + down, c + right)
 }
 
-abstract class Array2D[T](v: Array[Array[Double]]) {
+abstract class Array2D[T](arr: Array[Array[Double]]) {
 
   def replace(r: Int, c: Int, v: Double): Array2D[T] = {
-    v(r)(c) = v
+    arr(r)(c) = v
     this
   }
 
-  def replace(r: Int, c: Int)(vm: Double => Double): Array2D[T] = replace(r, c, vm(v(r)(c)))
+  def replace(r: Int, c: Int)(vm: Double => Double): Array2D[T] = replace(r, c, vm(arr(r)(c)))
 
-  def row(r: Int): Array[Double] = v(r)
+  def row(r: Int): Array[Double] = arr(r)
 
   def select(r: Int, c: Int, s: Int): T = select(r, s, c, s)
 
@@ -26,17 +26,28 @@ abstract class Array2D[T](v: Array[Array[Double]]) {
 
     for (row <- 1 to rs) {
       for (col <- c to cs) {
-        sub(row)(col) = v(row + r)(col + c)
+        sub(row)(col) = arr(row + r)(col + c)
       }
     }
     create(sub)
   }
 
+  def add(other: Array2D[T]): Unit = {
+    val rows = arr.length
+    val cols = arr(0).length
+
+    for (r <- 1 to rows) {
+      for (c <- 1 to cols) {
+        arr(r)(c) += other(r)(c)
+      }
+    }
+  }
+
   def create(v: Array[Array[Double]]): T
 
   def transformedBy(rr: Range, cr: Range)(extract: ArrayOperation*)(insert: ArrayOperation*): T = {
-    val rows = v.length
-    val cols = v(0).length
+    val rows = arr.length
+    val cols = arr(0).length
 
     def sub = Array.ofDim[Double](rows, cols)
 
@@ -64,26 +75,26 @@ abstract class Array2D[T](v: Array[Array[Double]]) {
   }
 
   def +(that: Array2D[T]): T = {
-    val rows = v.length
-    val cols = v(0).length
+    val rows = arr.length
+    val cols = arr(0).length
 
     def sub = Array.ofDim[Double](rows, cols)
 
     for (r <- 1 to rows) {
       for (c <- 1 to cols) {
-        sub(r)(c) += v(r)(c) + that.v(r)(c)
+        sub(r)(c) += arr(r)(c) + that(r)(c)
       }
     }
     create(sub)
   }
 
   def swap(r1: Int, c1: Int, r2: Int, c2: Int): Unit = {
-    val tmp = v(r1, c1)
-    v(r1, c1) = v(r2, c2)
-    v(r2, c2) = tmp
+    val tmp = arr(r1)(c1)
+    arr(r1)(c1) = arr(r2)(c2)
+    arr(r2)(c2) = tmp
   }
 
-  def apply(r: Int)(c: Int): Double = v(r)(c)
+  def apply(r: Int)(c: Int): Double = arr(r)(c)
 
 }
 

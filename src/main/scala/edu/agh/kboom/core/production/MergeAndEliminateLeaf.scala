@@ -34,8 +34,8 @@ case object MergeAndEliminateLeaf extends Production
   )
 
   override def consume(dst: BoundElement, msg: MergeAndEliminateLeafMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mA += msg.ca
-    dst.mB += msg.cb
+    dst.mA.add(msg.ca)
+    dst.mB.add(msg.cb)
 
     swapDofs(1, 3, 5, ctx.mc.mesh.yDofs)(dst)
     swapDofs(2, 3, 5, ctx.mc.mesh.yDofs)(dst)

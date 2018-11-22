@@ -9,7 +9,7 @@ sealed case class InitializeLeafMessage() extends ProductionMessage {
 
 object InitializeLeaf extends Production {
 
-  override def initialize(e: BoundElement)(implicit ctx: IgaTaskContext): Unit = {
+  def initialize(e: BoundElement)(implicit ctx: IgaTaskContext): Unit = {
     MethodCoefficients.bind(e.mA)
     for (i <- 1 to ctx.mc.mesh.xDofs) {
       fillRightHandSide(e, Spline1(), 1, i)
@@ -29,15 +29,15 @@ object InitializeLeaf extends Production {
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 2) {
           val y = (gpl.v + i - 3) * mesh.dy
-          e.mB(r)(i) += gpk.v * spline.getValue(gpk.v) * gpl.w * Spline1().getValue(gpl.v) * ctx.mc.problem(x, y)
+          e.mB.replace(r, i, gpk.v * spline.getValue(gpk.v) * gpl.w * Spline1().getValue(gpl.v) * ctx.mc.problem(x, y))
         }
         if (i > 1 && (i - 2) < mesh.ySize) {
           val y = (gpl.v + i - 2) * mesh.dy
-          e.mB(r)(i) += gpk.v * spline.getValue(gpk.v) * gpl.w * Spline2().getValue(gpl.v) * ctx.mc.problem(x, y)
+          e.mB.replace(r, i, gpk.v * spline.getValue(gpk.v) * gpl.w * Spline2().getValue(gpl.v) * ctx.mc.problem(x, y))
         }
         if ((i - 1) < mesh.ySize) {
           val y = (gpl.v + i - 1) * mesh.dy
-          e.mB(r)(i) += gpk.v * spline.getValue(gpk.v) * gpl.w * Spline3().getValue(gpl.v) * ctx.mc.problem(x, y)
+          e.mB.replace(r, i, gpk.v * spline.getValue(gpk.v) * gpl.w * Spline3().getValue(gpl.v) * ctx.mc.problem(x, y))
         }
       }
     }
