@@ -105,6 +105,8 @@ trait Array2D[T] extends Serializable {
       false
   }
 
+  override def toString: String = "\n" + arr.map(_.mkString(",")).mkString("\n") + "\n"
+
 }
 
 sealed case class ArrayA(arr: Array[Array[Double]]) extends Array2D[ArrayA] {

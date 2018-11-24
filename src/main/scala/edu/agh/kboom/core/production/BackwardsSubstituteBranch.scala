@@ -13,15 +13,15 @@ case object BackwardsSubstituteBranch extends Production
 
   override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteBranchMessage] = {
     partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(dst)
-    swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(src)
-    swapDofs(2, 4, 6, ctx.mc.mesh.yDofs)(src)
+    swapDofs(0, 2, 5, ctx.mc.mesh.yDofs)(src)
+    swapDofs(1, 3, 5, ctx.mc.mesh.yDofs)(src)
 
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteBranchMessage(
-        src.mX.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)()(moveToDest(1, 0))
+        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)()(moveToDest(1, 0))
       ))
       case RIGHT_CHILD => Some(BackwardsSubstituteBranchMessage(
-        src.mX.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)(moveToDest(1, 0))(moveFromSource(2, 0))
+        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveToDest(1, 0))(moveFromSource(2, 0))
       ))
     }
   }
