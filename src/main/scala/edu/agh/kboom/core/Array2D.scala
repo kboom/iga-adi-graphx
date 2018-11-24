@@ -8,7 +8,9 @@ sealed case class MoveOperation(down: Int, right: Int) extends ArrayOperation {
   override def map(r: Int, c: Int): (Int, Int) = (r + down, c + right)
 }
 
-abstract class Array2D[T](arr: Array[Array[Double]]) extends Serializable {
+trait Array2D[T] extends Serializable {
+
+  val arr: Array[Array[Double]]
 
   def replace(r: Int, c: Int, v: Double): Array2D[T] = {
     arr(r)(c) = v
@@ -22,10 +24,10 @@ abstract class Array2D[T](arr: Array[Array[Double]]) extends Serializable {
   def select(r: Int, c: Int, s: Int): T = select(r, s, c, s)
 
   def select(r: Int, rs: Int, c: Int, cs: Int): T = {
-    def sub = Array.ofDim[Double](rs, cs)
+    val sub = Array.ofDim[Double](rs, cs)
 
-    for (row <- 1 to rs) {
-      for (col <- c to cs) {
+    for (row <- 1 until rs) {
+      for (col <- c until cs) {
         sub(row)(col) = arr(row + r)(col + c)
       }
     }
@@ -36,8 +38,8 @@ abstract class Array2D[T](arr: Array[Array[Double]]) extends Serializable {
     val rows = arr.length
     val cols = arr(0).length
 
-    for (r <- 1 to rows) {
-      for (c <- 1 to cols) {
+    for (r <- 1 until rows) {
+      for (c <- 1 until cols) {
         arr(r)(c) += other(r)(c)
       }
     }
@@ -48,8 +50,7 @@ abstract class Array2D[T](arr: Array[Array[Double]]) extends Serializable {
   def transformedBy(rr: Range, cr: Range)(extract: ArrayOperation*)(insert: ArrayOperation*): T = {
     val rows = arr.length
     val cols = arr(0).length
-
-    def sub = Array.ofDim[Double](rows, cols)
+    val sub = Array.ofDim[Double](rows, cols)
 
     for (r <- rr) {
       for (c <- cr) {
@@ -77,14 +78,15 @@ abstract class Array2D[T](arr: Array[Array[Double]]) extends Serializable {
   def +(that: Array2D[T]): T = {
     val rows = arr.length
     val cols = arr(0).length
+    val sub = Array.ofDim[Double](rows, cols)
 
-    def sub = Array.ofDim[Double](rows, cols)
-
-    for (r <- 1 to rows) {
-      for (c <- 1 to cols) {
-        sub(r)(c) += arr(r)(c) + that(r)(c)
-      }
+    for {
+      r <- 0 until rows
+      c <- 0 until cols
+    } {
+      sub(r)(c) = arr(r)(c) + that(r)(c)
     }
+
     create(sub)
   }
 
@@ -96,17 +98,24 @@ abstract class Array2D[T](arr: Array[Array[Double]]) extends Serializable {
 
   def apply(r: Int)(c: Int): Double = arr(r)(c)
 
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case array: Array2D[Double] =>
+      array.arr.deep == arr.deep
+    case _ =>
+      false
+  }
+
 }
 
-sealed case class ArrayA(v: Array[Array[Double]]) extends Array2D[ArrayA](v) {
+sealed case class ArrayA(arr: Array[Array[Double]]) extends Array2D[ArrayA] {
   override def create(v: Array[Array[Double]]): ArrayA = new ArrayA(v)
 }
 
-sealed case class ArrayB(v: Array[Array[Double]]) extends Array2D[ArrayB](v) {
+sealed case class ArrayB(arr: Array[Array[Double]]) extends Array2D[ArrayB] {
   override def create(v: Array[Array[Double]]): ArrayB = new ArrayB(v)
 }
 
-sealed case class ArrayX(v: Array[Array[Double]]) extends Array2D[ArrayX](v) {
+sealed case class ArrayX(arr: Array[Array[Double]]) extends Array2D[ArrayX] {
   override def create(v: Array[Array[Double]]): ArrayX = new ArrayX(v)
 }
 
