@@ -1,10 +1,10 @@
 package edu.agh.kboom.core.production
 
 import edu.agh.kboom.core.Array2D.{moveFromSource, moveToDest}
-import edu.agh.kboom.core.{ArrayX, IgaTaskContext}
+import edu.agh.kboom.core.{MatrixX, IgaTaskContext}
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
 
-sealed case class BackwardsSubstituteBranchMessage(cx: ArrayX) extends ProductionMessage {
+sealed case class BackwardsSubstituteBranchMessage(cx: MatrixX) extends ProductionMessage {
   override val production: Production = BackwardsSubstituteBranch
 }
 

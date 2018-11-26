@@ -1,11 +1,11 @@
 package edu.agh.kboom.core.production
 
 import edu.agh.kboom.core.Array2D.{moveFromSource, moveToDest}
-import edu.agh.kboom.core.{ArrayA, ArrayB, IgaTaskContext}
+import edu.agh.kboom.core.{MatrixA, MatrixB, IgaTaskContext}
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
 import edu.agh.kboom.core.tree.Vertex.childPositionOf
 
-sealed case class SolveRootMessage(ca: ArrayA, cb: ArrayB) extends ProductionMessage {
+sealed case class SolveRootMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateInterim
 }
 
@@ -15,12 +15,12 @@ case object SolveRoot extends Production
 
   override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[SolveRootMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(SolveRootMessage(
-      src.mA.transformedBy(1 to 4, 1 to 4)(moveFromSource(2, 2))(),
-      src.mB.transformedBy(1 to 4, 1 to 4)(moveFromSource(2, 0))()
+      src.mA.transformedBy(0 until 4, 0 until 4)(moveFromSource(2, 2))(),
+      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveFromSource(2, 0))()
     ))
     case RIGHT_CHILD => Some(SolveRootMessage(
-      src.mA.transformedBy(1 to 4, 1 to 4)(moveFromSource(2, 2), moveToDest(2, 2))(),
-      src.mB.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)(moveFromSource(2, 0), moveToDest(2, 0))()
+      src.mA.transformedBy(0 until 4, 0 until 4)(moveFromSource(2, 2), moveToDest(2, 2))(),
+      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveFromSource(2, 0), moveToDest(2, 0))()
     ))
   }
 

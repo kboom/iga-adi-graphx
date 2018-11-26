@@ -26,7 +26,7 @@ package object production {
       for (irhs <- 0 until nrhs) {
         p.mB.replace(irow, irhs)(_ / diag)
       }
-      for (isub <- irow + 0 until size) {
+      for (isub <- irow + 1 until size) {
         val mult = p.mA(isub)(irow)
         for (icol <- irow until size) {
           p.mA.replace(isub, icol)(_ - p.mA(irow)(icol) * mult)

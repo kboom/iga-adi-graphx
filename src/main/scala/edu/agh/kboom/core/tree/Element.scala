@@ -4,20 +4,20 @@ import edu.agh.kboom.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 import edu.agh.kboom.core._
 
 sealed case class BoundElement(v: Vertex, e: Element) {
-  def mA: ArrayA = e.mA
-  def mB: ArrayB = e.mB
-  def mX: ArrayX = e.mX
+  def mA: MatrixA = e.mA
+  def mB: MatrixB = e.mB
+  def mX: MatrixX = e.mX
 }
 
 case class Element(elements: Int) {
-  val mA: ArrayA = ArrayA.ofDim(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
-  val mB: ArrayB = ArrayB.ofDim(ROWS_BOUND_TO_NODE, elements)
-  val mX: ArrayX = ArrayX.ofDim(ROWS_BOUND_TO_NODE, elements)
+  val mA: MatrixA = MatrixA.ofDim(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
+  val mB: MatrixB = MatrixB.ofDim(ROWS_BOUND_TO_NODE, elements)
+  val mX: MatrixX = MatrixX.ofDim(ROWS_BOUND_TO_NODE, elements)
 }
 
 object Element {
-  val ROWS_BOUND_TO_NODE = 7
-  val COLS_BOUND_TO_NODE = 7
+  val ROWS_BOUND_TO_NODE = 6
+  val COLS_BOUND_TO_NODE = 6
 
   def createForX(implicit mesh: Mesh): Element = Element(mesh.xSize + IgaContext.SPLINE_ORDER + 1)
 

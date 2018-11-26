@@ -1,10 +1,10 @@
 package edu.agh.kboom.core.production
 
 import edu.agh.kboom.core.Array2D.{moveFromSource, moveToDest}
-import edu.agh.kboom.core.{ArrayX, IgaTaskContext}
+import edu.agh.kboom.core.{MatrixX, IgaTaskContext}
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
 
-sealed case class BackwardsSubstituteInterimMessage(cx: ArrayX) extends ProductionMessage {
+sealed case class BackwardsSubstituteInterimMessage(cx: MatrixX) extends ProductionMessage {
   override val production: Production = BackwardsSubstituteInterim
 }
 
@@ -18,10 +18,10 @@ case object BackwardsSubstituteInterim extends Production
 
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteInterimMessage(
-        src.mX.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)()(moveToDest(2, 0))
+        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)()(moveToDest(2, 0))
       ))
       case RIGHT_CHILD => Some(BackwardsSubstituteInterimMessage(
-        src.mX.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)(moveToDest(2, 0))(moveFromSource(2, 0))
+        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveToDest(2, 0))(moveFromSource(2, 0))
       ))
     }
   }

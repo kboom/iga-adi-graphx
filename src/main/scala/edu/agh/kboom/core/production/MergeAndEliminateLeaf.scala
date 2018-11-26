@@ -3,9 +3,9 @@ package edu.agh.kboom.core.production
 import edu.agh.kboom.core.Array2D.moveToDest
 import edu.agh.kboom.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.core.tree._
-import edu.agh.kboom.core.{ArrayA, ArrayB, IgaTaskContext}
+import edu.agh.kboom.core.{MatrixA, MatrixB, IgaTaskContext}
 
-case class MergeAndEliminateLeafMessage(ca: ArrayA, cb: ArrayB) extends ProductionMessage {
+case class MergeAndEliminateLeafMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateLeaf
 }
 

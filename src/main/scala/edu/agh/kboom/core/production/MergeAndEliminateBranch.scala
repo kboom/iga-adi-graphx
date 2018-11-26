@@ -1,11 +1,11 @@
 package edu.agh.kboom.core.production
 
 import edu.agh.kboom.core.Array2D.{moveFromSource, moveToDest}
-import edu.agh.kboom.core.{ArrayA, ArrayB, IgaTaskContext}
+import edu.agh.kboom.core.{MatrixA, MatrixB, IgaTaskContext}
 import edu.agh.kboom.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
 
-sealed case class MergeAndEliminateBranchMessage(ca: ArrayA, cb: ArrayB) extends ProductionMessage {
+sealed case class MergeAndEliminateBranchMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateBranch
 }
 

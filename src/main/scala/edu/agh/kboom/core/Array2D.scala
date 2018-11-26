@@ -8,6 +8,10 @@ sealed case class MoveOperation(down: Int, right: Int) extends ArrayOperation {
   override def map(r: Int, c: Int): (Int, Int) = (r + down, c + right)
 }
 
+case object IdentityOperation extends ArrayOperation {
+  override def map(r: Int, c: Int): (Int, Int) = (r, c)
+}
+
 trait Array2D[T] extends Serializable {
 
   val arr: Array[Array[Double]]
@@ -34,12 +38,16 @@ trait Array2D[T] extends Serializable {
     create(sub)
   }
 
-  def add(other: Array2D[T]): Unit = {
-    val rows = arr.length
-    val cols = arr(0).length
+  def rowCount: Int = arr.length
 
-    for (r <- 1 until rows) {
-      for (c <- 1 until cols) {
+  def colCount: Int = arr(0).length
+
+  def add(other: Array2D[T]): Unit = {
+    if(rowCount != other.rowCount || colCount != other.colCount)
+      throw new IllegalArgumentException(s"Matrix dimensions ${rowCount}x$colCount do not match ${other.rowCount}x${other.colCount}")
+
+    for (r <- 0 until rowCount) {
+      for (c <- 0 until colCount) {
         arr(r)(c) += other(r)(c)
       }
     }
@@ -55,21 +63,17 @@ trait Array2D[T] extends Serializable {
     for (r <- rr) {
       for (c <- cr) {
 
-        val (dr, dc) = insert.aggregate(
-          (r, c)
-        )(
+        val (dr, dc) = insert.aggregate((r, c))(
           (x, a) => a.map(x._1, x._2),
           (a, b) => (a._1 + b._1, a._2 + b._2)
         )
 
-        val (sr, sc) = extract.aggregate(
-          (r, c)
-        )(
+        val (sr, sc) = extract.aggregate((r, c))(
           (x, a) => a.map(x._1, x._2),
           (a, b) => (a._1 + b._1, a._2 + b._2)
         )
 
-        sub(dr)(dc) = sub(sr)(sc)
+        sub(dr)(dc) = arr(sr)(sc)
       }
     }
     create(sub)
@@ -105,20 +109,20 @@ trait Array2D[T] extends Serializable {
       false
   }
 
-  override def toString: String = "\n" + arr.map(_.mkString(",")).mkString("\n") + "\n"
+  override def toString: String = "\n" + arr.map(_.mkString(", ")).mkString("\n") + "\n"
 
 }
 
-sealed case class ArrayA(arr: Array[Array[Double]]) extends Array2D[ArrayA] {
-  override def create(v: Array[Array[Double]]): ArrayA = new ArrayA(v)
+sealed case class MatrixA(arr: Array[Array[Double]]) extends Array2D[MatrixA] {
+  override def create(v: Array[Array[Double]]): MatrixA = new MatrixA(v)
 }
 
-sealed case class ArrayB(arr: Array[Array[Double]]) extends Array2D[ArrayB] {
-  override def create(v: Array[Array[Double]]): ArrayB = new ArrayB(v)
+sealed case class MatrixB(arr: Array[Array[Double]]) extends Array2D[MatrixB] {
+  override def create(v: Array[Array[Double]]): MatrixB = new MatrixB(v)
 }
 
-sealed case class ArrayX(arr: Array[Array[Double]]) extends Array2D[ArrayX] {
-  override def create(v: Array[Array[Double]]): ArrayX = new ArrayX(v)
+sealed case class MatrixX(arr: Array[Array[Double]]) extends Array2D[MatrixX] {
+  override def create(v: Array[Array[Double]]): MatrixX = new MatrixX(v)
 }
 
 
@@ -128,14 +132,14 @@ object Array2D {
   def moveFromSource(up: Int, left: Int): ArrayOperation = MoveOperation(-up, -left)
 }
 
-object ArrayA {
-  def ofDim(rows: Int, cols: Int): ArrayA = ArrayA(Array.ofDim[Double](rows, cols))
+object MatrixA {
+  def ofDim(rows: Int, cols: Int): MatrixA = MatrixA(Array.ofDim[Double](rows, cols))
 }
 
-object ArrayB {
-  def ofDim(rows: Int, cols: Int): ArrayB = ArrayB(Array.ofDim[Double](rows, cols))
+object MatrixB {
+  def ofDim(rows: Int, cols: Int): MatrixB = MatrixB(Array.ofDim[Double](rows, cols))
 }
 
-object ArrayX {
-  def ofDim(rows: Int, cols: Int): ArrayX = ArrayX(Array.ofDim[Double](rows, cols))
+object MatrixX {
+  def ofDim(rows: Int, cols: Int): MatrixX = MatrixX(Array.ofDim[Double](rows, cols))
 }
