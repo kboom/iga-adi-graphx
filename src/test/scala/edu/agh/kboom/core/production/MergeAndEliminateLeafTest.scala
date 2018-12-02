@@ -3,28 +3,11 @@ package edu.agh.kboom.core.production
 import edu.agh.kboom.ElementUtils.elementBoundTo
 import edu.agh.kboom.MatrixUtils._
 import edu.agh.kboom.core._
-import edu.agh.kboom.core.tree._
-import edu.agh.kboom.{ExecutionContext, SubjectSpec}
+import edu.agh.kboom.{DummyProblem, MatrixColors, SubjectSpec}
 
-class MergeAndEliminateLeafTest extends SubjectSpec {
-
-  val ProblemSize = 12
-
-  val GreyFabric: (Int, Int) => Double = fill(3)
-  val WhiteFabric: (Int, Int) => Double = fill(7)
-
-  val RedFeature: (Int, Int) => Double = entry(0, 0)(-7)
-  val BlueFeature: (Int, Int) => Double = entry(6, 6)(-15)
-
-  val Parent = BranchVertex(4)
-  val LeftChild = LeafVertex(8)
-  val MiddleChild = LeafVertex(9)
-  val RightChild = LeafVertex(10)
-
-  implicit val TestMesh: Mesh = Mesh(ProblemSize, ProblemSize, ProblemSize, ProblemSize)
-  implicit val TestTree: ProblemTree = ProblemTree(ProblemSize)
-  implicit val IgaTestContext: IgaContext = IgaContext(TestMesh, _ + _)
-  implicit val TaskTestContext: IgaTaskContext = IgaTaskContext(14, ExecutionContext(), TestTree, IgaTestContext)
+class MergeAndEliminateLeafTest extends SubjectSpec
+  with DummyProblem
+  with MatrixColors {
 
   "emit" when {
 

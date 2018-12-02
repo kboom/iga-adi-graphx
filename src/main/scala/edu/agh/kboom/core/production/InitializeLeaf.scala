@@ -11,7 +11,7 @@ object InitializeLeaf extends Production {
 
   def initialize(e: BoundElement)(implicit ctx: IgaTaskContext): Unit = {
     MethodCoefficients.bind(e.mA)
-    for (i <- 1 to ctx.mc.mesh.xDofs) {
+    for (i <- 0 until ctx.mc.mesh.xDofs) {
       fillRightHandSide(e, Spline1(), 1, i)
       fillRightHandSide(e, Spline2(), 2, i)
       fillRightHandSide(e, Spline3(), 3, i)

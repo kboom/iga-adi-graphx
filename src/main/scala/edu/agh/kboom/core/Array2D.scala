@@ -55,7 +55,20 @@ trait Array2D[T] extends Serializable {
 
   def create(v: Array[Array[Double]]): T
 
-  def transformedBy(rr: Range, cr: Range)(extract: ArrayOperation*)(insert: ArrayOperation*): T = {
+  def mappedBy(f: (Int, Int, Double) => Double): T = {
+    val rows = arr.length
+    val cols = arr(0).length
+    val sub = Array.ofDim[Double](rows, cols)
+
+    for (r <- 0 until rows) {
+      for (c <- 0 until cols) {
+        sub(r)(c) = f(r, c, arr(r)(c))
+      }
+    }
+    create(sub)
+  }
+
+  def transformedBy(rr: Range = arr.indices, cr: Range = arr(0).indices)(extract: ArrayOperation*)(insert: ArrayOperation*): T = {
     val rows = arr.length
     val cols = arr(0).length
     val sub = Array.ofDim[Double](rows, cols)

@@ -9,6 +9,8 @@ sealed case class TestMatrix(arr: Array[Array[Double]]) extends Array2D[TestMatr
 
 object MatrixUtils {
 
+  def weakPrecision[T](m: Array2D[T]): T = m.mappedBy((_, _, v) => BigDecimal(v).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble)
+
   def fromVector(r: Int, c: Int)(cells: Double*): Array[Array[Double]] = {
     val arr = Array.ofDim[Double](r, c)
     for (i <- 0 until r) {
