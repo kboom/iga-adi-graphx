@@ -27,11 +27,27 @@ object MatrixUtils {
 
   def indexedSquareMatrix(size: Int): Array[Array[Double]] = indexedMatrix(size, size)
 
-  def indexedMatrix(r: Int, c: Int): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => rc * c + cc)
+  def indexedMatrix(r: Int, c: Int): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => rc + (cc.toDouble / 100))
 
   def dummyMatrix(r: Int, c: Int): Array[Array[Double]] = generatedMatrix(r, c)(_ + _)
 
   def featuredMatrix(r: Int, c: Int)(f: Int*): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => if (f.contains(c * rc + cc)) 1.0 else 0)
+
+  def constMatrix(r: Int, c: Int)(o: Double = 1): Array[Array[Double]] = generatedMatrix(r, c)((_, _) => o)
+
+  def unitMatrix(r: Int, c: Int): Array[Array[Double]] = constMatrix(r, c)(1)
+
+  def constAMatrix(o: Double): MatrixA = MatrixA(generatedMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)((_, _) => o))
+
+  def constBMatrix(o: Double)(implicit mesh: Mesh): MatrixB = MatrixB(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)((_, _) => o))
+
+  def constXMatrix(o: Double)(implicit mesh: Mesh): MatrixX = MatrixX(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)((_, _) => o))
+
+  def indexedAMatrix: MatrixA = MatrixA(indexedMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE))
+
+  def indexedBMatrix(implicit mesh: Mesh): MatrixB = MatrixB(indexedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs))
+
+  def indexedXMatrix(implicit mesh: Mesh): MatrixX = MatrixX(indexedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs))
 
   def dummyAMatrix(f: Int*): MatrixA = MatrixA(featuredMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(f: _*))
 

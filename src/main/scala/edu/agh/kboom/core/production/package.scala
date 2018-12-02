@@ -13,7 +13,7 @@ package object production {
     }
     for (i <- 0 until nrhs) {
       p.mB.swap(a, i, b, i)
-      p.mB.swap(a, i, b, i)
+      p.mX.swap(a, i, b, i)
     }
   }
 

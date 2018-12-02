@@ -1,6 +1,6 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.MatrixUtils.{dummyAMatrix, dummyBMatrix, dummyXMatrix, identityMatrix, indexedMatrix}
+import edu.agh.kboom.MatrixUtils._
 import edu.agh.kboom.core.tree.Element.ROWS_BOUND_TO_NODE
 import edu.agh.kboom.core.tree.{BoundElement, Element, Vertex}
 import edu.agh.kboom.core.{MatrixA, MatrixB, MatrixX, Mesh}
@@ -19,11 +19,19 @@ object ElementUtils {
     BoundElement(vertex, element)
   }
 
-  def dummyBoundElement(vertex: Vertex, seed: Int = 1)(implicit mesh: Mesh): BoundElement = {
+  def featuredBoundElement(vertex: Vertex, feature: Int)(implicit mesh: Mesh): BoundElement = {
     val element = Element.createForX(mesh)
-    element.mA.add(dummyAMatrix(seed))
-    element.mB.add(dummyBMatrix(seed))
-    element.mX.add(dummyXMatrix(seed))
+    element.mA.add(dummyAMatrix(feature))
+    element.mB.add(dummyBMatrix(feature))
+    element.mX.add(dummyXMatrix(feature))
+    BoundElement(vertex, element)
+  }
+
+  def constBoundElement(vertex: Vertex, seed: Int = 0)(implicit mesh: Mesh): BoundElement = {
+    val element = Element.createForX(mesh)
+    element.mA.add(constAMatrix(seed))
+    element.mB.add(constBMatrix(seed))
+    element.mX.add(constXMatrix(seed))
     BoundElement(vertex, element)
   }
 

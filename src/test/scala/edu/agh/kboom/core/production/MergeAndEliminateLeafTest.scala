@@ -1,6 +1,7 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom.MatrixUtils.{dummyAMatrix, dummyBMatrix, fromVector, indexedSquareMatrix}
+import edu.agh.kboom.ElementUtils.featuredBoundElement
+import edu.agh.kboom.MatrixUtils.{dummyAMatrix, dummyBMatrix, fromVector, indexedAMatrix, indexedBMatrix, indexedSquareMatrix, indexedXMatrix}
 import edu.agh.kboom.core._
 import edu.agh.kboom.core.tree._
 import edu.agh.kboom.{ElementUtils, ExecutionContext, SubjectSpec}
@@ -8,9 +9,10 @@ import edu.agh.kboom.{ElementUtils, ExecutionContext, SubjectSpec}
 class MergeAndEliminateLeafTest extends SubjectSpec {
 
   val ProblemSize = 12
-  val FirstSeed = 6
-  val SecondSeed = 9
+  val RedFeature = 6
+  val GreenFeature = 9
 
+  val Parent = BranchVertex(4)
   val LeftChild = LeafVertex(8)
   val MiddleChild = LeafVertex(9)
   val RightChild = LeafVertex(10)
@@ -22,11 +24,11 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
 
   "emit" when {
 
-    val dstElement = ElementUtils.dummyBoundElement(BranchVertex(4), SecondSeed)
+    val dstElement = featuredBoundElement(Parent, GreenFeature)
 
     "applied on left child" should {
 
-      val srcElement = ElementUtils.dummyBoundElement(LeftChild, FirstSeed)
+      val srcElement = featuredBoundElement(LeftChild, RedFeature)
 
       "is not empty" in {
         MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
@@ -34,8 +36,8 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
 
       "emits unchanged matrices" in {
         MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldBe Some(MergeAndEliminateLeafMessage(
-          dummyAMatrix(FirstSeed),
-          dummyBMatrix(FirstSeed)
+          dummyAMatrix(RedFeature),
+          dummyBMatrix(RedFeature)
         ))
       }
 
@@ -53,9 +55,9 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
         MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
           'ca (MatrixA(fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +00.00, +01.00, +02.00, +00.00, +00.00,
-            +00.00, +06.00, +07.00, +08.00, +00.00, +00.00,
-            +00.00, +12.00, +13.00, +14.00, +00.00, +00.00,
+            +00.00, +00.00, +00.01, +00.02, +00.00, +00.00,
+            +00.00, +01.00, +01.01, +01.02, +00.00, +00.00,
+            +00.00, +02.00, +02.01, +02.02, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
           )))
@@ -66,9 +68,9 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
         MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
           'cb (MatrixB(fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +01.00, +02.00, +03.00, +04.00, +05.00, +06.00, +07.00, +08.00, +09.00, +10.00, +11.00, +12.00, +13.00,
-            +14.00, +15.00, +16.00, +17.00, +18.00, +19.00, +20.00, +21.00, +22.00, +23.00, +24.00, +25.00, +26.00, +27.00,
-            +28.00, +29.00, +30.00, +31.00, +32.00, +33.00, +34.00, +35.00, +36.00, +37.00, +38.00, +39.00, +40.00, +41.00,
+            +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
+            +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
+            +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
           )))
@@ -90,9 +92,9 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
           'ca (MatrixA(fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +00.00, +00.00, +01.00, +02.00, +00.00,
-            +00.00, +00.00, +06.00, +07.00, +08.00, +00.00,
-            +00.00, +00.00, +12.00, +13.00, +14.00, +00.00,
+            +00.00, +00.00, +00.00, +00.01, +00.02, +00.00,
+            +00.00, +00.00, +01.00, +01.01, +01.02, +00.00,
+            +00.00, +00.00, +02.00, +02.01, +02.02, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
           )))
         )
@@ -103,9 +105,9 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
           'cb (MatrixB(fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +01.00, +02.00, +03.00, +04.00, +05.00, +06.00, +07.00, +08.00, +09.00, +10.00, +11.00, +12.00, +13.00,
-            +14.00, +15.00, +16.00, +17.00, +18.00, +19.00, +20.00, +21.00, +22.00, +23.00, +24.00, +25.00, +26.00, +27.00,
-            +28.00, +29.00, +30.00, +31.00, +32.00, +33.00, +34.00, +35.00, +36.00, +37.00, +38.00, +39.00, +40.00, +41.00,
+            +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
+            +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
+            +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
           )))
         )
@@ -117,18 +119,38 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
 
   "merge" when {
 
-    val firstMessage = MergeAndEliminateLeafMessage(dummyAMatrix(FirstSeed), dummyBMatrix(FirstSeed))
-    val secondMessage = MergeAndEliminateLeafMessage(dummyAMatrix(SecondSeed), dummyBMatrix(SecondSeed))
+    val redMsg = MergeAndEliminateLeafMessage(dummyAMatrix(RedFeature), dummyBMatrix(RedFeature))
+    val greenMsg = MergeAndEliminateLeafMessage(dummyAMatrix(GreenFeature), dummyBMatrix(GreenFeature))
 
     "two messages" should {
 
       "produce a sum of matrices" in {
-        MergeAndEliminateLeaf.merge(firstMessage, secondMessage) shouldBe MergeAndEliminateLeafMessage(
-          dummyAMatrix(FirstSeed, SecondSeed),
-          dummyBMatrix(FirstSeed, SecondSeed)
+        MergeAndEliminateLeaf.merge(redMsg, greenMsg) shouldBe MergeAndEliminateLeafMessage(
+          dummyAMatrix(RedFeature, GreenFeature),
+          dummyBMatrix(RedFeature, GreenFeature)
         )
       }
 
+    }
+
+  }
+
+  "vertex" when {
+
+    val msg = MergeAndEliminateLeafMessage(dummyAMatrix(RedFeature), dummyBMatrix(RedFeature))
+    val dstElement = ElementUtils.constBoundElement(Parent, GreenFeature)
+
+    MergeAndEliminateLeaf.consume(dstElement, msg)
+
+    "merge and eliminate" in {
+      dstElement.mA shouldBe MatrixA(fromVector(6, 6)(
+        +01.00, +01.00, +01.00, +01.00, +01.00, +09.00,
+        +00.00, +00.00, +00.00, +00.00, +00.00, +09.00,
+        +00.00, -01.00, -01.00, -01.00, -01.00, +09.00,
+        +00.00, +00.00, +00.00, +00.00, +00.00, +09.00,
+        +00.00, +00.00, +00.00, +00.00, +00.00, +09.00,
+        +09.00, +09.00, +09.00, +09.00, +09.00, +09.00
+      ))
     }
 
   }
