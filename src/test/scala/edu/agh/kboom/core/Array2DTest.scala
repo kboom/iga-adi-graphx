@@ -2,7 +2,7 @@ package edu.agh.kboom.core
 
 import edu.agh.kboom.MatrixUtils.fromVector
 import edu.agh.kboom.TestMatrix
-import edu.agh.kboom.core.Array2D.moveToDest
+import edu.agh.kboom.core.Array2D.move
 import org.scalatest.{FunSpec, Matchers}
 
 
@@ -26,7 +26,7 @@ sealed class Array2DTest extends FunSpec with Matchers {
       0, 0, 0,
       0, 1, 0,
       0, 0, 0
-    )).transformedBy(1 to 1, 1 to 1)()(moveToDest(1, 1)) shouldBe TestMatrix(fromVector(3, 3)(
+    )).transformedBy(1 to 1, 1 to 1)()(move(1, 1)) shouldBe TestMatrix(fromVector(3, 3)(
       0, 0, 0,
       0, 0, 0,
       0, 0, 1
@@ -38,7 +38,7 @@ sealed class Array2DTest extends FunSpec with Matchers {
       0, 0, 0,
       0, 1, 0,
       0, 0, 0
-    )).transformedBy(0 to 1, 0 to 1)()(moveToDest(1, 1)) shouldBe TestMatrix(fromVector(3, 3)(
+    )).transformedBy(0 to 1, 0 to 1)()(move(1, 1)) shouldBe TestMatrix(fromVector(3, 3)(
       0, 0, 0,
       0, 0, 0,
       0, 0, 1
@@ -50,9 +50,21 @@ sealed class Array2DTest extends FunSpec with Matchers {
       0, 0, 0,
       0, 1, 0,
       0, 0, 0
-    )).transformedBy(0 to 1, 0 to 1)(moveToDest(1, 1))() shouldBe TestMatrix(fromVector(3, 3)(
+    )).transformedBy(0 to 1, 0 to 1)(move(1, 1))() shouldBe TestMatrix(fromVector(3, 3)(
       1, 0, 0,
       0, 0, 0,
+      0, 0, 0
+    ))
+  }
+
+  it("Can move both ways") {
+    TestMatrix(fromVector(3, 3)(
+      0, 0, 0,
+      0, 1, 0,
+      0, 0, 0
+    )).transformedBy(0 to 1, 0 to 1)(move(1, 1))(move(1, 1)) shouldBe TestMatrix(fromVector(3, 3)(
+      0, 0, 0,
+      0, 1, 0,
       0, 0, 0
     ))
   }

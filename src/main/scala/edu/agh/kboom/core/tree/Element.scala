@@ -1,7 +1,7 @@
 package edu.agh.kboom.core.tree
 
-import edu.agh.kboom.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 import edu.agh.kboom.core._
+import edu.agh.kboom.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 
 sealed case class BoundElement(v: Vertex, e: Element) {
   def mA: MatrixA = e.mA
@@ -19,7 +19,9 @@ object Element {
   val ROWS_BOUND_TO_NODE = 6
   val COLS_BOUND_TO_NODE = 6
 
-  def createForX(implicit mesh: Mesh): Element = Element(mesh.xSize + IgaContext.SPLINE_ORDER + 1)
+  def elementCount(implicit mesh: Mesh) : Int = mesh.xDofs
+
+  def createForX(implicit mesh: Mesh): Element = Element(elementCount)
 
   def print(e: Element): String = (0 until ROWS_BOUND_TO_NODE)
     .map(row => s"[${printRow(e.mA.row(row))}][${printRow(e.mX.row(row))}] = [${printRow(e.mB.row(row))}]")

@@ -43,7 +43,7 @@ trait Array2D[T] extends Serializable {
   def colCount: Int = arr(0).length
 
   def add(other: Array2D[T]): Unit = {
-    if(rowCount != other.rowCount || colCount != other.colCount)
+    if (rowCount != other.rowCount || colCount != other.colCount)
       throw new IllegalArgumentException(s"Matrix dimensions ${rowCount}x$colCount do not match ${other.rowCount}x${other.colCount}")
 
     for (r <- 0 until rowCount) {
@@ -109,7 +109,7 @@ trait Array2D[T] extends Serializable {
       false
   }
 
-  override def toString: String = "\n" + arr.map(_.map(_.formatted("%+1.2f")).mkString(", ")).mkString("\n") + "\n"
+  override def toString: String = "\n" + arr.map(_.map(_.formatted("%+06.2f")).mkString(", ")).mkString(s",${System.lineSeparator()}") + System.lineSeparator()
 
 }
 
@@ -127,7 +127,7 @@ sealed case class MatrixX(arr: Array[Array[Double]]) extends Array2D[MatrixX] {
 
 
 object Array2D {
-  def moveToDest(down: Int, right: Int): ArrayOperation = MoveOperation(down, right)
+  def move(down: Int, right: Int): ArrayOperation = MoveOperation(down, right)
 
   def moveFromSource(up: Int, left: Int): ArrayOperation = MoveOperation(-up, -left)
 }

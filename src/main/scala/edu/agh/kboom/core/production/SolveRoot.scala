@@ -1,6 +1,6 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom.core.Array2D.{moveFromSource, moveToDest}
+import edu.agh.kboom.core.Array2D.{moveFromSource, move}
 import edu.agh.kboom.core.{MatrixA, MatrixB, IgaTaskContext}
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
 import edu.agh.kboom.core.tree.Vertex.childPositionOf
@@ -19,8 +19,8 @@ case object SolveRoot extends Production
       src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveFromSource(2, 0))()
     ))
     case RIGHT_CHILD => Some(SolveRootMessage(
-      src.mA.transformedBy(0 until 4, 0 until 4)(moveFromSource(2, 2), moveToDest(2, 2))(),
-      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveFromSource(2, 0), moveToDest(2, 0))()
+      src.mA.transformedBy(0 until 4, 0 until 4)(moveFromSource(2, 2), move(2, 2))(),
+      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveFromSource(2, 0), move(2, 0))()
     ))
   }
 

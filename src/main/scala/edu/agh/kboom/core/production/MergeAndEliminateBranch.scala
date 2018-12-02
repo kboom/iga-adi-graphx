@@ -1,6 +1,6 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom.core.Array2D.{moveFromSource, moveToDest}
+import edu.agh.kboom.core.Array2D.{moveFromSource, move}
 import edu.agh.kboom.core.{MatrixA, MatrixB, IgaTaskContext}
 import edu.agh.kboom.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
@@ -22,11 +22,11 @@ case object MergeAndEliminateBranch extends Production
     case RIGHT_CHILD => Some(MergeAndEliminateBranchMessage(
       src.mA.transformedBy(1 to 4, 1 to 4)(
         moveFromSource(1, 1),
-        moveToDest(2, 2)
+        move(2, 2)
       )(),
       src.mB.transformedBy(1 to 4, 1 to ctx.mc.mesh.yDofs)(
         moveFromSource(1, 0),
-        moveToDest(2, 0)
+        move(2, 0)
       )()
     ))
   }
