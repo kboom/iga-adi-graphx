@@ -8,8 +8,8 @@ import edu.agh.kboom.{ElementUtils, ExecutionContext, SubjectSpec}
 class MergeAndEliminateLeafTest extends SubjectSpec {
 
   val ProblemSize = 12
-  val SrcSeed = 6
-  val DstSeed = 9
+  val FirstSeed = 6
+  val SecondSeed = 9
 
   val LeftChild = LeafVertex(8)
   val MiddleChild = LeafVertex(9)
@@ -22,20 +22,20 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
 
   "emit" when {
 
-    val dstElement = ElementUtils.dummyBoundElement(BranchVertex(4), DstSeed)
+    val dstElement = ElementUtils.dummyBoundElement(BranchVertex(4), SecondSeed)
 
     "applied on left child" should {
 
-      val srcElement = ElementUtils.dummyBoundElement(LeftChild, SrcSeed)
+      val srcElement = ElementUtils.dummyBoundElement(LeftChild, FirstSeed)
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be (empty)
+        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
       "emits unchanged matrices" in {
         MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldBe Some(MergeAndEliminateLeafMessage(
-          dummyAMatrix(SrcSeed),
-          dummyBMatrix(SrcSeed)
+          dummyAMatrix(FirstSeed),
+          dummyBMatrix(FirstSeed)
         ))
       }
 
@@ -46,7 +46,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
       val srcElement = ElementUtils.elementBoundTo(TestMesh, MiddleChild)(indexedSquareMatrix(6))
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be (empty)
+        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
       "emits matrix A translated by 1,1" in {
@@ -82,7 +82,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
       val srcElement = ElementUtils.elementBoundTo(TestMesh, RightChild)(indexedSquareMatrix(6))
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be (empty)
+        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
       "emits matrix A translated by 1,1" in {
@@ -113,6 +113,23 @@ class MergeAndEliminateLeafTest extends SubjectSpec {
 
     }
 
+  }
+
+  "merge" when {
+
+    val firstMessage = MergeAndEliminateLeafMessage(dummyAMatrix(FirstSeed), dummyBMatrix(FirstSeed))
+    val secondMessage = MergeAndEliminateLeafMessage(dummyAMatrix(SecondSeed), dummyBMatrix(SecondSeed))
+
+    "two messages" should {
+
+      "produce a sum of matrices" in {
+        MergeAndEliminateLeaf.merge(firstMessage, secondMessage) shouldBe MergeAndEliminateLeafMessage(
+          dummyAMatrix(FirstSeed, SecondSeed),
+          dummyBMatrix(FirstSeed, SecondSeed)
+        )
+      }
+
+    }
 
   }
 

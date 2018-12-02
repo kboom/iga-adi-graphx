@@ -29,13 +29,15 @@ object MatrixUtils {
 
   def indexedMatrix(r: Int, c: Int): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => rc * c + cc)
 
-  def dummyMatrix(r: Int, c: Int) : Array[Array[Double]] = generatedMatrix(r, c)(_ + _)
+  def dummyMatrix(r: Int, c: Int): Array[Array[Double]] = generatedMatrix(r, c)(_ + _)
 
-  def dummyAMatrix(seed: Int = 1, generator: (Int, Int) => Double = _ + _): MatrixA = MatrixA(generatedMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(seed + generator(_, _)))
+  def featuredMatrix(r: Int, c: Int)(f: Int*): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => if (f.contains(c * rc + cc)) 1.0 else 0)
 
-  def dummyBMatrix(seed: Int = 1, generator: (Int, Int) => Double = _ + _)(implicit mesh: Mesh): MatrixB = MatrixB(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(seed + generator(_, _)))
+  def dummyAMatrix(f: Int*): MatrixA = MatrixA(featuredMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(f: _*))
 
-  def dummyXMatrix(seed: Int = 1, generator: (Int, Int) => Double = _ + _)(implicit mesh: Mesh): MatrixX = MatrixX(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(seed + generator(_, _)))
+  def dummyBMatrix(f: Int*)(implicit mesh: Mesh): MatrixB = MatrixB(featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*))
+
+  def dummyXMatrix(f: Int*)(implicit mesh: Mesh): MatrixX = MatrixX(featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*))
 
   def generatedMatrix(r: Int, c: Int)(gen: (Int, Int) => Double): Array[Array[Double]] = {
     val arr = Array.ofDim[Double](r, c)
