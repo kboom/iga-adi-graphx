@@ -20,11 +20,11 @@ case object MergeAndEliminateLeaf extends Production
     ))
     case MIDDLE_CHILD => Some(MergeAndEliminateLeafMessage(
       src.mA.transformedBy(0 until 3, 0 until 3)()(move(1, 1)),
-      src.mB.transformedBy(0 until 3, 0 until ctx.mc.mesh.yDofs)(move(1, 0))()
+      src.mB.transformedBy(0 until 3, 0 until ctx.mc.mesh.yDofs)()(move(1, 0))
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateLeafMessage(
-      src.mA.transformedBy(0 until 3, 0 until 3)(move(2, 2))(),
-      src.mB.transformedBy(0 until 3, 0 until ctx.mc.mesh.yDofs)(move(2, 0))()
+      src.mA.transformedBy(0 until 3, 0 until 3)()(move(2, 2)),
+      src.mB.transformedBy(0 until 3, 0 until ctx.mc.mesh.yDofs)()(move(2, 0))
     ))
   }
 
