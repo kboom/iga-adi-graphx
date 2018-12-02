@@ -37,8 +37,8 @@ case object MergeAndEliminateLeaf extends Production
     dst.mA.add(msg.ca)
     dst.mB.add(msg.cb)
 
-    swapDofs(1, 3, 5, ctx.mc.mesh.yDofs)(dst)
-    swapDofs(2, 3, 5, ctx.mc.mesh.yDofs)(dst)
+    swapDofs(0, 2, 5, ctx.mc.mesh.yDofs)(dst)
+    swapDofs(1, 2, 5, ctx.mc.mesh.yDofs)(dst)
 
     partialForwardElimination(1, 5, ctx.mc.mesh.yDofs)(dst)
   }

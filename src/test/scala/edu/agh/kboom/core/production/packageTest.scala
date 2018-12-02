@@ -1,6 +1,6 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom.MatrixUtils.{fromVector, identityMatrix, unitMatrix, indexedSquareMatrix, indexedMatrix}
+import edu.agh.kboom.MatrixUtils._
 import edu.agh.kboom.{ElementUtils, MethodSpec, SubjectSpec}
 import edu.agh.kboom.core.tree.{BoundElement, RootVertex}
 import edu.agh.kboom.core.{MatrixA, MatrixB, Mesh}
@@ -15,14 +15,7 @@ class packageTest extends MethodSpec {
 
     it("can eliminate unitary matrix") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        fromVector(6, 6)(
-          1, 1, 1, 1, 1, 1,
-          1, 1, 1, 1, 1, 1,
-          1, 1, 1, 1, 1, 1,
-          1, 1, 1, 1, 1, 1,
-          1, 1, 1, 1, 1, 1,
-          1, 1, 1, 1, 1, 1
-        )
+        generatedMatrixA(Seq(fill(1)))
       )
 
       partialForwardElimination(1, 6, mesh.yDofs)
@@ -39,7 +32,7 @@ class packageTest extends MethodSpec {
 
     it("can eliminate first column") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        fromVector(6, 6)(
+        matrixA(
           1, 1, 1, 1, 1, 1,
           1, 2, 1, 1, 1, 1,
           1, 3, 1, 1, 1, 1,
@@ -63,7 +56,7 @@ class packageTest extends MethodSpec {
 
     it("does not modify identity matrix") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        identityMatrix(6)
+        generatedMatrixA(Seq(identity))
       )
 
       partialForwardElimination(1, 6, mesh.yDofs)
@@ -73,7 +66,7 @@ class packageTest extends MethodSpec {
 
     it("eliminate 1 in 6x6 MatrixA") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        fromVector(6, 6)(
+        matrixA(
           4, 0, 1, 0, 1, 0,
           8, 1, 0, 1, 0, 1,
           4, 0, 0, 0, 0, 0,
@@ -97,8 +90,8 @@ class packageTest extends MethodSpec {
 
     it("should modify B if non-unitary A was used") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        unitMatrix(6, 6),
-        fromVector(6, 14)(
+        generatedMatrixA(Seq(fill(1))),
+        matrixB(
           4, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16,
           0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -122,8 +115,8 @@ class packageTest extends MethodSpec {
 
     it("eliminate not modify 6x14 B if unitary A is used") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        identityMatrix(6),
-        fromVector(6, 14)(
+        generatedMatrixA(Seq(identity)),
+        matrixB(
           4, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 16,
           0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -151,9 +144,9 @@ class packageTest extends MethodSpec {
 
     it("can swap 0 and 2 for 6") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        indexedSquareMatrix(6),
-        indexedMatrix(6, 14),
-        indexedMatrix(6, 14)
+        generatedMatrixA(Seq(index)),
+        generatedMatrixB(Seq(index)),
+        generatedMatrixX(Seq(index))
       )
 
       swapDofs(0, 2, 6, mesh.xDofs)
@@ -188,9 +181,9 @@ class packageTest extends MethodSpec {
 
     it("can swap 0 and 1 for 5") {
       implicit val boundElement: BoundElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
-        indexedSquareMatrix(6),
-        indexedMatrix(6, 14),
-        indexedMatrix(6, 14)
+        generatedMatrixA(Seq(index)),
+        generatedMatrixB(Seq(index)),
+        generatedMatrixX(Seq(index))
       )
 
       swapDofs(0, 1, 5, mesh.xDofs)

@@ -25,6 +25,12 @@ object MatrixUtils {
     arr
   }
 
+  def unit: (Int, Int) => Double = fill(1)
+  def fill(v: Double): (Int, Int) => Double = (_, _) => v
+  def entry(r: Int, c: Int)(v: Double): (Int, Int) => Double = (tr, tc) => if(tr == r && tc == c) v else 0
+  def index: (Int, Int) => Double = (tr, tc) => tr + (tc.toDouble / 100)
+  def identity: (Int, Int) => Double = (tr, tc) => if(tr == tc) 1 else 0
+
   def indexedSquareMatrix(size: Int): Array[Array[Double]] = indexedMatrix(size, size)
 
   def indexedMatrix(r: Int, c: Int): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => rc + (cc.toDouble / 100))
@@ -32,6 +38,8 @@ object MatrixUtils {
   def dummyMatrix(r: Int, c: Int): Array[Array[Double]] = generatedMatrix(r, c)(_ + _)
 
   def featuredMatrix(r: Int, c: Int)(f: Int*): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => if (f.contains(c * rc + cc)) 1.0 else 0)
+
+  def matrixOf(r: Int, c: Int)(m: Array[Array[Double]]*) : Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => m.map(_ (rc)(cc)).sum)
 
   def constMatrix(r: Int, c: Int)(o: Double = 1): Array[Array[Double]] = generatedMatrix(r, c)((_, _) => o)
 
@@ -49,12 +57,44 @@ object MatrixUtils {
 
   def indexedXMatrix(implicit mesh: Mesh): MatrixX = MatrixX(indexedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs))
 
-  def dummyAMatrix(f: Int*): MatrixA = MatrixA(featuredMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(f: _*))
+  def featuredAMatrix(f: Int*): MatrixA = MatrixA(featuredMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(f: _*))
 
-  def dummyBMatrix(f: Int*)(implicit mesh: Mesh): MatrixB = MatrixB(featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*))
+  def featuredBMatrix(f: Int*)(implicit mesh: Mesh): MatrixB = MatrixB(featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*))
 
-  def dummyXMatrix(f: Int*)(implicit mesh: Mesh): MatrixX = MatrixX(featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*))
+  def featuredXMatrix(f: Int*)(implicit mesh: Mesh): MatrixX = MatrixX(featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*))
 
+
+  def generatedMatrixA(g: Seq[(Int, Int) => Double]): MatrixA
+  = MatrixA(assembleMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(g))
+
+  def generatedMatrixB(g: Seq[(Int, Int) => Double])(implicit m: Mesh): MatrixB
+  = MatrixB(assembleMatrix(ROWS_BOUND_TO_NODE, m.xDofs)(g))
+
+  def generatedMatrixX(g: Seq[(Int, Int) => Double])(implicit m: Mesh): MatrixX
+  = MatrixX(assembleMatrix(ROWS_BOUND_TO_NODE, m.xDofs)(g))
+
+  def matrixA(a: Double*): MatrixA
+  = MatrixA(fromVector(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(a: _*))
+
+  def matrixB(a: Double*)(implicit m: Mesh): MatrixB
+  = MatrixB(fromVector(ROWS_BOUND_TO_NODE, m.xDofs)(a: _*))
+
+  def matrixX(a: Double*)(implicit m: Mesh): MatrixX
+  = MatrixX(fromVector(ROWS_BOUND_TO_NODE, m.xDofs)(a: _*))
+
+
+  def assembleMatrix(r: Int, c: Int)(g: Seq[(Int, Int) => Double]): Array[Array[Double]] = {
+    val arr = Array.ofDim[Double](r, c)
+    for {
+      ri <- 0 until r
+      ci <- 0 until c
+    } {
+      arr(ri)(ci) = g.map(_.apply(ri, ci)).sum
+    }
+    arr
+  }
+
+  @Deprecated
   def generatedMatrix(r: Int, c: Int)(gen: (Int, Int) => Double): Array[Array[Double]] = {
     val arr = Array.ofDim[Double](r, c)
     for {
