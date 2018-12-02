@@ -109,7 +109,7 @@ trait Array2D[T] extends Serializable {
       false
   }
 
-  override def toString: String = "\n" + arr.map(_.mkString(", ")).mkString("\n") + "\n"
+  override def toString: String = "\n" + arr.map(_.map(_.formatted("%+1.2f")).mkString(", ")).mkString("\n") + "\n"
 
 }
 
