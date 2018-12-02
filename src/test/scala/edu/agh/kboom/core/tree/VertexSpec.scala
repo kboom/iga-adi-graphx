@@ -1,9 +1,9 @@
 package edu.agh.kboom.core.tree
 
+import edu.agh.kboom.MethodSpec
 import edu.agh.kboom.core.tree.Vertex._
-import org.scalatest.FunSpec
 
-class VertexSpec extends FunSpec {
+class VertexSpec extends MethodSpec {
 
   describe("Vertices in size 12 tree") {
     implicit val problemTree: ProblemTree = ProblemTree(12)
@@ -183,6 +183,30 @@ class VertexSpec extends FunSpec {
     it("segment of 19 should be (11, 12)") {
       assert(segmentOf(LeafVertex(19)) == (11, 12))
     }
+
+    it("child position of 8 should be LEFT_CHILD") {
+      childPositionOf(LeafVertex(8)) shouldBe LEFT_CHILD
+    }
+
+    it("child position of 9 should be MIDDLE_CHILD") {
+      childPositionOf(LeafVertex(9)) shouldBe MIDDLE_CHILD
+    }
+
+    it("child position of 10 should be RIGHT_CHILD") {
+      childPositionOf(LeafVertex(10)) shouldBe RIGHT_CHILD
+    }
+
+    it("child position of 11 should be LEFT_CHILD") {
+      childPositionOf(LeafVertex(11)) shouldBe LEFT_CHILD
+    }
+
+    it("child position of 4 should be LEFT_CHILD") {
+      childPositionOf(InterimVertex(4)) shouldBe LEFT_CHILD
+    }
+
+    it("child position of 5 should be RIGHT_CHILD") {
+      childPositionOf(InterimVertex(5)) shouldBe RIGHT_CHILD
+    }
   }
 
   describe("Vertices in size 24 tree") {
@@ -205,6 +229,5 @@ class VertexSpec extends FunSpec {
     }
 
   }
-
 
 }

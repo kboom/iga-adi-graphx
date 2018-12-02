@@ -25,11 +25,11 @@ object MatrixUtils {
     arr
   }
 
-  def dummyAMatrix(): MatrixA = MatrixA(generatedMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(1 + _ + _))
+  def dummyAMatrix(seed: Int = 1, generator: (Int, Int) => Double = _ + _): MatrixA = MatrixA(generatedMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(seed + generator(_, _)))
 
-  def dummyBMatrix()(implicit mesh: Mesh): MatrixB = MatrixB(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs + 1)(1 + _ + _))
+  def dummyBMatrix(seed: Int = 1, generator: (Int, Int) => Double = _ + _)(implicit mesh: Mesh): MatrixB = MatrixB(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs + 1)(seed + generator(_, _)))
 
-  def dummyXMatrix()(implicit mesh: Mesh): MatrixX = MatrixX(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs + 1)(1 + _ + _))
+  def dummyXMatrix(seed: Int = 1, generator: (Int, Int) => Double = _ + _)(implicit mesh: Mesh): MatrixX = MatrixX(generatedMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs + 1)(seed + generator(_, _)))
 
   def generatedMatrix(r: Int, c: Int)(gen: (Int, Int) => Double): Array[Array[Double]] = {
     val arr = Array.ofDim[Double](r, c)

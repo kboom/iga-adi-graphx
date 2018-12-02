@@ -1,12 +1,12 @@
 package edu.agh.kboom.core.production
 
 import edu.agh.kboom.MatrixUtils.{identityMatrix, fromVector}
-import edu.agh.kboom.UnitSpec
+import edu.agh.kboom.SubjectSpec
 import edu.agh.kboom.core.tree.{BoundElement, Element, RootVertex}
 import edu.agh.kboom.core.{MatrixA, MatrixB, Mesh}
 
 
-class packageTest extends UnitSpec {
+class packageTest extends SubjectSpec {
 
   trait IgaContext {
     implicit val mesh: Mesh = Mesh(12, 12, 12, 12)
