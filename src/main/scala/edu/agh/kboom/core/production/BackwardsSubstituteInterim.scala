@@ -2,7 +2,7 @@ package edu.agh.kboom.core.production
 
 import edu.agh.kboom.core.Array2D.{moveFromSource, move}
 import edu.agh.kboom.core.{MatrixX, IgaTaskContext}
-import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
+import edu.agh.kboom.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
 
 sealed case class BackwardsSubstituteInterimMessage(cx: MatrixX) extends ProductionMessage {
   override val production: Production = BackwardsSubstituteInterim
@@ -11,7 +11,7 @@ sealed case class BackwardsSubstituteInterimMessage(cx: MatrixX) extends Product
 case object BackwardsSubstituteInterim extends Production
   with BaseProduction[BackwardsSubstituteInterimMessage] {
 
-  override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteInterimMessage] = {
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteInterimMessage] = {
     partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(src)
     swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(src)
     swapDofs(2, 4, 6, ctx.mc.mesh.yDofs)(src)
@@ -26,7 +26,7 @@ case object BackwardsSubstituteInterim extends Production
     }
   }
 
-  override def consume(dst: BoundElement, msg: BackwardsSubstituteInterimMessage)(implicit ctx: IgaTaskContext): Unit = {
+  override def consume(dst: IgaElement, msg: BackwardsSubstituteInterimMessage)(implicit ctx: IgaTaskContext): Unit = {
     dst.mX.add(msg.cx)
   }
 

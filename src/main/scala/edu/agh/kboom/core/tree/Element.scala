@@ -3,16 +3,28 @@ package edu.agh.kboom.core.tree
 import edu.agh.kboom.core._
 import edu.agh.kboom.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 
-sealed case class BoundElement(v: Vertex, e: Element) {
+sealed case class IgaElement(v: Vertex, e: Element, p: Int = 0) {
   def mA: MatrixA = e.mA
   def mB: MatrixB = e.mB
   def mX: MatrixX = e.mX
+
+  def hasMorePressureThan(o: IgaElement): Boolean = p > o.p
+
+  def withIncreasedPressure(): IgaElement = IgaElement(v, e, p + 1)
 }
 
 case class Element(elements: Int) {
   val mA: MatrixA = MatrixA.ofDim(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
   val mB: MatrixB = MatrixB.ofDim(ROWS_BOUND_TO_NODE, elements)
   val mX: MatrixX = MatrixX.ofDim(ROWS_BOUND_TO_NODE, elements)
+}
+
+object IgaElement {
+
+  def print(e: IgaElement): String = f"Element pressure=${e.p}\n${Element.print(e.e)}"
+
+  def copy(src: IgaElement): IgaElement = IgaElement(src.v, src.e, src.p)
+
 }
 
 object Element {

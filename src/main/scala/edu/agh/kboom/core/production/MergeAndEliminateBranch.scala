@@ -3,7 +3,7 @@ package edu.agh.kboom.core.production
 import edu.agh.kboom.core.Array2D.{moveFromSource, move}
 import edu.agh.kboom.core.{MatrixA, MatrixB, IgaTaskContext}
 import edu.agh.kboom.core.tree.Vertex.childPositionOf
-import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
+import edu.agh.kboom.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD}
 
 sealed case class MergeAndEliminateBranchMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateBranch
@@ -13,7 +13,7 @@ case object MergeAndEliminateBranch extends Production
   with BaseProduction[MergeAndEliminateBranchMessage]
   with MergingProduction[MergeAndEliminateBranchMessage] {
 
-  override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext):
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext):
     Option[MergeAndEliminateBranchMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateBranchMessage(
       src.mA.transformedBy(1 to 4, 1 to 4)(moveFromSource(1, 1))(),
@@ -37,7 +37,7 @@ case object MergeAndEliminateBranch extends Production
     a.cb + b.cb
   )
 
-  override def consume(dst: BoundElement, msg: MergeAndEliminateBranchMessage)(implicit ctx: IgaTaskContext): Unit = {
+  override def consume(dst: IgaElement, msg: MergeAndEliminateBranchMessage)(implicit ctx: IgaTaskContext): Unit = {
     dst.mA.add(msg.ca)
     dst.mB.add(msg.cb)
 

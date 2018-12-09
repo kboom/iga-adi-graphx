@@ -2,7 +2,7 @@ package edu.agh.kboom.core.production
 
 import edu.agh.kboom.core.Array2D.{moveFromSource, move}
 import edu.agh.kboom.core.{MatrixA, MatrixB, IgaTaskContext}
-import edu.agh.kboom.core.tree.{BoundElement, LEFT_CHILD, RIGHT_CHILD}
+import edu.agh.kboom.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD}
 import edu.agh.kboom.core.tree.Vertex.childPositionOf
 
 sealed case class SolveRootMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
@@ -13,7 +13,7 @@ case object SolveRoot extends Production
   with BaseProduction[SolveRootMessage]
   with MergingProduction[SolveRootMessage] {
 
-  override def emit(src: BoundElement, dst: BoundElement)(implicit ctx: IgaTaskContext): Option[SolveRootMessage] = childPositionOf(src.v)(ctx.tree) match {
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[SolveRootMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(SolveRootMessage(
       src.mA.transformedBy(0 until 4, 0 until 4)(moveFromSource(2, 2))(),
       src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(moveFromSource(2, 0))()
@@ -29,7 +29,7 @@ case object SolveRoot extends Production
     a.cb + b.cb
   )
 
-  override def consume(dst: BoundElement, msg: SolveRootMessage)(implicit ctx: IgaTaskContext): Unit = {
+  override def consume(dst: IgaElement, msg: SolveRootMessage)(implicit ctx: IgaTaskContext): Unit = {
     dst.mA.add(msg.ca)
     dst.mB.add(msg.cb)
 

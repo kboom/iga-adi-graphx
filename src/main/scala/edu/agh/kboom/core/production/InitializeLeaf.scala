@@ -9,7 +9,7 @@ sealed case class InitializeLeafMessage() extends ProductionMessage {
 
 object InitializeLeaf extends Production {
 
-  def initialize(e: BoundElement)(implicit ctx: IgaTaskContext): Unit = {
+  def initialize(e: IgaElement)(implicit ctx: IgaTaskContext): Unit = {
     MethodCoefficients.bind(e.mA)
     for (i <- 0 until ctx.mc.mesh.xDofs) {
       fillRightHandSide(e, Spline1(), 0, i)
@@ -18,7 +18,7 @@ object InitializeLeaf extends Production {
     }
   }
 
-  private def fillRightHandSide(e: BoundElement, spline: Spline, r: Int, i: Int)(implicit ctx: IgaTaskContext): Unit = {
+  private def fillRightHandSide(e: IgaElement, spline: Spline, r: Int, i: Int)(implicit ctx: IgaTaskContext): Unit = {
     implicit val problemTree: ProblemTree = ctx.mc.xTree()
     implicit val mesh: Mesh = ctx.mc.mesh
 

@@ -1,10 +1,10 @@
 package edu.agh.kboom.core
 
-import edu.agh.kboom.core.tree.BoundElement
+import edu.agh.kboom.core.tree.IgaElement
 
 package object production {
 
-  def swapDofs(a: Int, b: Int, size: Int, nrhs: Int)(implicit p: BoundElement): Unit = {
+  def swapDofs(a: Int, b: Int, size: Int, nrhs: Int)(implicit p: IgaElement): Unit = {
     for (i <- 0 until size) {
       p.mA.swap(a, i, b, i)
     }
@@ -17,7 +17,7 @@ package object production {
     }
   }
 
-  def partialForwardElimination(elim: Int, size: Int, nrhs: Int)(implicit p: BoundElement): Unit = {
+  def partialForwardElimination(elim: Int, size: Int, nrhs: Int)(implicit p: IgaElement): Unit = {
     for (irow <- 0 until elim) {
       val diag = p.mA(irow)(irow)
       for (icol <- irow until size) {
@@ -38,7 +38,7 @@ package object production {
     }
   }
 
-  def partialBackwardsSubstitution(elim: Int, size: Int, nrhs: Int)(implicit p: BoundElement): Unit = {
+  def partialBackwardsSubstitution(elim: Int, size: Int, nrhs: Int)(implicit p: IgaElement): Unit = {
     for (irhs <- 0 until nrhs) {
       for (irow <- elim to 0 by -1) {
         p.mX.replace(irow, irhs, p.mB(irow)(irhs))

@@ -1,17 +1,26 @@
 package edu.agh.kboom.core
 
 import edu.agh.kboom.core.production._
-import edu.agh.kboom.core.tree.{BoundElement, Element, LeafVertex, Vertex}
+import edu.agh.kboom.core.tree._
+import org.slf4j.{Logger, LoggerFactory}
 
 object IgaTaskExecutor {
 
-  def sendMessage(op: IgaOperation)(src: Element, dst: Element)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
-    println(s"[$taskCtx] Sending messages from (${op.src}) to (${op.dst}) for production (${op.p})")
-    op.p.asInstanceOf[BaseProduction[ProductionMessage]].emit(BoundElement(op.src, src), BoundElement(op.dst, dst))
+  private val Log = LoggerFactory.getLogger(getClass)
+
+  def sendMessage(op: IgaOperation)(src: IgaElement, dst: IgaElement)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
+    Log.debug(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Determining messages")
+    if(src.hasMorePressureThan(dst)) {
+      Log.debug(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Sending messages")
+      op.p.asInstanceOf[BaseProduction[ProductionMessage]].emit(src, dst)
+    } else {
+//      Some(KeepAliveMessage)
+      None
+    }
   }
 
   def mergeMessages(a: ProductionMessage, b: ProductionMessage): ProductionMessage = {
-    println(s"Merging messages from ($a) and ($b)")
+    Log.trace(s"Merging messages from ($a) and ($b)")
     a.production match {
       case MergeAndEliminateLeaf => MergeAndEliminateLeaf.merge(
         a.asInstanceOf[MergeAndEliminateLeafMessage],
@@ -29,30 +38,41 @@ object IgaTaskExecutor {
         a.asInstanceOf[SolveRootMessage],
         b.asInstanceOf[SolveRootMessage]
       )
+      case KeepAliveProduction => a
     }
   }
 
-  def receiveMessage(e: Element, m: ProductionMessage)(implicit taskCtx: IgaTaskContext): Unit = {
+  def receiveMessage(e: IgaElement, m: ProductionMessage)(implicit taskCtx: IgaTaskContext): IgaElement = {
     val vertex = Vertex.vertexOf(taskCtx.vid)(taskCtx.mc.xTree())
-    val element = BoundElement(vertex, e)
 
-    println(s"[$taskCtx] Running on (${taskCtx.vid}) and element ($element) production ($m)")
+    Log.trace(s"Running ${m.production} on ${e.v}/(${e.p})")
 
     m.production match {
-      case InitializeLeaf => if(vertex.isInstanceOf[LeafVertex]) InitializeLeaf.initialize(element)
-      case MergeAndEliminateLeaf => MergeAndEliminateLeaf.consume(element, m.asInstanceOf[MergeAndEliminateLeafMessage])
-      case MergeAndEliminateBranch => MergeAndEliminateBranch.consume(element, m.asInstanceOf[MergeAndEliminateBranchMessage])
-      case MergeAndEliminateInterim => MergeAndEliminateInterim.consume(element, m.asInstanceOf[MergeAndEliminateInterimMessage])
-      case SolveRoot => SolveRoot.consume(element, m.asInstanceOf[SolveRootMessage])
-      case BackwardsSubstituteInterim => BackwardsSubstituteInterim.consume(element, m.asInstanceOf[BackwardsSubstituteInterimMessage])
-      case BackwardsSubstituteBranch => BackwardsSubstituteBranch.consume(element, m.asInstanceOf[BackwardsSubstituteBranchMessage])
+      case InitializeLeaf => if(vertex.isInstanceOf[LeafVertex]) {
+        InitializeLeaf.initialize(e)
+      } else return e
+      case MergeAndEliminateLeaf =>
+        MergeAndEliminateLeaf.consume(e, m.asInstanceOf[MergeAndEliminateLeafMessage])
+      case MergeAndEliminateBranch =>
+        MergeAndEliminateBranch.consume(e, m.asInstanceOf[MergeAndEliminateBranchMessage])
+      case MergeAndEliminateInterim =>
+        MergeAndEliminateInterim.consume(e, m.asInstanceOf[MergeAndEliminateInterimMessage])
+      case SolveRoot =>
+        SolveRoot.consume(e, m.asInstanceOf[SolveRootMessage])
+      case BackwardsSubstituteInterim =>
+        BackwardsSubstituteInterim.consume(e, m.asInstanceOf[BackwardsSubstituteInterimMessage])
+      case BackwardsSubstituteBranch =>
+        BackwardsSubstituteBranch.consume(e, m.asInstanceOf[BackwardsSubstituteBranchMessage])
+      case KeepAliveProduction => return e
     }
 
-    println(
+    Log.debug(
       s"""
-[$taskCtx] Finished on ($taskCtx.vid) and element ($element) production ($m)
-${Element.print(e)}
+[$taskCtx] Run on ($taskCtx.vid) and element ($e) production ($m))
+${IgaElement.print(e)}
     """.stripMargin)
+
+    e.withIncreasedPressure()
   }
 
 }

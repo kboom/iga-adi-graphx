@@ -16,7 +16,7 @@ sealed abstract class Vertex {
 }
 
 case class RootVertex() extends Vertex {
-  override def id: Int = 0
+  override def id: Int = 1
 }
 
 case class InterimVertex(id: Int) extends Vertex

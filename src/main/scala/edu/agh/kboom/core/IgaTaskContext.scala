@@ -17,6 +17,11 @@ case class IgaTaskContext(
 
 object IgaTaskContext {
 
-  def create(vid: VertexId)(implicit program: VertexProgram): IgaTaskContext = IgaTaskContext(vid.toInt, ExecutionContext(), program.ctx.xTree(), program.ctx)
+  def create(vid: VertexId)(implicit program: VertexProgram): IgaTaskContext = IgaTaskContext(
+    vid.toInt,
+    ExecutionContext(),
+    program.ctx.xTree(),
+    program.ctx
+  )
 
 }

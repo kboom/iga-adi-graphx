@@ -11,7 +11,7 @@ class IgaOperationSpec extends FunSpec with Matchers {
   }
 
   it("BranchVertex(8) -> InterimVertex(4) = MergeAndEliminateBranch") {
-    IgaOperation.operationFor(BranchVertex(8), InterimVertex(4)) shouldBe Some(IgaOperation(BranchVertex(8), InterimVertex(4), MergeAndEliminateInterim))
+    IgaOperation.operationFor(BranchVertex(8), InterimVertex(4)) shouldBe Some(IgaOperation(BranchVertex(8), InterimVertex(4), MergeAndEliminateBranch))
   }
 
   it("InterimVertex(4) -> InterimVertex(2) = MergeAndEliminateInterim") {
