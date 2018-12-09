@@ -7,11 +7,6 @@ trait DummyProblem {
 
   val ProblemSize = 12
 
-  val Parent = BranchVertex(4)
-  val LeftChild = LeafVertex(8)
-  val MiddleChild = LeafVertex(9)
-  val RightChild = LeafVertex(10)
-
   implicit val TestMesh: Mesh = Mesh(ProblemSize, ProblemSize, ProblemSize, ProblemSize)
   implicit val TestTree: ProblemTree = ProblemTree(ProblemSize)
   implicit val IgaTestContext: IgaContext = IgaContext(TestMesh, _ + _)

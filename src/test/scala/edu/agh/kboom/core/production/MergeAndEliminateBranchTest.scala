@@ -2,18 +2,17 @@ package edu.agh.kboom.core.production
 
 import edu.agh.kboom.ElementUtils.elementBoundTo
 import edu.agh.kboom.MatrixUtils._
-import edu.agh.kboom.core._
-import edu.agh.kboom.core.tree.{BranchVertex, LeafVertex}
+import edu.agh.kboom.core.tree.{BranchVertex, InterimVertex}
+import edu.agh.kboom.core.{MatrixA, MatrixB}
 import edu.agh.kboom.{DummyProblem, MatrixColors, SubjectSpec}
 
-class MergeAndEliminateLeafTest extends SubjectSpec
+class MergeAndEliminateBranchTest extends SubjectSpec
   with DummyProblem
   with MatrixColors {
 
-  val Parent = BranchVertex(4)
-  val LeftChild = LeafVertex(8)
-  val MiddleChild = LeafVertex(9)
-  val RightChild = LeafVertex(10)
+  val Parent = InterimVertex(4)
+  val LeftChild = BranchVertex(8)
+  val RightChild = BranchVertex(9)
 
   "emit" when {
 
@@ -27,35 +26,16 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
-      }
-
-      "emits unchanged matrices" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldBe Some(MergeAndEliminateLeafMessage(
-          generatedMatrixA(Seq(index)),
-          generatedMatrixB(Seq(index))
-        ))
-      }
-
-    }
-
-    "applied on middle child" should {
-
-      val srcElement = elementBoundTo(TestMesh, MiddleChild)(
-        generatedMatrixA(Seq(index))
-      )
-
-      "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateBranch.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
+        MergeAndEliminateBranch.emit(srcElement, dstElement).get should have(
           'ca (MatrixA(fromVector(6, 6)(
-            +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +00.00, +00.01, +00.02, +00.00, +00.00,
-            +00.00, +01.00, +01.01, +01.02, +00.00, +00.00,
-            +00.00, +02.00, +02.01, +02.02, +00.00, +00.00,
+            +01.01, +01.02, +01.03, +01.04, +00.00, +00.00,
+            +02.01, +02.02, +02.03, +02.04, +00.00, +00.00,
+            +03.01, +03.02, +03.03, +03.04, +00.00, +00.00,
+            +04.01, +04.02, +04.03, +04.04, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
           )))
@@ -63,12 +43,12 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
+        MergeAndEliminateBranch.emit(srcElement, dstElement).get should have(
           'cb (MatrixB(fromVector(6, 14)(
-            +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
-            +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
-            +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
+            +01.00, +01.01, +01.02, +01.03, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+            +02.00, +02.01, +02.02, +02.03, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+            +03.00, +03.01, +03.02, +03.03, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+            +04.00, +04.01, +04.02, +04.03, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
           )))
@@ -84,31 +64,31 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateBranch.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
+        MergeAndEliminateBranch.emit(srcElement, dstElement).get should have(
           'ca (MatrixA(fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +00.00, +00.00, +00.01, +00.02, +00.00,
-            +00.00, +00.00, +01.00, +01.01, +01.02, +00.00,
-            +00.00, +00.00, +02.00, +02.01, +02.02, +00.00,
-            +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
+            +00.00, +00.00, +01.01, +01.02, +01.03, +01.04,
+            +00.00, +00.00, +02.01, +02.02, +02.03, +02.04,
+            +00.00, +00.00, +03.01, +03.02, +03.03, +03.04,
+            +00.00, +00.00, +04.01, +04.02, +04.03, +04.04
           )))
         )
       }
 
-      "emits matrix B translated by one row" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
+      "emits matrix B translated by two rows" in {
+        MergeAndEliminateBranch.emit(srcElement, dstElement).get should have(
           'cb (MatrixB(fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-            +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
             +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
             +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
-            +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
+            +03.00, +03.01, +03.02, +03.03, +03.04, +03.05, +03.06, +03.07, +03.08, +03.09, +03.10, +03.11, +03.12, +03.13,
+            +04.00, +04.01, +04.02, +04.03, +04.04, +04.05, +04.06, +04.07, +04.08, +04.09, +04.10, +04.11, +04.12, +04.13
           )))
         )
       }
@@ -119,11 +99,11 @@ class MergeAndEliminateLeafTest extends SubjectSpec
 
   "merge" when {
 
-    val redMsg = MergeAndEliminateLeafMessage(
+    val redMsg = MergeAndEliminateBranchMessage(
       generatedMatrixA(Seq(WhiteFabric, RedFeature)),
       generatedMatrixB(Seq(GreyFabric, RedFeature))
     )
-    val greenMsg = MergeAndEliminateLeafMessage(
+    val greenMsg = MergeAndEliminateBranchMessage(
       generatedMatrixA(Seq(GreyFabric, BlueFeature)),
       generatedMatrixB(Seq(WhiteFabric, BlueFeature))
     )
@@ -131,7 +111,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
     "two messages" should {
 
       "produce a sum of matrices" in {
-        MergeAndEliminateLeaf.merge(redMsg, greenMsg) shouldBe MergeAndEliminateLeafMessage(
+        MergeAndEliminateBranch.merge(redMsg, greenMsg) shouldBe MergeAndEliminateBranchMessage(
           generatedMatrixA(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature)),
           generatedMatrixB(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature))
         )
@@ -143,7 +123,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
 
   "consume" when {
 
-    val msg = MergeAndEliminateLeafMessage(
+    val msg = MergeAndEliminateBranchMessage(
       generatedMatrixA(Seq(fill(0), entry(2, 1)(3))),
       generatedMatrixB(Seq(fill(0), entry(2, 1)(5)))
     )
@@ -155,30 +135,30 @@ class MergeAndEliminateLeafTest extends SubjectSpec
         generatedMatrixX(Seq(index))
       )
 
-      MergeAndEliminateLeaf.consume(dstElement, msg)
+      MergeAndEliminateBranch.consume(dstElement, msg)
 
       dstElement should have(
         'mA (matrixA(
-          +01.00, +01.00, +04.00, +00.00, +01.00, -01.00,
-          +00.00, +00.00, -03.00, +01.00, +00.00, +01.00,
-          +00.00, +00.00, -03.00, +01.00, +00.00, +01.00,
-          +00.00, +00.00, -03.00, +01.00, +00.00, +01.00,
-          +00.00, +00.00, -03.00, +01.00, +00.00, +01.00,
+          +01.00, +00.00, +01.00, +04.00, +01.00, -01.00,
+          +00.00, +01.00, +00.00, -03.00, +00.00, +01.00,
+          +00.00, +00.00, +00.00, +00.00, +00.00, +01.00,
+          +00.00, +00.00, +00.00, +00.00, +00.00, +01.00,
+          +00.00, +00.00, +00.00, +00.00, +00.00, +01.00,
           +01.00, +01.00, +01.00, +01.00, +01.00, +01.00
         )),
         'mB (matrixB(
           +00.00, +05.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +15.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-          +01.00, -05.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, -15.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-          +00.00, -02.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, -15.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, -05.00, +00.00, +00.00, +00.00, +07.00, +00.00, +00.00, -15.00, +00.00, +00.00, +00.00, +00.00, +00.00,
-          +00.00, -05.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, -15.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +01.00, +00.00, +00.00, +00.00, +00.00, -07.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +00.00, +03.00, +00.00, +00.00, +00.00, -07.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +00.00, +00.00, +00.00, +00.00, +00.00, -07.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
         )),
         'mX (matrixX(
           +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
+          +03.00, +03.01, +03.02, +03.03, +03.04, +03.05, +03.06, +03.07, +03.08, +03.09, +03.10, +03.11, +03.12, +03.13,
           +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
           +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
-          +03.00, +03.01, +03.02, +03.03, +03.04, +03.05, +03.06, +03.07, +03.08, +03.09, +03.10, +03.11, +03.12, +03.13,
           +04.00, +04.01, +04.02, +04.03, +04.04, +04.05, +04.06, +04.07, +04.08, +04.09, +04.10, +04.11, +04.12, +04.13,
           +05.00, +05.01, +05.02, +05.03, +05.04, +05.05, +05.06, +05.07, +05.08, +05.09, +05.10, +05.11, +05.12, +05.13
         ))

@@ -2,11 +2,14 @@ package edu.agh.kboom.core.production
 
 import edu.agh.kboom.ElementUtils.elementBoundTo
 import edu.agh.kboom.MatrixUtils._
+import edu.agh.kboom.core.tree.BranchVertex
 import edu.agh.kboom.{DummyProblem, MatrixColors, SubjectSpec}
 
 class InitializeLeafTest extends SubjectSpec
   with DummyProblem
   with MatrixColors {
+
+  val Parent = BranchVertex(4)
 
   "initialize" when {
 

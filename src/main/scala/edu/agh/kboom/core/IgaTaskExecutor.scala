@@ -9,7 +9,7 @@ object IgaTaskExecutor {
   private val Log = LoggerFactory.getLogger(getClass)
 
   def sendMessage(op: IgaOperation)(src: IgaElement, dst: IgaElement)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
-    Log.debug(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Determining messages")
+    Log.trace(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Determining messages")
     if(src.hasMorePressureThan(dst)) {
       Log.debug(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Sending messages")
       op.p.asInstanceOf[BaseProduction[ProductionMessage]].emit(src, dst)
