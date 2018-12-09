@@ -33,9 +33,10 @@ object IgaTaskExecutor {
   }
 
   def receiveMessage(e: Element, m: ProductionMessage)(implicit taskCtx: IgaTaskContext): Unit = {
-    println(s"[$taskCtx] Running on (${taskCtx.vid}) and element ($e) production ($m)")
     val vertex = Vertex.vertexOf(taskCtx.vid)(taskCtx.mc.xTree())
     val element = BoundElement(vertex, e)
+
+    println(s"[$taskCtx] Running on (${taskCtx.vid}) and element ($element) production ($m)")
 
     m.production match {
       case InitializeLeaf => if(vertex.isInstanceOf[LeafVertex]) InitializeLeaf.initialize(element)
@@ -49,7 +50,7 @@ object IgaTaskExecutor {
 
     println(
       s"""
-[$taskCtx] Finished on ($taskCtx.vid) and element ($e) production ($m)
+[$taskCtx] Finished on ($taskCtx.vid) and element ($element) production ($m)
 ${Element.print(e)}
     """.stripMargin)
   }
