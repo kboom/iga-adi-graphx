@@ -27,16 +27,16 @@ object InitializeLeaf extends Production {
       val x = gpk.v * mesh.xRes + Vertex.segmentOf(e.v)._1
       for (l <- 0 until GaussPoint.gaussPointCount) {
         val gpl = GaussPoint.gaussPoints(l)
-        if (i > 2) {
-          val y = (gpl.v + i - 3) * mesh.dy
+        if (i > 1) {
+          val y = (gpl.v + i - 2) * mesh.dy
           e.mB.replace(r, i, gpk.v * spline.getValue(gpk.v) * gpl.w * Spline1().getValue(gpl.v) * ctx.mc.problem(x, y))
         }
-        if (i > 1 && (i - 2) < mesh.ySize) {
-          val y = (gpl.v + i - 2) * mesh.dy
+        if (i > 0 && (i - 1) < mesh.ySize) {
+          val y = (gpl.v + i - 1) * mesh.dy
           e.mB.replace(r, i, gpk.v * spline.getValue(gpk.v) * gpl.w * Spline2().getValue(gpl.v) * ctx.mc.problem(x, y))
         }
-        if ((i - 1) < mesh.ySize) {
-          val y = (gpl.v + i - 1) * mesh.dy
+        if (i < mesh.ySize) {
+          val y = (gpl.v + i) * mesh.dy
           e.mB.replace(r, i, gpk.v * spline.getValue(gpk.v) * gpl.w * Spline3().getValue(gpl.v) * ctx.mc.problem(x, y))
         }
       }

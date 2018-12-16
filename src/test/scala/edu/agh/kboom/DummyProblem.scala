@@ -9,7 +9,7 @@ trait DummyProblem {
 
   implicit val TestMesh: Mesh = Mesh(ProblemSize, ProblemSize, ProblemSize, ProblemSize)
   implicit val TestTree: ProblemTree = ProblemTree(ProblemSize)
-  implicit val IgaTestContext: IgaContext = IgaContext(TestMesh, _ + _)
+  implicit val IgaTestContext: IgaContext = IgaContext(TestMesh, (_, _) => 1)
   implicit val TaskTestContext: IgaTaskContext = IgaTaskContext(14, ExecutionContext(), TestTree, IgaTestContext)
 
 }

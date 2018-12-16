@@ -1,6 +1,6 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom.ElementUtils.elementBoundTo
+import edu.agh.kboom.ElementUtils.cleanElementBoundTo
 import edu.agh.kboom.MatrixUtils._
 import edu.agh.kboom.core.tree.BranchVertex
 import edu.agh.kboom.{DummyProblem, MatrixColors, SubjectSpec}
@@ -13,7 +13,7 @@ class InitializeLeafTest extends SubjectSpec
 
   "initialize" when {
 
-    val element = elementBoundTo(TestMesh, Parent)()
+    val element = cleanElementBoundTo(TestMesh, Parent)()
 
     "sets stiffness matrix to valid coefficients" in {
       InitializeLeaf.initialize(element)
