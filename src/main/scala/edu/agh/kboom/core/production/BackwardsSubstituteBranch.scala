@@ -21,7 +21,7 @@ case object BackwardsSubstituteBranch extends Production
         src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)()(move(1, 0))
       ))
       case RIGHT_CHILD => Some(BackwardsSubstituteBranchMessage(
-        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(1, 0))(moveFromSource(2, 0))
+        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(1, 0))(move(2, 0))
       ))
     }
   }

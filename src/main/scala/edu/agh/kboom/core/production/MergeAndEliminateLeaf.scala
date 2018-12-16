@@ -9,6 +9,9 @@ case class MergeAndEliminateLeafMessage(ca: MatrixA, cb: MatrixB) extends Produc
   override val production: Production = MergeAndEliminateLeaf
 }
 
+/**
+  * M2_3 + E2_1_5
+  */
 case object MergeAndEliminateLeaf extends Production
   with BaseProduction[MergeAndEliminateLeafMessage]
   with MergingProduction[MergeAndEliminateLeafMessage] {

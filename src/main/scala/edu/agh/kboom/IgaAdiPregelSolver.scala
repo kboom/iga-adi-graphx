@@ -27,7 +27,7 @@ object IgaAdiPregelSolver {
     val dataItemGraph = Graph.fromEdges(edges, None)
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(igaMesh)))
 
-    implicit val program: VertexProgram = VertexProgram(IgaContext(igaMesh, (x, y) => 1))
+    implicit val program: VertexProgram = VertexProgram(IgaContext(igaMesh, (x, y) => 100))
 
     val initialMessage = InitializeLeafMessage().asInstanceOf[ProductionMessage]
 

@@ -2,7 +2,7 @@ package edu.agh.kboom.core
 
 import edu.agh.kboom.core.production._
 import edu.agh.kboom.core.tree._
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.LoggerFactory
 
 object IgaTaskExecutor {
 
@@ -34,9 +34,9 @@ object IgaTaskExecutor {
         a.asInstanceOf[MergeAndEliminateInterimMessage],
         b.asInstanceOf[MergeAndEliminateInterimMessage]
       )
-      case SolveRoot => SolveRoot.merge(
-        a.asInstanceOf[SolveRootMessage],
-        b.asInstanceOf[SolveRootMessage]
+      case MergeAndEliminateRoot => MergeAndEliminateRoot.merge(
+        a.asInstanceOf[MergeAndEliminateRootMessage],
+        b.asInstanceOf[MergeAndEliminateRootMessage]
       )
       case KeepAliveProduction => a
     }
@@ -57,8 +57,10 @@ object IgaTaskExecutor {
         MergeAndEliminateBranch.consume(e, m.asInstanceOf[MergeAndEliminateBranchMessage])
       case MergeAndEliminateInterim =>
         MergeAndEliminateInterim.consume(e, m.asInstanceOf[MergeAndEliminateInterimMessage])
-      case SolveRoot =>
-        SolveRoot.consume(e, m.asInstanceOf[SolveRootMessage])
+      case MergeAndEliminateRoot =>
+        MergeAndEliminateRoot.consume(e, m.asInstanceOf[MergeAndEliminateRootMessage])
+      case BackwardsSubstituteRoot =>
+        BackwardsSubstituteRoot.consume(e, m.asInstanceOf[BackwardsSubstituteRootMessage])
       case BackwardsSubstituteInterim =>
         BackwardsSubstituteInterim.consume(e, m.asInstanceOf[BackwardsSubstituteInterimMessage])
       case BackwardsSubstituteBranch =>
@@ -72,7 +74,11 @@ object IgaTaskExecutor {
 ${IgaElement.print(e)}
     """.stripMargin)
 
-    e.withIncreasedPressure()
+    if(m.production eq MergeAndEliminateRoot) {
+      e.withIncreasedPressure().withIncreasedPressure()
+    } else {
+      e.withIncreasedPressure()
+    }
   }
 
 }

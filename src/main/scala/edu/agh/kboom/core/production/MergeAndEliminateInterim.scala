@@ -33,9 +33,9 @@ case object MergeAndEliminateInterim extends Production
     dst.mA.add(msg.ca)
     dst.mB.add(msg.cb)
 
-    swapDofs(0, 2, 5, ctx.mc.mesh.yDofs)(dst)
-    swapDofs(1, 3, 5, ctx.mc.mesh.yDofs)(dst)
+    swapDofs(0, 2, 6, ctx.mc.mesh.yDofs)(dst)
+    swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(dst)
 
-    partialForwardElimination(2, 5, ctx.mc.mesh.yDofs)(dst)
+    partialForwardElimination(2, 6, ctx.mc.mesh.yDofs)(dst)
   }
 }

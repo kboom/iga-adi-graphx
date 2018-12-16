@@ -9,7 +9,9 @@ sealed case class MergeAndEliminateBranchMessage(ca: MatrixA, cb: MatrixB) exten
   override val production: Production = MergeAndEliminateBranch
 }
 
-// M2_2
+/**
+  * M2_2 + E2_2_6
+  */
 case object MergeAndEliminateBranch extends Production
   with BaseProduction[MergeAndEliminateBranchMessage]
   with MergingProduction[MergeAndEliminateBranchMessage] {
@@ -36,9 +38,9 @@ case object MergeAndEliminateBranch extends Production
     dst.mA.add(msg.ca)
     dst.mB.add(msg.cb)
 
-    swapDofs(0, 2, 5, ctx.mc.mesh.yDofs)(dst)
-    swapDofs(1, 3, 5, ctx.mc.mesh.yDofs)(dst)
+    swapDofs(0, 2, 6, ctx.mc.mesh.yDofs)(dst)
+    swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(dst)
 
-    partialForwardElimination(2, 5, ctx.mc.mesh.yDofs)(dst)
+    partialForwardElimination(2, 6, ctx.mc.mesh.yDofs)(dst)
   }
 }

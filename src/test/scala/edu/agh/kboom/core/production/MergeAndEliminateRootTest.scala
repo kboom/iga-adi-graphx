@@ -6,7 +6,7 @@ import edu.agh.kboom.core._
 import edu.agh.kboom.core.tree.{InterimVertex, RootVertex}
 import edu.agh.kboom.{DummyProblem, MatrixColors, SubjectSpec}
 
-class SolveRootTest extends SubjectSpec
+class MergeAndEliminateRootTest extends SubjectSpec
   with DummyProblem
   with MatrixColors {
 
@@ -26,11 +26,11 @@ class SolveRootTest extends SubjectSpec
       )
 
       "is not empty" in {
-        SolveRoot.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateRoot.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
       "emits matrix A translated by 1,1" in {
-        SolveRoot.emit(srcElement, dstElement).get should have(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).get should have(
           'ca (MatrixA(fromVector(6, 6)(
             +02.02, +02.03, +02.04, +02.05, +00.00, +00.00,
             +03.02, +03.03, +03.04, +03.05, +00.00, +00.00,
@@ -43,7 +43,7 @@ class SolveRootTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        SolveRoot.emit(srcElement, dstElement).get should have(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).get should have(
           'cb (MatrixB(fromVector(6, 14)(
             +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
             +03.00, +03.01, +03.02, +03.03, +03.04, +03.05, +03.06, +03.07, +03.08, +03.09, +03.10, +03.11, +03.12, +03.13,
@@ -64,11 +64,11 @@ class SolveRootTest extends SubjectSpec
       )
 
       "is not empty" in {
-        SolveRoot.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateRoot.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
       "emits matrix A translated by 1,1" in {
-        SolveRoot.emit(srcElement, dstElement).get should have(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).get should have(
           'ca (MatrixA(fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
@@ -81,7 +81,7 @@ class SolveRootTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        SolveRoot.emit(srcElement, dstElement).get should have(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).get should have(
           'cb (MatrixB(fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
@@ -99,11 +99,11 @@ class SolveRootTest extends SubjectSpec
 
   "merge" when {
 
-    val redMsg = SolveRootMessage(
+    val redMsg = MergeAndEliminateRootMessage(
       generatedMatrixA(Seq(WhiteFabric, RedFeature)),
       generatedMatrixB(Seq(GreyFabric, RedFeature))
     )
-    val greenMsg = SolveRootMessage(
+    val greenMsg = MergeAndEliminateRootMessage(
       generatedMatrixA(Seq(GreyFabric, BlueFeature)),
       generatedMatrixB(Seq(WhiteFabric, BlueFeature))
     )
@@ -111,7 +111,7 @@ class SolveRootTest extends SubjectSpec
     "two messages" should {
 
       "produce a sum of matrices" in {
-        SolveRoot.merge(redMsg, greenMsg) shouldBe SolveRootMessage(
+        MergeAndEliminateRoot.merge(redMsg, greenMsg) shouldBe MergeAndEliminateRootMessage(
           generatedMatrixA(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature)),
           generatedMatrixB(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature))
         )
@@ -123,7 +123,7 @@ class SolveRootTest extends SubjectSpec
 
   "consume" when {
 
-    val msg = SolveRootMessage(
+    val msg = MergeAndEliminateRootMessage(
       generatedMatrixA(Seq(fill(0), entry(2, 1)(3))),
       generatedMatrixB(Seq(fill(0), entry(2, 1)(5)))
     )
@@ -142,7 +142,7 @@ class SolveRootTest extends SubjectSpec
         generatedMatrixX(Seq(fill(1), entry(0, 0)(2),  entry(4, 10)(2)))
       )
 
-      SolveRoot.consume(dstElement, msg)
+      MergeAndEliminateRoot.consume(dstElement, msg)
 
       dstElement should have(
         'mA (matrixA(

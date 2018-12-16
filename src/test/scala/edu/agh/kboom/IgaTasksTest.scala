@@ -31,11 +31,11 @@ class IgaTasksTest extends FunSpec with Matchers {
         IgaOperation(BranchVertex(6),InterimVertex(3),MergeAndEliminateBranch),
         IgaOperation(BranchVertex(7),InterimVertex(3),MergeAndEliminateBranch),
 
-        IgaOperation(InterimVertex(2),RootVertex(),SolveRoot),
-        IgaOperation(InterimVertex(3),RootVertex(),SolveRoot),
+        IgaOperation(InterimVertex(2),RootVertex(),MergeAndEliminateRoot),
+        IgaOperation(InterimVertex(3),RootVertex(),MergeAndEliminateRoot),
 
-        IgaOperation(RootVertex(),InterimVertex(2),BackwardsSubstituteInterim),
-        IgaOperation(RootVertex(),InterimVertex(3),BackwardsSubstituteInterim),
+        IgaOperation(RootVertex(),InterimVertex(2),BackwardsSubstituteRoot),
+        IgaOperation(RootVertex(),InterimVertex(3),BackwardsSubstituteRoot),
 
         IgaOperation(InterimVertex(2),BranchVertex(4),BackwardsSubstituteBranch),
         IgaOperation(InterimVertex(2),BranchVertex(5),BackwardsSubstituteBranch),
@@ -56,9 +56,9 @@ class IgaTasksTest extends FunSpec with Matchers {
 
     it("should contain all operations") {
       IgaTasks.generateOperations(problemTree) should contain theSameElementsAs Seq(
-        IgaOperation(InterimVertex(2),RootVertex(),SolveRoot),
+        IgaOperation(InterimVertex(2),RootVertex(),MergeAndEliminateRoot),
         IgaOperation(RootVertex(),InterimVertex(2),BackwardsSubstituteInterim),
-        IgaOperation(InterimVertex(3),RootVertex(),SolveRoot),
+        IgaOperation(InterimVertex(3),RootVertex(),MergeAndEliminateRoot),
         IgaOperation(RootVertex(),InterimVertex(3),BackwardsSubstituteInterim),
         IgaOperation(InterimVertex(4),InterimVertex(2),MergeAndEliminateInterim),
         IgaOperation(InterimVertex(2),InterimVertex(4),BackwardsSubstituteInterim),
