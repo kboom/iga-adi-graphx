@@ -36,9 +36,9 @@ object Element {
   def createForX(implicit mesh: Mesh): Element = Element(elementCount)
 
   def print(e: Element): String = (0 until ROWS_BOUND_TO_NODE)
-    .map(row => s"[${printRow(e.mA.row(row))}][${printRow(e.mX.row(row))}] = [${printRow(e.mB.row(row))}]")
+    .map(row => s"${printRow(e.mA.row(row))}  |  ${printRow(e.mX.row(row))}  |  ${printRow(e.mB.row(row))}")
     .mkString(System.lineSeparator())
 
-  def printRow(row: Array[Double]): String = row.map(i => f"$i%+03f").mkString(",")
+  def printRow(row: Array[Double]): String = row.map(i => f"$i%+.3f").mkString(" ")
 
 }
