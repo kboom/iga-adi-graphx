@@ -21,18 +21,18 @@ package object production {
     for (irow <- 0 until elim) {
       val diag = p.mA(irow)(irow)
       for (icol <- irow until size) {
-        p.mA.replace(irow, icol)(_ / diag)
+        p.mA.mapEntry(irow, icol)(_ / diag)
       }
       for (irhs <- 0 until nrhs) {
-        p.mB.replace(irow, irhs)(_ / diag)
+        p.mB.mapEntry(irow, irhs)(_ / diag)
       }
       for (isub <- irow + 1 until size) {
         val mult = p.mA(isub)(irow)
         for (icol <- irow until size) {
-          p.mA.replace(isub, icol)(_ - p.mA(irow)(icol) * mult)
+          p.mA.mapEntry(isub, icol)(_ - p.mA(irow)(icol) * mult)
         }
         for (irhs <- 0 until nrhs) {
-          p.mB.replace(isub, irhs)(_ - p.mB(irow)(irhs) * mult)
+          p.mB.mapEntry(isub, irhs)(_ - p.mB(irow)(irhs) * mult)
         }
       }
     }
@@ -40,12 +40,12 @@ package object production {
 
   def partialBackwardsSubstitution(elim: Int, size: Int, nrhs: Int)(implicit p: IgaElement): Unit = {
     for (irhs <- 0 until nrhs) {
-      for (irow <- elim to 0 by -1) {
+      for (irow <- (elim - 1) to 0 by -1) {
         p.mX.replace(irow, irhs, p.mB(irow)(irhs))
-        for (icol <- irow until size) {
-          p.mX.replace(irow, irhs)(_ - p.mA(irow)(icol) * p.mX(icol)(irhs))
+        for (icol <- irow + 1 until size) {
+          p.mX.mapEntry(irow, irhs)(_ - p.mA(irow)(icol) * p.mX(icol)(irhs))
         }
-        p.mX.replace(irow, irhs)(_ / p.mA(irow)(irow))
+        p.mX.mapEntry(irow, irhs)(_ / p.mA(irow)(irow))
       }
     }
   }

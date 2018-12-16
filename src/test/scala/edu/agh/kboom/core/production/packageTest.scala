@@ -1,6 +1,6 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom.MatrixUtils._
+import edu.agh.kboom.MatrixUtils.{generatedMatrixA, _}
 import edu.agh.kboom.{ElementUtils, MethodSpec, SubjectSpec}
 import edu.agh.kboom.core.tree.{IgaElement, RootVertex}
 import edu.agh.kboom.core.{MatrixA, MatrixB, Mesh}
@@ -151,7 +151,7 @@ class packageTest extends MethodSpec {
 
       swapDofs(0, 2, 6, mesh.xDofs)
 
-      boundElement should have (
+      boundElement should have(
         'mA (MatrixA(fromVector(6, 6)(
           +02.02, +02.01, +02.00, +02.03, +02.04, +02.05,
           +01.02, +01.01, +01.00, +01.03, +01.04, +01.05,
@@ -188,7 +188,7 @@ class packageTest extends MethodSpec {
 
       swapDofs(0, 1, 5, mesh.xDofs)
 
-      boundElement should have (
+      boundElement should have(
         'mA (MatrixA(fromVector(6, 6)(
           +01.01, +01.00, +01.02, +01.03, +01.04, +00.05,
           +00.01, +00.00, +00.02, +00.03, +00.04, +01.05,
@@ -213,6 +213,58 @@ class packageTest extends MethodSpec {
           +04.00, +04.01, +04.02, +04.03, +04.04, +04.05, +04.06, +04.07, +04.08, +04.09, +04.10, +04.11, +04.12, +04.13,
           +05.00, +05.01, +05.02, +05.03, +05.04, +05.05, +05.06, +05.07, +05.08, +05.09, +05.10, +05.11, +05.12, +05.13
         )))
+      )
+    }
+
+  }
+
+  describe("partialBackwardsSubstitution") {
+
+    it("does not modify matrix A") {
+      implicit val boundElement: IgaElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
+        generatedMatrixA(Seq(index))
+      )
+
+      partialBackwardsSubstitution(6, 6, mesh.yDofs)
+
+      boundElement.mA shouldEqual generatedMatrixA(Seq(index))
+    }
+
+    it("does not modify matrix B") {
+      implicit val boundElement: IgaElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
+        mB = generatedMatrixB(Seq(index))
+      )
+
+      partialBackwardsSubstitution(6, 6, mesh.yDofs)
+
+      boundElement.mB shouldEqual generatedMatrixB(Seq(index))
+    }
+
+    it("can backwards substitute") {
+      implicit val boundElement: IgaElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
+        matrixA(
+          1, 1, 1, 1, 1, 1,
+          0, 1, 1, 1, 1, 1,
+          0, 0, 1, 1, 1, 1,
+          0, 0, 0, 1, 1, 1,
+          0, 0, 0, 0, 1, 1,
+          0, 0, 0, 0, 0, 1
+        ),
+        generatedMatrixB(Seq(fill(7), entry(1, 1)(10), entry(3, 4)(17))),
+        generatedMatrixX(Seq(fill(0)))
+      )
+
+      partialBackwardsSubstitution(6, 6, mesh.yDofs)
+
+      boundElement should have(
+        'mX (matrixX(
+          +00.00, -10.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +00.00, +10.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +00.00, +00.00, +00.00, +00.00, -17.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +00.00, +00.00, +00.00, +00.00, +17.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
+          +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00, +07.00
+        ))
       )
     }
 

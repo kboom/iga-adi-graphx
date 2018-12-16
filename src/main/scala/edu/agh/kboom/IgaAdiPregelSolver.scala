@@ -1,10 +1,8 @@
 package edu.agh.kboom
 
 import edu.agh.kboom.core.production.{InitializeLeafMessage, ProductionMessage}
-import edu.agh.kboom.core.tree.ProblemTree._
-import edu.agh.kboom.core.tree.Vertex._
 import edu.agh.kboom.core.tree._
-import edu.agh.kboom.core.{IgaContext, IgaOperation, Mesh, IgaTasks}
+import edu.agh.kboom.core.{IgaContext, IgaOperation, IgaTasks, Mesh}
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession

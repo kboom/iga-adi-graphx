@@ -21,7 +21,7 @@ trait Array2D[T] extends Serializable {
     this
   }
 
-  def replace(r: Int, c: Int)(vm: Double => Double): Array2D[T] = replace(r, c, vm(arr(r)(c)))
+  def mapEntry(r: Int, c: Int)(vm: Double => Double): Array2D[T] = replace(r, c, vm(arr(r)(c)))
 
   def row(r: Int): Array[Double] = arr(r)
 

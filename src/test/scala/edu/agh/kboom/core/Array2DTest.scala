@@ -21,6 +21,26 @@ sealed class Array2DTest extends FunSpec with Matchers {
     ))
   }
 
+  it("Can replace an entry with a value") {
+    TestMatrix(fromVector(2, 2)(
+      1, 0,
+      0, 1
+    )).replace(1, 0, 9) shouldBe TestMatrix(fromVector(2, 2)(
+      1, 0,
+      9, 1
+    ))
+  }
+
+  it("Can map an entry") {
+    TestMatrix(fromVector(2, 2)(
+      1, 0,
+      3, 1
+    )).mapEntry(1, 0)(_ * 3 + 1) shouldBe TestMatrix(fromVector(2, 2)(
+      1, 0,
+      10, 1
+    ))
+  }
+
   it("Can move to destination using one element") {
     TestMatrix(fromVector(3, 3)(
       0, 0, 0,
