@@ -13,8 +13,8 @@ case object BackwardsSubstituteInterim extends Production
 
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteInterimMessage] = {
     partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(src)
+    swapDofs(0, 2, 6, ctx.mc.mesh.yDofs)(src)
     swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(src)
-    swapDofs(2, 4, 6, ctx.mc.mesh.yDofs)(src)
 
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteInterimMessage(
