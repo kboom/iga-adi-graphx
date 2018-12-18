@@ -20,7 +20,7 @@ case object MergeAndEliminateBranch extends Production
     Option[MergeAndEliminateBranchMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateBranchMessage(
       src.mA.transformedBy(0 until 4, 0 until 4)(move(1, 1))(),
-      src.mB.transformedBy(0 until 4, 0 until 4)(move(1, 0))()
+      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(1, 0))()
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateBranchMessage(
       src.mA.transformedBy(0 until 4, 0 until 4)(move(1, 1))(move(2, 2)),
