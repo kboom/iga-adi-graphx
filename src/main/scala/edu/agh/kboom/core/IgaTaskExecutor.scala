@@ -70,7 +70,7 @@ object IgaTaskExecutor {
 
     Log.debug(
       s"""
-[$taskCtx] Run on ($taskCtx.vid) and element ($e) production ($m))
+[$taskCtx] Run on ($taskCtx.vid) and element ($e) production (${m.production.getClass.getTypeName}))
 ${IgaElement.print(e)}
     """.stripMargin)
 

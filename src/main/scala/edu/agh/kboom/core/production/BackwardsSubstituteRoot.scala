@@ -12,7 +12,7 @@ case object BackwardsSubstituteRoot extends Production
   with BaseProduction[BackwardsSubstituteRootMessage] {
 
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteRootMessage] = {
-    partialBackwardsSubstitution(6, 6, ctx.mc.mesh.yDofs)(dst)
+    partialBackwardsSubstitution(6, 6, ctx.mc.mesh.yDofs)(src)
 
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteRootMessage(
