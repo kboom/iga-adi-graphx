@@ -1,8 +1,10 @@
 package edu.agh.kboom.core.production
 
-import edu.agh.kboom.core.Array2D.{moveFromSource, move}
-import edu.agh.kboom.core.{MatrixX, IgaTaskContext}
+import edu.agh.kboom.core.Array2D.{move, moveFromSource}
+import edu.agh.kboom.core.IgaTaskExecutor.getClass
+import edu.agh.kboom.core.{IgaTaskContext, MatrixX}
 import edu.agh.kboom.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
+import org.slf4j.LoggerFactory
 
 sealed case class BackwardsSubstituteBranchMessage(cx: MatrixX) extends ProductionMessage {
   override val production: Production = BackwardsSubstituteBranch
@@ -14,17 +16,23 @@ sealed case class BackwardsSubstituteBranchMessage(cx: MatrixX) extends Producti
 case object BackwardsSubstituteBranch extends Production
   with BaseProduction[BackwardsSubstituteBranchMessage] {
 
+  private val Log = LoggerFactory.getLogger(getClass)
+
+  // todo: This can be run multiple times... the state could be modified twice... don't do it here
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteBranchMessage] = {
-    partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(src)
-    swapDofs(0, 2, 6, ctx.mc.mesh.yDofs)(src)
-    swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(src)
+    val copiedSource = IgaElement.copy(src)
+    partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(copiedSource)
+    swapDofs(0, 2, 6, ctx.mc.mesh.yDofs)(copiedSource)
+    swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(copiedSource)
+
+    Log.debug(f"v${src.v}\n ${IgaElement.print(copiedSource)}")
 
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteBranchMessage(
-        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)()(move(1, 0))
+        copiedSource.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)()(move(1, 0))
       ))
       case RIGHT_CHILD => Some(BackwardsSubstituteBranchMessage(
-        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(2, 0))(move(1, 0))
+        copiedSource.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(2, 0))(move(1, 0))
       ))
     }
   }

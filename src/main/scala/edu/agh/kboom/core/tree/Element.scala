@@ -23,7 +23,7 @@ object IgaElement {
 
   def print(e: IgaElement): String = f"Element pressure=${e.p}\n${Element.print(e.e)}"
 
-  def copy(src: IgaElement): IgaElement = IgaElement(src.v, src.e, src.p)
+  def copy(src: IgaElement): IgaElement = IgaElement(src.v, Element.copy(src.e), src.p)
 
 }
 
@@ -40,5 +40,13 @@ object Element {
     .mkString(System.lineSeparator())
 
   def printRow(row: Array[Double]): String = row.map(i => f"$i%+.3f").mkString(" ")
+
+  def copy(src: Element): Element = {
+    val dst = Element(src.elements)
+    dst.mX.add(src.mX)
+    dst.mA.add(src.mA)
+    dst.mB.add(src.mB)
+    dst
+  }
 
 }
