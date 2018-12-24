@@ -16,7 +16,7 @@ case object MergeAndEliminateInterim extends Production
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateInterimMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateInterimMessage(
       src.mA.transformedBy(0 until 4, 0 until 4)(move(2, 2))(),
-      src.mB.transformedBy(0 until 4, 0 until 4)(move(2, 0))()
+      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(2, 0))()
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateInterimMessage(
       src.mA.transformedBy(0 until 4, 0 until 4)(move(2, 2))(move(2, 2)),
