@@ -1,7 +1,7 @@
 package edu.agh.kboom.core
 
 import edu.agh.kboom.core.production._
-import edu.agh.kboom.core.production.initialisation.InitializeLeafAlongX
+import edu.agh.kboom.core.production.initialisation.{InitializeLeafAlongX, InitializeLeafAlongY}
 import edu.agh.kboom.core.tree._
 import org.slf4j.LoggerFactory
 
@@ -51,6 +51,9 @@ object IgaTaskExecutor {
     m.production match {
       case InitializeLeafAlongX => if(vertex.isInstanceOf[LeafVertex]) {
         InitializeLeafAlongX.initialize(e)
+      } else return e
+      case InitializeLeafAlongY(_) => if(vertex.isInstanceOf[LeafVertex]) {
+        m.production.asInstanceOf[InitializeLeafAlongY].initialize(e)
       } else return e
       case MergeAndEliminateLeaf =>
         MergeAndEliminateLeaf.consume(e, m.asInstanceOf[MergeAndEliminateLeafMessage])

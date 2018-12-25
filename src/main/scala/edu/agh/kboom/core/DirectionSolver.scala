@@ -13,7 +13,7 @@ import org.apache.spark.rdd.RDD
 
 case class DirectionSolver(mesh: Mesh) {
 
-  def solve(problem: Problem)(implicit sc: SparkContext): Solution = {
+  def solve(problem: Problem, msg: ProductionMessage)(implicit sc: SparkContext): Solution = {
     val problemTree = ProblemTree(mesh.xSize)
 
     val edges: RDD[Edge[IgaOperation]] =
@@ -25,17 +25,16 @@ case class DirectionSolver(mesh: Mesh) {
     val dataItemGraph = Graph.fromEdges(edges, None)
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
 
-    val result = execute(dataItemGraph, problem)
+    val result = execute(dataItemGraph, problem, msg)
 
     val hs = extractSolution(problemTree, result)
 
     Solution(hs)
   }
 
-  private def execute(dataItemGraph: Graph[IgaElement, IgaOperation], problem: Problem) = {
+  private def execute(dataItemGraph: Graph[IgaElement, IgaOperation], problem: Problem, msg: ProductionMessage) = {
     implicit val program: VertexProgram = VertexProgram(IgaContext(mesh, problem.valueAt))
-    val initialMessage = InitializeLeafAlongXMessage().asInstanceOf[ProductionMessage]
-    dataItemGraph.pregel(initialMessage, activeDirection = EdgeDirection.Out)(
+    dataItemGraph.pregel(msg, activeDirection = EdgeDirection.Out)(
       VertexProgram.run,
       VertexProgram.sendMsg,
       VertexProgram.mergeMsg
