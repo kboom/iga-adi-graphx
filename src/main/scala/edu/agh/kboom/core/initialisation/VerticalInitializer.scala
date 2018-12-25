@@ -1,14 +1,9 @@
-package edu.agh.kboom.core.production.initialisation
+package edu.agh.kboom.core.initialisation
 
-import edu.agh.kboom.core.production.{Production, ProductionMessage}
-import edu.agh.kboom.core.tree.{IgaElement, MethodCoefficients, ProblemTree}
 import edu.agh.kboom.core.{IgaTaskContext, Mesh, Partition, Solution}
+import edu.agh.kboom.core.tree.{IgaElement, MethodCoefficients, ProblemTree}
 
-sealed case class InitializeLeafAlongYMessage(p: InitializeLeafAlongY) extends ProductionMessage {
-  override val production: Production = p
-}
-
-case class InitializeLeafAlongY(hsi: Solution) extends Production {
+class VerticalInitializer(hsi: Solution) {
 
   def initialize(e: IgaElement)(implicit ctx: IgaTaskContext): Unit = {
     MethodCoefficients.bind(e.mA)

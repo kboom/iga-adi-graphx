@@ -19,8 +19,8 @@ trait ProductionMessage extends Serializable {
   val production: Production
 }
 
-case object KeepAliveMessage extends ProductionMessage {
-  override val production: Production = KeepAliveProduction
+case object InitialMessage extends ProductionMessage {
+  override val production: Production = ActivateVertex
 }
 
-case object KeepAliveProduction extends Production
+case object ActivateVertex extends Production

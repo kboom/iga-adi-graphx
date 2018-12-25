@@ -1,8 +1,8 @@
 package edu.agh.kboom.core
 
 import edu.agh.kboom.VertexProgram
-import edu.agh.kboom.core.production.ProductionMessage
-import edu.agh.kboom.core.production.initialisation.InitializeLeafAlongXMessage
+import edu.agh.kboom.core.initialisation.LeafInitializer
+import edu.agh.kboom.core.production.{InitialMessage, ProductionMessage}
 import edu.agh.kboom.core.tree.ProblemTree.{firstIndexOfBranchingRow, lastIndexOfBranchingRow}
 import edu.agh.kboom.core.tree.{Element, IgaElement, ProblemTree, Vertex}
 import org.apache.spark.SparkContext
@@ -13,8 +13,9 @@ import org.apache.spark.rdd.RDD
 
 case class DirectionSolver(mesh: Mesh) {
 
-  def solve(problem: Problem, msg: ProductionMessage)(implicit sc: SparkContext): Solution = {
-    val problemTree = ProblemTree(mesh.xSize)
+  def solve(problem: Problem, initializer: LeafInitializer)(implicit sc: SparkContext): Solution = {
+    implicit val problemTree = ProblemTree(mesh.xSize)
+    implicit val igaContext = IgaContext(mesh, problem.valueAt)
 
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(
@@ -24,17 +25,18 @@ case class DirectionSolver(mesh: Mesh) {
 
     val dataItemGraph = Graph.fromEdges(edges, None)
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
+      .joinVertices(initializer.leafData(igaContext))((_, v, se) => v.swapElement(se))
 
-    val result = execute(dataItemGraph, problem, msg)
+    val result = execute(dataItemGraph)
 
     val hs = extractSolution(problemTree, result)
 
     Solution(hs)
   }
 
-  private def execute(dataItemGraph: Graph[IgaElement, IgaOperation], problem: Problem, msg: ProductionMessage) = {
-    implicit val program: VertexProgram = VertexProgram(IgaContext(mesh, problem.valueAt))
-    dataItemGraph.pregel(msg, activeDirection = EdgeDirection.Out)(
+  private def execute(dataItemGraph: Graph[IgaElement, IgaOperation])(implicit igaContext: IgaContext) = {
+    implicit val program: VertexProgram = VertexProgram(igaContext)
+    dataItemGraph.pregel(InitialMessage.asInstanceOf[ProductionMessage], activeDirection = EdgeDirection.Out)(
       VertexProgram.run,
       VertexProgram.sendMsg,
       VertexProgram.mergeMsg

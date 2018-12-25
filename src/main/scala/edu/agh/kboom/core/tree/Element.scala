@@ -11,6 +11,8 @@ sealed case class IgaElement(v: Vertex, e: Element, p: Int = 0) {
   def hasMorePressureThan(o: IgaElement): Boolean = p > o.p
 
   def withIncreasedPressure(): IgaElement = IgaElement(v, e, p + 1)
+
+  def swapElement(se: Element): IgaElement = IgaElement(v, se, p)
 }
 
 case class Element(elements: Int) {

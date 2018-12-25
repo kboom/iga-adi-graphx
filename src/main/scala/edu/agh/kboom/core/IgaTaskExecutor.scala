@@ -1,7 +1,6 @@
 package edu.agh.kboom.core
 
 import edu.agh.kboom.core.production._
-import edu.agh.kboom.core.production.initialisation.{InitializeLeafAlongX, InitializeLeafAlongY}
 import edu.agh.kboom.core.tree._
 import org.slf4j.LoggerFactory
 
@@ -11,11 +10,10 @@ object IgaTaskExecutor {
 
   def sendMessage(op: IgaOperation)(src: IgaElement, dst: IgaElement)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
     Log.trace(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Determining messages")
-    if(src.hasMorePressureThan(dst)) {
+    if (src.hasMorePressureThan(dst)) {
       Log.debug(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Sending messages")
       op.p.asInstanceOf[BaseProduction[ProductionMessage]].emit(src, dst)
     } else {
-//      Some(KeepAliveMessage)
       None
     }
   }
@@ -39,7 +37,6 @@ object IgaTaskExecutor {
         a.asInstanceOf[MergeAndEliminateRootMessage],
         b.asInstanceOf[MergeAndEliminateRootMessage]
       )
-      case KeepAliveProduction => a
     }
   }
 
@@ -49,11 +46,8 @@ object IgaTaskExecutor {
     Log.trace(s"Running ${m.production} on ${e.v}/(${e.p})")
 
     m.production match {
-      case InitializeLeafAlongX => if(vertex.isInstanceOf[LeafVertex]) {
-        InitializeLeafAlongX.initialize(e)
-      } else return e
-      case InitializeLeafAlongY(_) => if(vertex.isInstanceOf[LeafVertex]) {
-        m.production.asInstanceOf[InitializeLeafAlongY].initialize(e)
+      case ActivateVertex => if (vertex.isInstanceOf[LeafVertex]) {
+        IgaElement.copy(e)
       } else return e
       case MergeAndEliminateLeaf =>
         MergeAndEliminateLeaf.consume(e, m.asInstanceOf[MergeAndEliminateLeafMessage])
@@ -69,7 +63,6 @@ object IgaTaskExecutor {
         BackwardsSubstituteInterim.consume(e, m.asInstanceOf[BackwardsSubstituteInterimMessage])
       case BackwardsSubstituteBranch =>
         BackwardsSubstituteBranch.consume(e, m.asInstanceOf[BackwardsSubstituteBranchMessage])
-      case KeepAliveProduction => return e
     }
 
     Log.debug(
@@ -78,7 +71,7 @@ object IgaTaskExecutor {
 ${IgaElement.print(e)}
     """.stripMargin)
 
-    if(m.production eq MergeAndEliminateRoot) {
+    if (m.production eq MergeAndEliminateRoot) {
       e.withIncreasedPressure().withIncreasedPressure()
     } else {
       e.withIncreasedPressure()
