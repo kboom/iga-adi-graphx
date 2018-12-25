@@ -50,12 +50,13 @@ object IgaAdiPregelSolver {
 
     println(f"Size ${hs.numRows()}x${hs.numCols()}")
 
-    hs
-      .rows // Extract RDD[org.apache.spark.mllib.linalg.Vector]
-      .sortBy(_.index)
-      .map(_.vector.toArray.map(i => f"$i%+.3f").mkString(" "))
-      .collect // you can use toLocalIterator to limit memory usage
-      .foreach(println) // Iterate over local Iterator and print
+    printMatrix(hs)
+
+    val vs = transposeRowMatrix(hs)
+
+    println(f"Transposed ${vs.numRows()}x${vs.numCols()}")
+    printMatrix(vs)
+
 
 
     // transpose the matrix
@@ -65,26 +66,32 @@ object IgaAdiPregelSolver {
     spark.stop()
   }
 
-  def transposeRowMatrix(m: RowMatrix): RowMatrix = {
-    val transposedRowsRDD = m.rows.zipWithIndex.map { case (row, rowIndex) => rowToTransposedTriplet(row, rowIndex) }
+  private def printMatrix(hs: IndexedRowMatrix) = {
+    hs
+      .rows // Extract RDD[org.apache.spark.mllib.linalg.Vector]
+      .sortBy(_.index)
+      .map(_.vector.toArray.map(i => f"$i%+.3f").mkString(" "))
+      .collect // you can use toLocalIterator to limit memory usage
+      .foreach(println) // Iterate over local Iterator and print
+  }
+
+  def transposeRowMatrix(m: IndexedRowMatrix): IndexedRowMatrix = {
+    val transposedRowsRDD = m.rows.map(rowToTransposedTriplet)
       .flatMap(x => x) // now we have triplets (newRowIndex, (newColIndex, value))
       .groupByKey
-      .sortByKey().map(_._2) // sort rows and remove row indexes
-      .map(buildRow) // restore order of elements in each row and remove column indexes
-    new RowMatrix(transposedRowsRDD)
+      .map { case (a,b) => buildRow(a, b) }
+    new IndexedRowMatrix(transposedRowsRDD)
   }
 
-  def rowToTransposedTriplet(row: Vector, rowIndex: Long): Array[(Long, (Long, Double))] = {
-    val indexedRow = row.toArray.zipWithIndex
-    indexedRow.map { case (value, colIndex) => (colIndex.toLong, (rowIndex, value)) }
-  }
+  def rowToTransposedTriplet(row: IndexedRow): Array[(Long, (Long, Double))] =
+    row.vector.toArray.zipWithIndex.map { case (value, colIndex) => (colIndex.toLong, (row.index, value)) }
 
-  def buildRow(rowWithIndexes: Iterable[(Long, Double)]): Vector = {
+  def buildRow(rowIndex: Long, rowWithIndexes: Iterable[(Long, Double)]): IndexedRow = {
     val resArr = new Array[Double](rowWithIndexes.size)
     rowWithIndexes.foreach { case (index, value) =>
       resArr(index.toInt) = value
     }
-    Vectors.dense(resArr)
+    IndexedRow(rowIndex, Vectors.dense(resArr))
   }
 
 }
