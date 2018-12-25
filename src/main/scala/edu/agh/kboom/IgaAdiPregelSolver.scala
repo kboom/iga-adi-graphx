@@ -1,7 +1,7 @@
 package edu.agh.kboom
 
 import edu.agh.kboom.core._
-import edu.agh.kboom.core.initialisation.HorizontalInitializer
+import edu.agh.kboom.core.initialisation.{HorizontalInitializer, VerticalInitializer}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.sql.SparkSession
@@ -21,10 +21,9 @@ object IgaAdiPregelSolver {
     val transposedPartialSolution = Solution(transposeRowMatrix(partialSolution.m))
     Solution.print(transposedPartialSolution)
 
-//    val verticalMessage = InitializeLeafAlongYMessage(InitializeLeafAlongY(transposedPartialSolution))
-//    val solution = solver.solve(OneProblem, verticalMessage)
-//
-//    Solution.print(solution)
+    val solution = solver.solve(OneProblem, VerticalInitializer(transposedPartialSolution))
+
+    Solution.print(solution)
     // transpose the matrix
 
     // https://stackoverflow.com/questions/30556478/matrix-transpose-on-rowmatrix-in-spark
