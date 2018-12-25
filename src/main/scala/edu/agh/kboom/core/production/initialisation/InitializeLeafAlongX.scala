@@ -1,13 +1,14 @@
-package edu.agh.kboom.core.production
+package edu.agh.kboom.core.production.initialisation
 
 import edu.agh.kboom.core._
+import edu.agh.kboom.core.production.{Production, ProductionMessage}
 import edu.agh.kboom.core.tree.{Vertex, _}
 
-sealed case class InitializeLeafMessage() extends ProductionMessage {
-  override val production: Production = InitializeLeaf
+sealed case class InitializeLeafAlongXMessage() extends ProductionMessage {
+  override val production: Production = InitializeLeafAlongX
 }
 
-object InitializeLeaf extends Production {
+object InitializeLeafAlongX extends Production {
 
   def initialize(e: IgaElement)(implicit ctx: IgaTaskContext): Unit = {
     MethodCoefficients.bind(e.mA)

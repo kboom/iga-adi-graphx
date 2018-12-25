@@ -1,9 +1,9 @@
 package edu.agh.kboom.core
 
-abstract class Problem {
+abstract class Problem extends Serializable {
   def valueAt(x: Double, y: Double): Double
 }
 
-sealed class OneProblem extends Problem {
+object OneProblem extends Problem {
   override def valueAt(x: Double, y: Double): Double = 1
 }
