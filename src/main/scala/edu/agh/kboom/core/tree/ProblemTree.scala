@@ -22,4 +22,6 @@ object ProblemTree {
 
   def strengthOfRow(level: Int)(implicit tree: ProblemTree): Int = if (level < leafHeight) pow(2, level - 1) else 3 * pow(2, level - 2)
 
+  def strengthOfLeaves()(implicit tree: ProblemTree): Int = strengthOfRow(leafHeight)
+
 }

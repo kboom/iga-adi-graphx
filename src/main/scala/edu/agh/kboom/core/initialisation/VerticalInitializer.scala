@@ -8,46 +8,92 @@ import org.apache.spark.graphx.VertexId
 import org.apache.spark.mllib.linalg.distributed.IndexedRow
 import org.apache.spark.rdd.RDD
 
+object VerticalInitializer {
+
+  /**
+    * 0,1,2 --  8
+    * 1,2,3 --  9
+    * 2,3,4 -- 10
+    * 3,4,5 -- 11
+    * (...)
+    * 9,10,11 - 17
+    * 10,11,12 - 18
+    * 11,12,13 - 19
+    */
+  def verticesDependentOnRow(rowNo: Int)(implicit ctx: IgaContext): Seq[Int] = {
+    implicit val tree = ctx.yTree()
+    val elements = ctx.mesh.yDofs
+
+    val all = Seq(-1, 0, 1)
+      .map(_ + ProblemTree.firstIndexOfLeafRow)
+      .map(_ + rowNo - 1)
+      .filterNot { x => x < ProblemTree.firstIndexOfLeafRow || x > ProblemTree.lastIndexOfLeafRow }
+
+
+    val span = Math.min(3, 1 + Math.min(rowNo, elements - 1 - rowNo))
+
+    return if (rowNo < elements / 2) all.take(span) else all.takeRight(span)
+  }
+
+}
+
 case class VerticalInitializer(hsi: Solution) extends LeafInitializer {
 
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree = ctx.yTree()
 
-    val data = hsi.m.rows.groupBy(ir => Math.floor(ir.index.toInt / 3).toInt)
+    val findPartitionFor = (vid: Int, rowNo: Int) => 1
 
-    println(data.keys.collect().mkString(", "))
+    val findLocalRowFor = (vid: Int, rowNo: Int) => 1
+
+    /*
+id = {0,1,2,3...N}
+
+node.m_b(1)(i) = partition(0) * solution(i)(idx)
+node.m_b(2)(i) = partition(1) * solution(i)(idx + 1)
+node.m_b(3)(i) = partition(2) * solution(i)(idx + 2)
+
+0,1,2
+1,2,3
+2,3,4
+3,4,5
+*/
+    val collocate = (row: IndexedRow) => {
+      val leafCount = ProblemTree.strengthOfLeaves()
+      val idx = row.index.toInt
+
+      VerticalInitializer.verticesDependentOnRow(idx)(ctx)
+        .flatMap(vid => {
+          val localRow = findLocalRowFor(vid, idx)
+          val partition = findPartitionFor(vid, idx)
+          val vertexRowValues = row.vector.toArray.map(_ * partition)
+          Seq((vid.toLong, Seq((localRow, vertexRowValues))))
+        })
+    }
+
+    val data = hsi.m.rows
+      .flatMap(collocate)
+      .groupBy(_._1)
+      .flatMapValues(_.map(_._2))
+
+    println(data.collect().map {
+      case (vid, value) => f"$vid: ${value.map(_._1)}"
+    }.mkString(", "))
 
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices)
-      .map(id => (id, id))
+      .map(id => (id.toLong, id))
       .join(data)
-      .map { case (idx, d) => (idx.toLong, createElement(Vertex.vertexOf(idx), d._2)(ctx)) }
+      .map { case (idx, d) => (idx.toLong, createElement(Vertex.vertexOf(idx.toInt), d._2.toMap)(ctx)) }
   }
 
-  def createElement(v: Vertex, rows: Iterable[IndexedRow])(implicit ctx: IgaContext): Element = {
+  def createElement(v: Vertex, rows: Map[Int, Array[Double]])(implicit ctx: IgaContext): Element = {
     val e = Element.createForX(ctx.mesh)
     MethodCoefficients.bind(e.mA)
-    initializeRightHandSides(e, rows.toSeq)
+    for (r <- 0 until 3) {
+      e.mB.replaceRow(r, rows(r))
+    }
     e
   }
-
-  private def initializeRightHandSides(e: Element, rows: Seq[IndexedRow])(implicit ctx: IgaContext): Unit = {
-    implicit val problemTree: ProblemTree = ctx.yTree()
-    implicit val mesh: Mesh = ctx.mesh
-
-    val partition = findPartition(e)
-
-    val leftVector = rows(0)
-    val middleVector = rows(1)
-    val rightVector = rows(2)
-
-    for (i <- 0 until mesh.yDofs) {
-      e.mB.replace(0, i, partition.left * leftVector.vector(i))
-      e.mB.replace(1, i, partition.middle * middleVector.vector(i))
-      e.mB.replace(2, i, partition.right * rightVector.vector(i))
-    }
-  }
-
-  def findPartition(e: Element) = Partition(0, 0, 0, 0)
 
 }
