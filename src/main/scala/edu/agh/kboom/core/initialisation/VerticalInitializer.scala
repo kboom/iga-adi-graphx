@@ -10,6 +10,16 @@ import org.apache.spark.rdd.RDD
 
 object VerticalInitializer {
 
+  private val FIRST_PARTITION = Array(1d, 1 / 2d, 1 / 3d)
+  private val SECOND_PARTITION = Array(1 / 2d, 1 / 3d, 1 / 3d)
+  private val THIRD_PARTITION = Array(1 / 3d, 1 / 3d, 1 / 3d)
+
+  private val MIDDLE_PARTITION = Array(1 / 3d, 1 / 3d, 1 / 3d)
+
+  private val THIRD_TO_LAST_PARTITION = Array(1 / 3d, 1 / 3d, 1 / 3d)
+  private val SECOND_TO_LAST_PARTITION = Array(1 / 3d, 1 / 3d, 1 / 2d)
+  private val LAST_PARTITION = Array(1 / 3d, 1 / 2d, 1d)
+
   /**
     * 0,1,2 --  8
     * 1,2,3 --  9
@@ -41,8 +51,20 @@ object VerticalInitializer {
     return rowNo - Vertex.offsetLeft(v)
   }
 
-  def findPartitionFor(v: Vertex, rowNo: Int)(implicit ctx: IgaContext): Int = {
-    1
+  def findPartitionFor(v: Vertex, rowNo: Int)(implicit ctx: IgaContext): Double = {
+    implicit val tree = ctx.yTree()
+    val localRow = findLocalRowFor(v, rowNo)
+    val firstIdx = ProblemTree.firstIndexOfLeafRow
+    val lastIdx = ProblemTree.lastIndexOfLeafRow
+    v.id match {
+      case x if x == firstIdx => FIRST_PARTITION(localRow)
+      case x if x == firstIdx+ 1 => SECOND_PARTITION(localRow)
+      case x if x == firstIdx + 2 => THIRD_PARTITION(localRow)
+      case x if x == lastIdx - 2 => THIRD_TO_LAST_PARTITION(localRow)
+      case x if x == lastIdx - 1 => SECOND_TO_LAST_PARTITION(localRow)
+      case x if x == lastIdx => LAST_PARTITION(localRow)
+      case _ => MIDDLE_PARTITION(localRow)
+    }
   }
 
   def collocate(row: IndexedRow)(implicit ctx: IgaContext): Seq[(Vertex, (Int, Array[Double]))] = {
