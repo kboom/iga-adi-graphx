@@ -1,6 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
-import edu.agh.kboom.iga.adi.graph.solver.core.IgaContext
+import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Element
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.VertexId

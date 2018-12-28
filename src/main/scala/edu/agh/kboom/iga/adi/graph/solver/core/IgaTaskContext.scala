@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core
 
+import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree
 import edu.agh.kboom.iga.adi.graph.{ExecutionContext, VertexProgram}
 import org.apache.spark.graphx.VertexId

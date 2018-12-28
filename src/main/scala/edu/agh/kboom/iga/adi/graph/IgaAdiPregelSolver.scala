@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph
 
+import edu.agh.kboom.iga.adi.graph.solver.{DirectionSolver, IgaContext, StepSolver}
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import org.apache.spark.sql.SparkSession
 

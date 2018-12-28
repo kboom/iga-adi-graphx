@@ -1,6 +1,7 @@
-package edu.agh.kboom.iga.adi.graph.solver.core
+package edu.agh.kboom.iga.adi.graph.solver
 
-import edu.agh.kboom.iga.adi.graph.solver.core.StepSolver.transposeRowMatrix
+import edu.agh.kboom.iga.adi.graph.solver.StepSolver.transposeRowMatrix
+import edu.agh.kboom.iga.adi.graph.solver.core.Solution
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.{HorizontalInitializer, VerticalInitializer}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors

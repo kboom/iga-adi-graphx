@@ -1,8 +1,9 @@
 package edu.agh.kboom.iga.adi.graph
 
+import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core.production.ProductionMessage
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.IgaElement
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaContext, IgaOperation, IgaTaskContext, IgaTaskExecutor}
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaOperation, IgaTaskContext, IgaTaskExecutor}
 import org.apache.spark.graphx.{EdgeTriplet, VertexId}
 
 sealed case class VertexProgram(ctx: IgaContext)

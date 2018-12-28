@@ -1,7 +1,8 @@
 package edu.agh.kboom
 
 import edu.agh.kboom.iga.adi.graph.ExecutionContext
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaContext, IgaTaskContext, Mesh}
+import edu.agh.kboom.iga.adi.graph.solver.IgaContext
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, Mesh}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{BranchVertex, LeafVertex, ProblemTree}
 
 trait DummyProblem {

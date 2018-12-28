@@ -1,6 +1,7 @@
-package edu.agh.kboom.iga.adi.graph.solver.core
+package edu.agh.kboom.iga.adi.graph.solver
 
 import edu.agh.kboom.iga.adi.graph.VertexProgram
+import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.LeafInitializer
 import edu.agh.kboom.iga.adi.graph.solver.core.production.{InitialMessage, ProductionMessage}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBranchingRow, lastIndexOfBranchingRow}

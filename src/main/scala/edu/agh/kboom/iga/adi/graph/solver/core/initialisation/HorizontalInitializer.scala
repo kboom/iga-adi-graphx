@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
+import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
