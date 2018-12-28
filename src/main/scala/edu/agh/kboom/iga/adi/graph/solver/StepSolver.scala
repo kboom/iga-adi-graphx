@@ -9,7 +9,7 @@ import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 
 case class StepSolver(directionSolver: DirectionSolver) {
 
-  def solve(ctx: IgaContext)(implicit sc: SparkContext): Unit = {
+  def solve(ctx: IgaContext)(implicit sc: SparkContext): Solution = {
     val partialSolution = directionSolver.solve(ctx, HorizontalInitializer)
     val transposedPartialSolution = Solution(transposeRowMatrix(partialSolution.m))
     Solution.print(transposedPartialSolution)
@@ -17,6 +17,7 @@ case class StepSolver(directionSolver: DirectionSolver) {
     val solution = directionSolver.solve(ctx.changedDirection(), VerticalInitializer(transposedPartialSolution))
 
     Solution.print(solution)
+    solution
   }
 
 }
