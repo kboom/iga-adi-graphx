@@ -16,7 +16,7 @@ object IgaAdiPregelSolver {
     implicit val sc = spark.sparkContext
 
     // OK: 12, 48
-    val mesh = Mesh(12, 12, 12, 12)
+    val mesh = Mesh(24, 24, 24, 24)
     val solver = DirectionSolver(mesh)
 
     implicit val problemTree = ProblemTree(mesh.xSize)

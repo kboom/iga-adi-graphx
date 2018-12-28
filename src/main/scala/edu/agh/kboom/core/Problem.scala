@@ -5,7 +5,7 @@ abstract class Problem extends Serializable {
 }
 
 object LinearProblem extends Problem {
-  override def valueAt(x: Double, y: Double): Double = x
+  override def valueAt(x: Double, y: Double): Double = x + y
 }
 
 object OneProblem extends Problem {
