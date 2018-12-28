@@ -1,8 +1,8 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.iga.adi.graph.core.production._
-import edu.agh.kboom.iga.adi.graph.core.tree._
-import edu.agh.kboom.iga.adi.graph.core.{IgaOperation, IgaTasks}
+import edu.agh.kboom.iga.adi.graph.solver.core.production._
+import edu.agh.kboom.iga.adi.graph.solver.core.tree._
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaOperation, IgaTasks}
 import org.scalatest.{FunSpec, Matchers}
 
 class IgaTasksTest extends FunSpec with Matchers {

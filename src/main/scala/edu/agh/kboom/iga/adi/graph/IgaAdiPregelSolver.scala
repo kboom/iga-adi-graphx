@@ -1,6 +1,6 @@
 package edu.agh.kboom.iga.adi.graph
 
-import edu.agh.kboom.iga.adi.graph.core._
+import edu.agh.kboom.iga.adi.graph.solver.core._
 import org.apache.spark.sql.SparkSession
 
 object IgaAdiPregelSolver {

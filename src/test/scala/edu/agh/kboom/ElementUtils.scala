@@ -1,8 +1,8 @@
 package edu.agh.kboom
 
 import edu.agh.kboom.MatrixUtils._
-import edu.agh.kboom.iga.adi.graph.core.tree.{IgaElement, Element, Vertex}
-import edu.agh.kboom.iga.adi.graph.core.{MatrixA, MatrixB, MatrixX, Mesh}
+import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, Element, Vertex}
+import edu.agh.kboom.iga.adi.graph.solver.core.{MatrixA, MatrixB, MatrixX, Mesh}
 
 object ElementUtils {
 

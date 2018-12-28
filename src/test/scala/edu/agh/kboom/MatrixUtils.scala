@@ -1,7 +1,7 @@
 package edu.agh.kboom
 
-import edu.agh.kboom.iga.adi.graph.core._
-import edu.agh.kboom.iga.adi.graph.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
+import edu.agh.kboom.iga.adi.graph.solver.core._
+import edu.agh.kboom.iga.adi.graph.solver.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 
 sealed case class TestMatrix(arr: Array[Array[Double]]) extends Array2D[TestMatrix] {
   override def create(v: Array[Array[Double]]): TestMatrix = TestMatrix(v)
