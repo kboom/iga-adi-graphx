@@ -228,6 +228,58 @@ class VertexSpec extends MethodSpec {
       assert(vertexOf(16) == LeafVertex(16))
     }
 
+    it("offset of 16 is 0") {
+      Vertex.offsetLeft(LeafVertex(16)) should equal(0)
+    }
+
+    it("offset of 17 is 1") {
+      Vertex.offsetLeft(LeafVertex(17)) should equal(1)
+    }
+
+    it("offset of 18 is 2") {
+      Vertex.offsetLeft(LeafVertex(18)) should equal(2)
+    }
+
+    it("offset of 19 is 3") {
+      Vertex.offsetLeft(LeafVertex(19)) should equal(3)
+    }
+
+    it("child position of 16 should be LEFT_CHILD") {
+      childPositionOf(LeafVertex(16)) shouldBe LEFT_CHILD
+    }
+
+    it("child position of 17 should be MIDDLE_CHILD") {
+      childPositionOf(LeafVertex(17)) shouldBe MIDDLE_CHILD
+    }
+
+    it("child position of 18 should be RIGHT_CHILD") {
+      childPositionOf(LeafVertex(18)) shouldBe RIGHT_CHILD
+    }
+
+    it("child position of 19 should be LEFT_CHILD") {
+      childPositionOf(LeafVertex(19)) shouldBe LEFT_CHILD
+    }
+
+    it("child position of 20 should be MIDDLE_CHILD") {
+      childPositionOf(LeafVertex(20)) shouldBe MIDDLE_CHILD
+    }
+
+    it("child position of 21 should be RIGHT_CHILD") {
+      childPositionOf(LeafVertex(21)) shouldBe RIGHT_CHILD
+    }
+
+    it("child position of 8 should be LEFT_CHILD") {
+      childPositionOf(InterimVertex(8)) shouldBe LEFT_CHILD
+    }
+
+    it("child position of 9 should be RIGHT_CHILD") {
+      childPositionOf(InterimVertex(9)) shouldBe RIGHT_CHILD
+    }
+
+    it("child position of 10 should be LEFT_CHILD") {
+      childPositionOf(InterimVertex(10)) shouldBe LEFT_CHILD
+    }
+
   }
 
 }

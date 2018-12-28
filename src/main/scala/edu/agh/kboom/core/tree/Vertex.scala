@@ -49,10 +49,10 @@ object Vertex {
   def strengthOf(v: Vertex)(implicit tree: ProblemTree): Int = strengthOfRow(rowIndexOf(v))
 
   def childPositionOf(v: Vertex)(implicit tree: ProblemTree): ChildPosition = v match {
-    case LeafVertex(id) => id % 3 match {
-      case 2 => LEFT_CHILD
-      case 0 => MIDDLE_CHILD
-      case 1 => RIGHT_CHILD
+    case LeafVertex(_) => (ProblemTree.strengthOfLeaves + Vertex.offsetLeft(v)) % 3 match {
+      case 0 => LEFT_CHILD
+      case 1 => MIDDLE_CHILD
+      case 2 => RIGHT_CHILD
     }
     case _ => if (v.id % 2 == 0) LEFT_CHILD else RIGHT_CHILD
   }

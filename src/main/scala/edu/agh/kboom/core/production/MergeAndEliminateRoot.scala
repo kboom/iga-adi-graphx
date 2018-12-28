@@ -34,5 +34,6 @@ case object MergeAndEliminateRoot extends Production
     dst.mB.add(msg.cb)
 
     partialForwardElimination(6, 6, ctx.mc.mesh.yDofs)(dst)
+    partialBackwardsSubstitution(6, 6, ctx.mc.mesh.yDofs)(dst)
   }
 }

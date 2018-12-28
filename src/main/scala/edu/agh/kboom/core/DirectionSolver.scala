@@ -31,6 +31,8 @@ case class DirectionSolver(mesh: Mesh) {
 
     val hs = extractSolution(problemTree, result)
 
+    dataItemGraph.unpersist(blocking = false)
+
     Solution(hs)
   }
 

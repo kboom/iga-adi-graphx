@@ -12,15 +12,12 @@ case object BackwardsSubstituteRoot extends Production
   with BaseProduction[BackwardsSubstituteRootMessage] {
 
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteRootMessage] = {
-    val copiedElement = IgaElement.copy(src)
-    partialBackwardsSubstitution(6, 6, ctx.mc.mesh.yDofs)(copiedElement)
-
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteRootMessage(
-        copiedElement.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)()(move(2, 0))
+        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)()(move(2, 0))
       ))
       case RIGHT_CHILD => Some(BackwardsSubstituteRootMessage(
-        copiedElement.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(2, 0))(move(2, 0))
+        src.mX.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(2, 0))(move(2, 0))
       ))
     }
   }
