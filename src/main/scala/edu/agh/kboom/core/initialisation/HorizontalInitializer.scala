@@ -33,7 +33,7 @@ object HorizontalInitializer extends LeafInitializer {
 
     for (k <- 0 until GaussPoint.gaussPointCount) {
       val gpk = GaussPoint.gaussPoints(k)
-      val x = gpk.v * mesh.xRes + Vertex.segmentOf(v)._1
+      val x = gpk.v * mesh.dx + Vertex.segmentOf(v)._1
       for (l <- 0 until GaussPoint.gaussPointCount) {
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 1) {

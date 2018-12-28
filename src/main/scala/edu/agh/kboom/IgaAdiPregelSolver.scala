@@ -2,6 +2,7 @@ package edu.agh.kboom
 
 import edu.agh.kboom.core._
 import edu.agh.kboom.core.initialisation.{HorizontalInitializer, VerticalInitializer}
+import edu.agh.kboom.core.tree.ProblemTree
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.sql.SparkSession
@@ -18,11 +19,14 @@ object IgaAdiPregelSolver {
     val mesh = Mesh(12, 12, 12, 12)
     val solver = DirectionSolver(mesh)
 
-    val partialSolution = solver.solve(OneProblem, HorizontalInitializer)
+    implicit val problemTree = ProblemTree(mesh.xSize)
+    implicit val igaContext = IgaContext(mesh, LinearProblem.valueAt)
+
+    val partialSolution = solver.solve(igaContext, HorizontalInitializer)
     val transposedPartialSolution = Solution(transposeRowMatrix(partialSolution.m))
     Solution.print(transposedPartialSolution)
 
-    val solution = solver.solve(OneProblem, VerticalInitializer(transposedPartialSolution))
+    val solution = solver.solve(igaContext.changedDirection(), VerticalInitializer(transposedPartialSolution))
 
     Solution.print(solution)
     // transpose the matrix

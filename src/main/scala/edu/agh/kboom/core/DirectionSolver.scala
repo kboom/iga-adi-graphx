@@ -13,9 +13,8 @@ import org.apache.spark.rdd.RDD
 
 case class DirectionSolver(mesh: Mesh) {
 
-  def solve(problem: Problem, initializer: LeafInitializer)(implicit sc: SparkContext): Solution = {
-    implicit val problemTree = ProblemTree(mesh.xSize)
-    implicit val igaContext = IgaContext(mesh, problem.valueAt)
+  def solve(ctx: IgaContext, initializer: LeafInitializer)(implicit sc: SparkContext): Solution = {
+    val problemTree = ctx.tree()
 
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(
@@ -25,9 +24,9 @@ case class DirectionSolver(mesh: Mesh) {
 
     val dataItemGraph = Graph.fromEdges(edges, None)
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
-      .joinVertices(initializer.leafData(igaContext))((_, v, se) => v.swapElement(se))
+      .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
 
-    val result = execute(dataItemGraph)
+    val result = execute(dataItemGraph)(ctx)
 
     val hs = extractSolution(problemTree, result)
 
