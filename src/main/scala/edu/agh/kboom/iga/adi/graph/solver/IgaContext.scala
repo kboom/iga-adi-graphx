@@ -9,7 +9,7 @@ case object HORIZONTAL extends SolverDirection
 
 case object VERTICAL extends SolverDirection
 
-sealed case class IgaContext(mesh: Mesh, problem: (Double, Double) => Double, direction: SolverDirection = HORIZONTAL) {
+sealed case class IgaContext(mesh: Mesh, problem: Problem, direction: SolverDirection = HORIZONTAL) {
   def changedDirection(): IgaContext = IgaContext(mesh, problem, VERTICAL)
 
   def xTree(): ProblemTree = ProblemTree(mesh.xSize)

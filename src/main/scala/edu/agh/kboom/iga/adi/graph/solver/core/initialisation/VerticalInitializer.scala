@@ -21,16 +21,6 @@ object VerticalInitializer {
   private val SECOND_TO_LAST_PARTITION = Array(1 / 3d, 1 / 3d, 1 / 2d)
   private val LAST_PARTITION = Array(1 / 3d, 1 / 2d, 1d)
 
-  /**
-    * 0,1,2 --  8
-    * 1,2,3 --  9
-    * 2,3,4 -- 10
-    * 3,4,5 -- 11
-    * (...)
-    * 9,10,11 - 17
-    * 10,11,12 - 18
-    * 11,12,13 - 19
-    */
   def verticesDependentOnRow(rowNo: Int)(implicit ctx: IgaContext): Seq[Vertex] = {
     implicit val tree = ctx.yTree()
     val elements = ctx.mesh.yDofs
@@ -81,7 +71,7 @@ object VerticalInitializer {
   }
 }
 
-case class VerticalInitializer(hsi: Solution) extends LeafInitializer {
+case class VerticalInitializer(hsi: Projection) extends LeafInitializer {
 
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree = ctx.yTree()

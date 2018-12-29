@@ -3,7 +3,7 @@ package edu.agh.kboom.iga.adi.graph.solver.core
 import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{Spline1T, Spline2T, Spline3T}
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix
 
-case class Solution(m: IndexedRowMatrix, mesh: Mesh) {
+case class Projection(m: IndexedRowMatrix, mesh: Mesh) {
 
   def getValue(x: Double, y: Double): Double = {
     val ielemx = (x / mesh.dx).toInt
@@ -28,15 +28,15 @@ case class Solution(m: IndexedRowMatrix, mesh: Mesh) {
 
 }
 
-object Solution {
+object Projection {
 
-  def asArray(s: Solution): Array[Array[Double]] = s.m
+  def asArray(s: Projection): Array[Array[Double]] = s.m
     .rows
     .sortBy(_.index)
     .map(_.vector.toArray)
     .collect()
 
-  def asString(s: Solution): String = s.m
+  def asString(s: Projection): String = s.m
     .rows
     .sortBy(_.index)
     .map(_.vector.toArray.map(i => f"$i%+.3f").mkString(" "))
@@ -44,7 +44,7 @@ object Solution {
     .mkString("\n")
 
 
-  def print(s: Solution): Unit = {
+  def print(s: Projection): Unit = {
     println(f"Matrix ${s.m.numRows()}x${s.m.numCols()}")
     println(asString(s))
   }

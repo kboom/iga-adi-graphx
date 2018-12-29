@@ -14,7 +14,7 @@ import org.apache.spark.rdd.RDD
 
 case class DirectionSolver(mesh: Mesh) {
 
-  def solve(ctx: IgaContext, initializer: LeafInitializer)(implicit sc: SparkContext): Solution = {
+  def solve(ctx: IgaContext, initializer: LeafInitializer)(implicit sc: SparkContext): Projection = {
     val problemTree = ctx.tree()
 
     val edges: RDD[Edge[IgaOperation]] =
@@ -33,7 +33,7 @@ case class DirectionSolver(mesh: Mesh) {
 
 //    dataItemGraph.unpersist(blocking = false)
 
-    Solution(hs, mesh)
+    Projection(hs, mesh)
   }
 
   private def execute(dataItemGraph: Graph[IgaElement, IgaOperation])(implicit igaContext: IgaContext) = {

@@ -1,23 +1,35 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
-import edu.agh.kboom.iga.adi.graph.solver.core.{Problem, Solution}
+import edu.agh.kboom.iga.adi.graph.solver.IterativeSolver.noCoefficients
+import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Problem, Projection, StaticProblem}
 import org.apache.spark.SparkContext
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 
 import scala.annotation.tailrec
 
+object IterativeSolver {
+
+  def noCoefficients(i: Int, j: Int): Double = 0
+
+}
+
 case class IterativeSolver(stepSolver: StepSolver) {
 
-  def solve(initialProblem: Problem, nextProblem: (Solution) => Option[Problem])(implicit sc: SparkContext): Unit = {
-    solveAll(initialProblem, nextProblem)
+  private val mesh: Mesh = stepSolver.directionSolver.mesh
+
+  def solve(initialProblem: StaticProblem, nextProblem: (Projection) => Option[Problem])(implicit sc: SparkContext): Unit = {
+    val initialProjection = ProjectionLoader.loadSurface(mesh, initialProblem)
+    solveAll(initialProblem, initialProjection, nextProblem)
   }
 
   @tailrec
-  private def solveAll(problem: Problem, nextProblem: (Solution) => Option[Problem], step: Int = 0)(implicit sc: SparkContext): Int = {
+  private def solveAll(problem: Problem, projection: Projection, nextProblem: (Projection) => Option[Problem], step: Int = 0)(implicit sc: SparkContext): Int = {
     println(f"Iteration $step")
-    val ctx = IgaContext(stepSolver.directionSolver.mesh, problem.valueAt)
-    val solution = stepSolver.solve(ctx)
-    nextProblem(solution) match {
-      case Some(next) => solveAll(next, nextProblem, step + 1)
+    val ctx = IgaContext(mesh, problem)
+    val nextProjection = stepSolver.solve(ctx)(projection)
+    nextProblem(nextProjection) match {
+      case Some(next) => solveAll(next, nextProjection, nextProblem, step + 1)
       case None => 1
     }
   }
