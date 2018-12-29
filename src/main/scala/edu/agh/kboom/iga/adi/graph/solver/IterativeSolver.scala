@@ -11,23 +11,28 @@ object IterativeSolver {
 
 }
 
+case class StepInformation(step: Int) {
+  def nextStep(): StepInformation = StepInformation(step + 1)
+}
+
 case class IterativeSolver(stepSolver: StepSolver) {
 
   private val mesh: Mesh = stepSolver.directionSolver.mesh
 
-  def solve(initialProblem: StaticProblem, nextProblem: (Projection) => Option[Problem])(implicit sc: SparkContext): Unit = {
+  def solve(initialProblem: StaticProblem, nextProblem: (Projection, StepInformation) => Option[Problem])(implicit sc: SparkContext): Unit = {
     val initialProjection = ProjectionLoader.loadSurface(mesh, initialProblem)
-    solveAll(initialProblem, initialProjection, nextProblem)
+    solveAll(initialProblem, initialProjection, StepInformation(0), nextProblem)
   }
 
   @tailrec
-  private def solveAll(problem: Problem, projection: Projection, nextProblem: (Projection) => Option[Problem], step: Int = 0)(implicit sc: SparkContext): Int = {
-    println(f"Iteration $step")
+  private def solveAll(problem: Problem, projection: Projection, stepInformation: StepInformation, nextProblem: (Projection, StepInformation) => Option[Problem])(implicit sc: SparkContext): StepInformation = {
+    println(f"Iteration ${stepInformation.step}")
     val ctx = IgaContext(mesh, problem)
     val nextProjection = stepSolver.solve(ctx)(projection)
-    nextProblem(nextProjection) match {
-      case Some(next) => solveAll(next, nextProjection, nextProblem, step + 1)
-      case None => 1
+    val nextStep = stepInformation.nextStep()
+    nextProblem(nextProjection, nextStep) match {
+      case Some(next) => solveAll(next, nextProjection, nextStep, nextProblem)
+      case None => stepInformation
     }
   }
 
