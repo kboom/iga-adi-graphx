@@ -1,8 +1,8 @@
 package edu.agh.kboom
 
 import edu.agh.kboom.MatrixUtils._
-import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, Element, Vertex}
-import edu.agh.kboom.iga.adi.graph.solver.core.{MatrixA, MatrixB, MatrixX, Mesh}
+import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, Vertex}
+import edu.agh.kboom.iga.adi.graph.solver.core._
 
 object ElementUtils {
 
@@ -28,6 +28,16 @@ object ElementUtils {
     element.mB.add(mB)
     element.mX.add(mX)
     IgaElement(vertex, element)
+  }
+
+  def weakPrecision(e: IgaElement): IgaElement = IgaElement(e.v, weakPrecision(e.e), e.p)
+
+  def weakPrecision(e: Element): Element = {
+    val ne = Element(e.elements)
+    ne.mA.add(MatrixUtils.weakPrecision(e.mA))
+    ne.mB.add(MatrixUtils.weakPrecision(e.mB))
+    ne.mX.add(MatrixUtils.weakPrecision(e.mX))
+    ne
   }
 
 }

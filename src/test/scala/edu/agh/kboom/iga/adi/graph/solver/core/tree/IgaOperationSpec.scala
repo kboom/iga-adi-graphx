@@ -23,7 +23,7 @@ class IgaOperationSpec extends FunSpec with Matchers {
   }
 
   it("RootVertex -> InterimVertex(2) = BackwardsSubstituteRoot") {
-    IgaOperation.operationFor(RootVertex(), InterimVertex(2)) shouldBe Some(IgaOperation(RootVertex(), InterimVertex(2), BackwardsSubstituteInterim))
+    IgaOperation.operationFor(RootVertex(), InterimVertex(2)) shouldBe Some(IgaOperation(RootVertex(), InterimVertex(2), BackwardsSubstituteRoot))
   }
 
   it("InterimVertex(2) -> InterimVertex(4) = BackwardsSubstituteInterim") {

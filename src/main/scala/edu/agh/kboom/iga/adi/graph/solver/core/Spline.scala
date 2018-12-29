@@ -40,4 +40,8 @@ object Spline {
 
   private val VALUE_OUTSIDE_DOMAIN: Double = 0
 
+  val Spline1T = Spline1()
+  val Spline2T = Spline2()
+  val Spline3T = Spline3()
+
 }

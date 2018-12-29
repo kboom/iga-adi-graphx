@@ -1,9 +1,9 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.production
 
 import edu.agh.kboom.MatrixUtils.{generatedMatrixA, _}
-import edu.agh.kboom.{ElementUtils, MethodSpec, SubjectSpec}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, RootVertex}
 import edu.agh.kboom.iga.adi.graph.solver.core.{MatrixA, MatrixB, Mesh}
+import edu.agh.kboom.{ElementUtils, MethodSpec}
 
 
 class packageTest extends MethodSpec {

@@ -13,9 +13,9 @@ object IgaAdiPregelSolver {
 
     // OK: 12, 48
     val mesh = Mesh(24, 24, 24, 24)
-    val iterativeSolver = new IterativeSolver(StepSolver(DirectionSolver(mesh)))
+    val iterativeSolver = IterativeSolver(StepSolver(DirectionSolver(mesh)))
 
-    iterativeSolver.solve(LinearProblem, _ => None)
+    iterativeSolver.solve(LinearProblem, solution => Some(IterativeProblem(solution)))
 
     spark.stop()
   }

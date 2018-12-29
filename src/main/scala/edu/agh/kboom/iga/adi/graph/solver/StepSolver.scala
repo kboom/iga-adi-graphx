@@ -11,7 +11,7 @@ case class StepSolver(directionSolver: DirectionSolver) {
 
   def solve(ctx: IgaContext)(implicit sc: SparkContext): Solution = {
     val partialSolution = directionSolver.solve(ctx, HorizontalInitializer)
-    val transposedPartialSolution = Solution(transposeRowMatrix(partialSolution.m))
+    val transposedPartialSolution = Solution(transposeRowMatrix(partialSolution.m), ctx.mesh)
     Solution.print(transposedPartialSolution)
 
     val solution = directionSolver.solve(ctx.changedDirection(), VerticalInitializer(transposedPartialSolution))

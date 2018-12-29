@@ -2,8 +2,7 @@ package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.LeafVertex
 import edu.agh.kboom.{DummyProblem, MethodSpec}
-import org.apache.spark.mllib.linalg.{Vector, Vectors}
-import org.apache.spark.mllib.linalg.distributed.IndexedRow
+import org.apache.spark.mllib.linalg.Vectors
 
 class VerticalInitializerTest extends MethodSpec with DummyProblem {
 
