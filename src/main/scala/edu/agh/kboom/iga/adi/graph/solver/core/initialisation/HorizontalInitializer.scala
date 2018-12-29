@@ -29,7 +29,7 @@ object HorizontalInitializer extends LeafInitializer {
   }
 
   private def fillRightHandSide(v: Vertex, e: Element, spline: Spline, r: Int, i: Int)(implicit ctx: IgaContext): Unit = {
-    implicit val problemTree: ProblemTree = ctx.xTree()
+    implicit val problemTree: ProblemTree = ctx.tree()
     implicit val mesh: Mesh = ctx.mesh
 
     for (k <- 0 until GaussPoint.gaussPointCount) {

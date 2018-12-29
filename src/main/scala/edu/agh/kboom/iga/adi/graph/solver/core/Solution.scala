@@ -13,7 +13,7 @@ case class Solution(m: IndexedRowMatrix, mesh: Mesh) {
 
     println(f"Getting value {${ielemx},${ielemy}}")
 
-    val c = Array.ofDim[Double](7,7)
+    val c = Array.ofDim[Double](7, 7)
 
     return Spline1T.getValue(localx) * Spline1T.getValue(localy) * c(ielemx)(ielemy) +
       Spline1T.getValue(localx) * Spline2T.getValue(localy) * c(ielemx)(ielemy + 1) +
@@ -30,14 +30,23 @@ case class Solution(m: IndexedRowMatrix, mesh: Mesh) {
 
 object Solution {
 
+  def asArray(s: Solution): Array[Array[Double]] = s.m
+    .rows
+    .sortBy(_.index)
+    .map(_.vector.toArray)
+    .collect()
+
+  def asString(s: Solution): String = s.m
+    .rows
+    .sortBy(_.index)
+    .map(_.vector.toArray.map(i => f"$i%+.3f").mkString(" "))
+    .collect
+    .mkString("\n")
+
+
   def print(s: Solution): Unit = {
     println(f"Matrix ${s.m.numRows()}x${s.m.numCols()}")
-    s.m
-      .rows // Extract RDD[org.apache.spark.mllib.linalg.Vector]
-      .sortBy(_.index)
-      .map(_.vector.toArray.map(i => f"$i%+.3f").mkString(" "))
-      .collect // you can use toLocalIterator to limit memory usage
-      .foreach(println) // Iterate over local Iterator and print
+    println(asString(s))
   }
 
 }

@@ -11,6 +11,9 @@ object MatrixUtils {
 
   def weakPrecision[T](m: Array2D[T]): T = m.mappedBy((_, _, v) => BigDecimal(v).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble)
 
+  def weakPrecision[T](m: Array[Array[Double]]): Array[Array[Double]] =
+    m.map(a => a.map(BigDecimal(_).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble))
+
   def fromVector(r: Int, c: Int)(cells: Double*): Array[Array[Double]] = {
     val arr = Array.ofDim[Double](r, c)
     for (i <- 0 until r) {
@@ -28,10 +31,16 @@ object MatrixUtils {
   }
 
   def unit: (Int, Int) => Double = fill(1)
+
   def fill(v: Double): (Int, Int) => Double = (_, _) => v
-  def entry(r: Int, c: Int)(v: Double): (Int, Int) => Double = (tr, tc) => if(tr == r && tc == c) v else 0
+
+  def sumOfIndexes(): (Int, Int) => Double = (x, y) => x + y
+
+  def entry(r: Int, c: Int)(v: Double): (Int, Int) => Double = (tr, tc) => if (tr == r && tc == c) v else 0
+
   def index: (Int, Int) => Double = (tr, tc) => tr + (tc.toDouble / 100)
-  def identity: (Int, Int) => Double = (tr, tc) => if(tr == tc) 1 else 0
+
+  def identity: (Int, Int) => Double = (tr, tc) => if (tr == tc) 1 else 0
 
   def indexedSquareMatrix(size: Int): Array[Array[Double]] = indexedMatrix(size, size)
 
@@ -41,7 +50,7 @@ object MatrixUtils {
 
   def featuredMatrix(r: Int, c: Int)(f: Int*): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => if (f.contains(c * rc + cc)) 1.0 else 0)
 
-  def matrixOf(r: Int, c: Int)(m: Array[Array[Double]]*) : Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => m.map(_ (rc)(cc)).sum)
+  def matrixOf(r: Int, c: Int)(m: Array[Array[Double]]*): Array[Array[Double]] = generatedMatrix(r, c)((rc, cc) => m.map(_ (rc)(cc)).sum)
 
   def constMatrix(r: Int, c: Int)(o: Double = 1): Array[Array[Double]] = generatedMatrix(r, c)((_, _) => o)
 
@@ -84,6 +93,8 @@ object MatrixUtils {
   def matrixX(a: Double*)(implicit m: Mesh): MatrixX
   = MatrixX(fromVector(ROWS_BOUND_TO_NODE, m.xDofs)(a: _*))
 
+
+  def assembleMatrix(s: Int)(g: Seq[(Int, Int) => Double]): Array[Array[Double]] = assembleMatrix(s, s)(g)
 
   def assembleMatrix(r: Int, c: Int)(g: Seq[(Int, Int) => Double]): Array[Array[Double]] = {
     val arr = Array.ofDim[Double](r, c)

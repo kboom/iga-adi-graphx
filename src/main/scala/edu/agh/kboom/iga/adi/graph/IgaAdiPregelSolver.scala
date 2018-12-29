@@ -20,5 +20,4 @@ object IgaAdiPregelSolver {
     spark.stop()
   }
 
-
 }
