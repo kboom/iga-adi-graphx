@@ -2,13 +2,26 @@ package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
+import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.VertexId
+import org.apache.spark.mllib.linalg.distributed.IndexedRow
 import org.apache.spark.rdd.RDD
 
 object HorizontalInitializer {
+
+  def collocate(row: IndexedRow)(implicit ctx: IgaContext): Seq[(Vertex, (Int, Array[Double]))] = {
+    val idx = row.index.toInt
+
+    VerticalInitializer.verticesDependentOnRow(idx)
+      .map(vertex => {
+        val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
+        val vertexRowValues = row.vector.toArray
+        (vertex, (localRow, vertexRowValues))
+      })
+  }
 
 }
 
@@ -18,7 +31,7 @@ case class HorizontalInitializer(hsi: Projection, problem: Problem) extends Leaf
     implicit val tree = ctx.xTree()
 
     val data = hsi.m.rows
-      .flatMap(m => VerticalInitializer.collocate(m)(ctx))
+      .flatMap(m => collocate(m)(ctx))
       .groupBy(_._1.id.toLong)
       .mapValues(_.map(_._2))
 
