@@ -1,9 +1,10 @@
 package edu.agh.kboom
 
 import edu.agh.kboom.iga.adi.graph.ExecutionContext
+import edu.agh.kboom.iga.adi.graph.problems.OneProblem
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, Mesh, OneProblem}
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, Mesh}
 
 trait DummyProblem {
 

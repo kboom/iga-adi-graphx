@@ -2,7 +2,8 @@ package edu.agh.kboom.iga.adi.graph
 
 import edu.agh.kboom.MatrixUtils
 import edu.agh.kboom.MatrixUtils.{fill, sumOfIndexes, unit, weakPrecision}
-import edu.agh.kboom.iga.adi.graph.solver.core.{LinearProblem, Mesh, OneProblem, Projection}
+import edu.agh.kboom.iga.adi.graph.problems.{LinearProblem, OneProblem}
+import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Projection}
 import edu.agh.kboom.iga.adi.graph.solver.{DirectionSolver, IgaContext, ProjectionLoader, StepSolver}
 
 class StepSolverIT extends AbstractIT {

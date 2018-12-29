@@ -1,10 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
-import edu.agh.kboom.iga.adi.graph.solver.IterativeSolver.noCoefficients
 import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Problem, Projection, StaticProblem}
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 
 import scala.annotation.tailrec
 
