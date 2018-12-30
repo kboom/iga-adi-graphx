@@ -1,6 +1,6 @@
 package edu.agh.kboom.iga.adi.graph
 
-import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, LinearProblem}
+import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, LinearProblem, OneProblem}
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver._
 import org.apache.spark.sql.SparkSession
@@ -18,7 +18,7 @@ object IgaAdiPregelSolver {
 
     val iterativeSolver = IterativeSolver(StepSolver(DirectionSolver(mesh)))
 
-    iterativeSolver.solve(LinearProblem, (_, step) => step match {
+    iterativeSolver.solve(OneProblem, (_, step) => step match {
       case StepInformation(step) if step < problemConfig.steps => Some(HeatTransferProblem(mesh))
       case _ => None
     })
