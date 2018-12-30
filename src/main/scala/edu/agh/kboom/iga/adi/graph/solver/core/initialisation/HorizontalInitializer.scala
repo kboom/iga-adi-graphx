@@ -36,8 +36,8 @@ case class HorizontalInitializer(hsi: Projection, problem: Problem) extends Leaf
       .mapValues(_.map(_._2))
 
     println(data.collect().map {
-      case (vid, value) => f"$vid: ${value}"
-    }.mkString(", "))
+      case (vid, value) => f"$vid: ${value.map(v => v._1 + ": " + v._2.take(3).map(x => f"$x%.2f").mkString(","))}"
+    }.mkString(System.lineSeparator()))
 
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices)

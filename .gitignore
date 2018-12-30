@@ -13,3 +13,5 @@ target/
 # macOS:
 *.DS_Store
 ._*
+
+sim

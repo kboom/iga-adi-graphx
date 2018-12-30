@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
+import edu.agh.kboom.iga.adi.graph.solver.SolverConfig.LoadedSolverConfig
 import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Problem, Projection, StaticProblem}
 import org.apache.spark.SparkContext
 
@@ -29,6 +30,9 @@ case class IterativeSolver(stepSolver: StepSolver) {
     println(f"Iteration ${stepInformation.step}")
     val ctx = IgaContext(mesh, problem)
     val nextProjection = stepSolver.solve(ctx)(projection)
+
+    saveSolution(projection, stepInformation)
+
     val nextStep = stepInformation.nextStep()
     nextProblem(nextProjection, nextStep) match {
       case Some(next) => solveAll(next, nextProjection, nextStep, nextProblem)
@@ -36,4 +40,8 @@ case class IterativeSolver(stepSolver: StepSolver) {
     }
   }
 
+  private def saveSolution(projection: Projection, stepInformation: StepInformation) = {
+    val filename = LoadedSolverConfig.output.filenameFor(stepInformation)
+    projection.m.rows.map(row => (row.index, row.vector.toArray.mkString("[", ",", "]"))).saveAsTextFile(filename)
+  }
 }

@@ -13,6 +13,7 @@ parallelExecution in Test := false
 val sparkVersion = "2.3.2"
 val scalaTestVersion = "3.0.5"
 val scalaCheckVersion = "1.13.4"
+val pureConfigVersion = "0.10.1"
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion,
@@ -22,6 +23,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-hive" % sparkVersion,
   "org.apache.spark" %% "spark-repl" % sparkVersion,
   "org.apache.spark" %% "spark-graphx" % sparkVersion,
+  "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
 
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test"
