@@ -9,7 +9,7 @@ import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 object ProjectionLoader {
 
   def loadSurface(mesh: Mesh, initialProblem: StaticProblem)(implicit sc: SparkContext): Projection = {
-    def initialSurface = new IndexedRowMatrix(sc.parallelize(0 until mesh.xDofs)
+    def initialSurface = new IndexedRowMatrix(sc.parallelize(0 until mesh.yDofs)
       .map(y => IndexedRow(y, Vectors.dense((0 until mesh.xDofs).map(x => initialProblem.valueAt(noCoefficients, x, y)).toArray))))
 
     Projection(initialSurface, mesh)
