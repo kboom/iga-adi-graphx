@@ -19,7 +19,6 @@ sealed trait ProblemConfig {
 }
 
 final case class HeatTransferProblemConfig(size: Int, steps: Int) extends ProblemConfig
-
 final case class ProjectionProblemConfig(size: Int, steps: Int) extends ProblemConfig
 
 sealed case class SolverConfig(problem: ProblemConfig, output: OutputConfig)

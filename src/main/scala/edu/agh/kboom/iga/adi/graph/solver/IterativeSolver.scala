@@ -40,8 +40,9 @@ case class IterativeSolver(stepSolver: StepSolver) {
     }
   }
 
-  private def saveSolution(projection: Projection, stepInformation: StepInformation) = {
+  private def saveSolution(projection: Projection, stepInformation: StepInformation)(implicit sc: SparkContext) = {
     val filename = LoadedSolverConfig.output.filenameFor(stepInformation)
-    projection.m.rows.map(row => (row.index, row.vector.toArray.mkString("[", ",", "]"))).saveAsTextFile(filename)
+    Projection.surface(projection)
+      .rows.map(row => (row.index, row.vector.toArray.mkString("[", ",", "]"))).saveAsTextFile(filename)
   }
 }
