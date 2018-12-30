@@ -1,7 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
 import edu.agh.kboom.iga.adi.graph.solver.StepSolver.transposeRowMatrix
-import edu.agh.kboom.iga.adi.graph.solver.core.Projection
+import edu.agh.kboom.iga.adi.graph.solver.core.{SplineSurface, Surface}
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.{HorizontalInitializer, VerticalInitializer}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
@@ -9,14 +9,14 @@ import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 
 case class StepSolver(directionSolver: DirectionSolver) {
 
-  def solve(ctx: IgaContext)(projection: Projection)(implicit sc: SparkContext): Projection = {
-    val partialSolution = directionSolver.solve(ctx, HorizontalInitializer(projection, ctx.problem))
-    val transposedPartialSolution = Projection(transposeRowMatrix(partialSolution.m), ctx.mesh)
-    Projection.print(transposedPartialSolution)
+  def solve(ctx: IgaContext)(surface: Surface)(implicit sc: SparkContext): SplineSurface = {
+    val partialSolution = directionSolver.solve(ctx, HorizontalInitializer(surface, ctx.problem))
+    val transposedPartialSolution = SplineSurface(transposeRowMatrix(partialSolution.m), ctx.mesh)
+    SplineSurface.print(transposedPartialSolution)
 
     val newProjection = directionSolver.solve(ctx.changedDirection(), VerticalInitializer(transposedPartialSolution))
 
-    Projection.print(newProjection)
+    SplineSurface.print(newProjection)
     newProjection
   }
 

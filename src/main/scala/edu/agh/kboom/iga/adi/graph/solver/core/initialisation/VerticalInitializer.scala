@@ -71,7 +71,7 @@ object VerticalInitializer {
   }
 }
 
-case class VerticalInitializer(hsi: Projection) extends LeafInitializer {
+case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
 
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree = ctx.yTree()

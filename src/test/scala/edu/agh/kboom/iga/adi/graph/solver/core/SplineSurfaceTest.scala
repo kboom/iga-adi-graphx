@@ -3,7 +3,7 @@ package edu.agh.kboom.iga.adi.graph.solver.core
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import edu.agh.kboom.MethodSpec
 
-class ProjectionTest extends MethodSpec {
+class SplineSurfaceTest extends MethodSpec {
 
   describe("elementsDependentOnRow") {
 
@@ -23,7 +23,7 @@ class ProjectionTest extends MethodSpec {
       (13, Seq(11))
     )) { (coefficientRow: Int, valueRow: Seq[Int]) =>
       it(f"is ${valueRow.mkString("(", ",", ")")} for $coefficientRow") {
-        Projection.valueRowsDependentOn(coefficientRow) should contain theSameElementsAs valueRow
+        SplineSurface.valueRowsDependentOn(coefficientRow) should contain theSameElementsAs valueRow
       }
     }
 

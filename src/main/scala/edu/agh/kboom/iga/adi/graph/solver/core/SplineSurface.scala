@@ -5,25 +5,28 @@ import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 
-case class Projection(m: IndexedRowMatrix, mesh: Mesh)
+sealed trait Surface {
+  def mesh: Mesh
+}
+case class SplineSurface(m: IndexedRowMatrix, mesh: Mesh) extends Surface
+case class PlainSurface(mesh: Mesh) extends Surface
 
+object SplineSurface {
 
-object Projection {
-
-  def asArray(s: Projection): Array[Array[Double]] = s.m
+  def asArray(s: SplineSurface): Array[Array[Double]] = s.m
     .rows
     .sortBy(_.index)
     .map(_.vector.toArray)
     .collect()
 
-  def asString(s: Projection): String = s.m
+  def asString(s: SplineSurface): String = s.m
     .rows
     .map(_.vector.toArray.map(i => f"$i%+.3f").mkString("\t"))
     .collect
     .mkString(System.lineSeparator())
 
 
-  def print(s: Projection): Unit = {
+  def print(s: SplineSurface): Unit = {
     println(f"2D B-Spline Coefficients ${s.m.numRows()}x${s.m.numCols()}")
     println(asString(s))
   }
@@ -41,7 +44,7 @@ object Projection {
     return if (coefficientRow < elements / 2) all.take(span) else all.takeRight(span)
   }
 
-  def surface(p: Projection)(implicit sc: SparkContext): IndexedRowMatrix = {
+  def surface(p: SplineSurface)(implicit sc: SparkContext): IndexedRowMatrix = {
     implicit val mesh = p.mesh
 
     val coefficientsBySolutionRows = p.m.rows
@@ -61,13 +64,7 @@ object Projection {
       .map { case (y, coefficients) => {
         val rows = coefficients._2.toMap
         val cols = 0 until mesh.xSize
-        val row = Vectors.dense(cols.map(x => {
-          val my = projectedValue((i, j) => rows(i)(j), x, y)
-          println(f"For f($x,$y) = $my")
-          my
-        }).toArray)
-
-        println(s"XX Vector $y: ${row.toArray.mkString(",")}")
+        val row = Vectors.dense(cols.map(projectedValue((i, j) => rows(i)(j), _, y)).toArray)
 
         IndexedRow(y, row)
       }

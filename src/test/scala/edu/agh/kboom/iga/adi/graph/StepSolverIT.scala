@@ -3,7 +3,7 @@ package edu.agh.kboom.iga.adi.graph
 import edu.agh.kboom.MatrixUtils
 import edu.agh.kboom.MatrixUtils.{fill, sumOfIndexes, unit, weakPrecision}
 import edu.agh.kboom.iga.adi.graph.problems.{LinearProblem, OneProblem}
-import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Projection}
+import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, SplineSurface}
 import edu.agh.kboom.iga.adi.graph.solver.{DirectionSolver, IgaContext, ProjectionLoader, StepSolver}
 
 class StepSolverIT extends AbstractIT {
@@ -19,12 +19,12 @@ class StepSolverIT extends AbstractIT {
 
       "should produce valid results for f(x,y) = 1" in new SolverContext(12) {
         val solution = solver.solve(IgaContext(mesh, OneProblem))(ProjectionLoader.loadSurface(mesh, OneProblem))
-        weakPrecision(Projection.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(14)(Seq(unit)))
+        weakPrecision(SplineSurface.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(14)(Seq(unit)))
       }
 
       "should produce valid results for f(x,y) = x + y" in new SolverContext(12) {
         val solution = solver.solve(IgaContext(mesh, LinearProblem))(ProjectionLoader.loadSurface(mesh, LinearProblem))
-        weakPrecision(Projection.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(14)(Seq(fill(-1), sumOfIndexes())))
+        weakPrecision(SplineSurface.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(14)(Seq(fill(-1), sumOfIndexes())))
       }
 
     }
@@ -33,12 +33,12 @@ class StepSolverIT extends AbstractIT {
 
       "should produce valid results" in new SolverContext(24) {
         val solution = solver.solve(IgaContext(mesh, OneProblem))(ProjectionLoader.loadSurface(mesh, OneProblem))
-        weakPrecision(Projection.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(26)(Seq(unit)))
+        weakPrecision(SplineSurface.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(26)(Seq(unit)))
       }
 
       "should produce valid results for f(x,y) = x + y" in new SolverContext(24) {
         val solution = solver.solve(IgaContext(mesh, LinearProblem))(ProjectionLoader.loadSurface(mesh, LinearProblem))
-        weakPrecision(Projection.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(26)(Seq(fill(-1), sumOfIndexes())))
+        weakPrecision(SplineSurface.asArray(solution)) should contain theSameElementsAs (MatrixUtils.assembleMatrix(26)(Seq(fill(-1), sumOfIndexes())))
       }
 
     }

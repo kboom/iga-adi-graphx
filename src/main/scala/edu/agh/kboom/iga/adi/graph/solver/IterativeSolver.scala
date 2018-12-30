@@ -1,7 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
 import edu.agh.kboom.iga.adi.graph.solver.SolverConfig.LoadedSolverConfig
-import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Problem, Projection, StaticProblem}
+import edu.agh.kboom.iga.adi.graph.solver.core._
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix
 
@@ -21,17 +21,15 @@ case class IterativeSolver(stepSolver: StepSolver) {
 
   private val mesh: Mesh = stepSolver.directionSolver.mesh
 
-  def solve(initialProblem: StaticProblem, nextProblem: (Projection, StepInformation) => Option[Problem])(implicit sc: SparkContext): Unit = {
-    val initialProjection = ProjectionLoader.loadSurface(mesh, initialProblem)
-    printSurface(StepInformation(-1), initialProjection.m)
-    solveAll(initialProblem, initialProjection, StepInformation(0), nextProblem)
+  def solve(initialProblem: StaticProblem, nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): Unit = {
+    solveAll(initialProblem, PlainSurface(mesh), StepInformation(0), nextProblem)
   }
 
   @tailrec
-  private def solveAll(problem: Problem, projection: Projection, stepInformation: StepInformation, nextProblem: (Projection, StepInformation) => Option[Problem])(implicit sc: SparkContext): StepInformation = {
+  private def solveAll(problem: Problem, surface: Surface, stepInformation: StepInformation, nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): StepInformation = {
     println(f"Iteration ${stepInformation.step}")
     val ctx = IgaContext(mesh, problem)
-    val nextProjection = stepSolver.solve(ctx)(projection)
+    val nextProjection = stepSolver.solve(ctx)(surface)
 
     saveSolution(nextProjection, stepInformation)
 
@@ -42,9 +40,9 @@ case class IterativeSolver(stepSolver: StepSolver) {
     }
   }
 
-  private def saveSolution(projection: Projection, stepInformation: StepInformation)(implicit sc: SparkContext) = {
+  private def saveSolution(projection: SplineSurface, stepInformation: StepInformation)(implicit sc: SparkContext) = {
     val filename = LoadedSolverConfig.output.filenameFor(stepInformation)
-    val surface = Projection.surface(projection)
+    val surface = SplineSurface.surface(projection)
 
     printSurface(stepInformation, surface)
     surface.rows.map(row => (row.index, row.vector.toArray.mkString("[", ",", "]"))).saveAsTextFile(filename)

@@ -10,6 +10,18 @@ import org.apache.spark.graphx.VertexId
 import org.apache.spark.mllib.linalg.distributed.IndexedRow
 import org.apache.spark.rdd.RDD
 
+sealed trait ValueProvider {
+  def valueAt(i: Double, j: Double): Double
+}
+
+case class FromCoefficientsReader(problem: Problem, rows: Map[Int, Array[Double]]) extends ValueProvider {
+  override def valueAt(x: Double, y: Double): Double = problem.valueAt((i, j) => rows(i)(j), x, y)
+}
+
+case class FromProblemReader(problem: Problem) extends ValueProvider {
+  override def valueAt(x: Double, y: Double): Double = problem.valueAt((_, _) => 1, x, y)
+}
+
 object HorizontalInitializer {
 
   def collocate(row: IndexedRow)(implicit ctx: IgaContext): Seq[(Vertex, (Int, Array[Double]))] = {
@@ -25,12 +37,29 @@ object HorizontalInitializer {
 
 }
 
-case class HorizontalInitializer(hsi: Projection, problem: Problem) extends LeafInitializer {
+case class HorizontalInitializer(surface: Surface, problem: Problem) extends LeafInitializer {
 
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
+    surface match {
+      case PlainSurface(_) => initializeSurface(ctx)
+      case s: SplineSurface => projectSurface(ctx, s)
+    }
+  }
+
+  private def initializeSurface(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
+    implicit val tree = ctx.xTree()
+    val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
+    sc.parallelize(leafIndices)
+      .map { idx =>
+        val vertex = Vertex.vertexOf(idx)
+        (idx.toLong, createElement(vertex, FromProblemReader(problem))(ctx))
+      }
+  }
+
+  private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree = ctx.xTree()
 
-    val data = hsi.m.rows
+    val data = ss.m.rows
       .flatMap(m => collocate(m)(ctx))
       .groupBy(_._1.id.toLong)
       .mapValues(_.map(_._2))
@@ -46,28 +75,25 @@ case class HorizontalInitializer(hsi: Projection, problem: Problem) extends Leaf
       .map { case (idx, d) => {
         val vertex = Vertex.vertexOf(idx.toInt)
         val value = d._2
-        (idx.toLong, createElement(vertex, value.toMap, problem)(ctx))
+        (idx.toLong, createElement(vertex, FromCoefficientsReader(problem, value.toMap))(ctx))
       }
       }
-
   }
 
-  private def createElement(v: Vertex, rows: Map[Int, Array[Double]], problem: Problem)(implicit ctx: IgaContext): Element = {
+  private def createElement(v: Vertex, vp: ValueProvider)(implicit ctx: IgaContext): Element = {
     val e = Element.createForX(ctx.mesh)
     MethodCoefficients.bind(e.mA)
     for (i <- 0 until ctx.mesh.xDofs) {
-      fillRightHandSide(v, e, rows, problem, Spline3(), 0, i)
-      fillRightHandSide(v, e, rows, problem, Spline2(), 1, i)
-      fillRightHandSide(v, e, rows, problem, Spline1(), 2, i)
+      fillRightHandSide(v, e, vp, Spline3(), 0, i)
+      fillRightHandSide(v, e, vp, Spline2(), 1, i)
+      fillRightHandSide(v, e, vp, Spline1(), 2, i)
     }
     e
   }
 
-  private def fillRightHandSide(v: Vertex, e: Element, rows: Map[Int, Array[Double]], problem: Problem, spline: Spline, r: Int, i: Int)(implicit ctx: IgaContext): Unit = {
+  private def fillRightHandSide(v: Vertex, e: Element, vp: ValueProvider, spline: Spline, r: Int, i: Int)(implicit ctx: IgaContext): Unit = {
     implicit val problemTree: ProblemTree = ctx.tree()
     implicit val mesh: Mesh = ctx.mesh
-
-    val fromRows: (Int, Int) => Double = (i, j) => rows(i)(j)
 
     for (k <- 0 until GaussPoint.gaussPointCount) {
       val gpk = GaussPoint.gaussPoints(k)
@@ -76,15 +102,15 @@ case class HorizontalInitializer(hsi: Projection, problem: Problem) extends Leaf
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 1) {
           val y = (gpl.v + i - 2) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline1().getValue(gpl.v) * problem.valueAt(fromRows, x, y))
+          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline1().getValue(gpl.v) * vp.valueAt(x, y))
         }
         if (i > 0 && (i - 1) < mesh.ySize) {
           val y = (gpl.v + i - 1) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline2().getValue(gpl.v) * problem.valueAt(fromRows, x, y))
+          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline2().getValue(gpl.v) * vp.valueAt(x, y))
         }
         if (i < mesh.ySize) {
           val y = (gpl.v + i) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline3().getValue(gpl.v) * problem.valueAt(fromRows, x, y))
+          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline3().getValue(gpl.v) * vp.valueAt(x, y))
         }
       }
     }
