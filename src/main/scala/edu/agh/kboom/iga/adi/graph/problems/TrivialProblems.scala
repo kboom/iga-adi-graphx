@@ -19,6 +19,10 @@ object LinearProblem extends StaticProblem {
   override def valueAt(x: Double, y: Double): Double = x + y
 }
 
+object HorizontalProblem extends StaticProblem {
+  override def valueAt(x: Double, y: Double): Double = x
+}
+
 object OneProblem extends StaticProblem {
   override def valueAt(x: Double, y: Double): Double = 1
 }

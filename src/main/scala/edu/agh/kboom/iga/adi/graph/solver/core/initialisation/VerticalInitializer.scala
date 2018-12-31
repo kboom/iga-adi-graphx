@@ -49,7 +49,7 @@ object VerticalInitializer {
     val lastIdx = ProblemTree.lastIndexOfLeafRow
     v.id match {
       case x if x == firstIdx => FIRST_PARTITION(localRow)
-      case x if x == firstIdx+ 1 => SECOND_PARTITION(localRow)
+      case x if x == firstIdx + 1 => SECOND_PARTITION(localRow)
       case x if x == firstIdx + 2 => THIRD_PARTITION(localRow)
       case x if x == lastIdx - 2 => THIRD_TO_LAST_PARTITION(localRow)
       case x if x == lastIdx - 1 => SECOND_TO_LAST_PARTITION(localRow)
@@ -80,10 +80,6 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
       .flatMap(m => VerticalInitializer.collocate(m)(ctx))
       .groupBy(_._1.id.toLong)
       .mapValues(_.map(_._2))
-
-    println(data.collect().map {
-      case (vid, value) => f"$vid: ${value}"
-    }.mkString(", "))
 
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices)

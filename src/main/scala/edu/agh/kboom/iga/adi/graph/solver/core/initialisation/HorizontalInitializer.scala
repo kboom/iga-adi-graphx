@@ -64,10 +64,6 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
       .groupBy(_._1.id.toLong)
       .mapValues(_.map(_._2))
 
-    println(data.collect().map {
-      case (vid, value) => f"$vid: ${value.map(v => v._1 + ": " + v._2.take(3).map(x => f"$x%.2f").mkString(","))}"
-    }.mkString(System.lineSeparator()))
-
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices)
       .map(id => (id.toLong, id))
