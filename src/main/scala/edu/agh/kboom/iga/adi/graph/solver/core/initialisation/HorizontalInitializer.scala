@@ -14,11 +14,11 @@ sealed trait ValueProvider {
   def valueAt(i: Double, j: Double): Double
 }
 
-case class FromCoefficientsReader(problem: Problem, rows: Map[Int, Array[Double]]) extends ValueProvider {
+case class FromCoefficientsValueProvider(problem: Problem, rows: Map[Int, Array[Double]]) extends ValueProvider {
   override def valueAt(x: Double, y: Double): Double = problem.valueAt((i, j) => rows(i)(j), x, y)
 }
 
-case class FromProblemReader(problem: Problem) extends ValueProvider {
+case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
   override def valueAt(x: Double, y: Double): Double = problem.valueAt((_, _) => 1, x, y)
 }
 
@@ -52,7 +52,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     sc.parallelize(leafIndices)
       .map { idx =>
         val vertex = Vertex.vertexOf(idx)
-        (idx.toLong, createElement(vertex, FromProblemReader(problem))(ctx))
+        (idx.toLong, createElement(vertex, FromProblemValueProvider(problem))(ctx))
       }
   }
 
@@ -71,7 +71,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
       .map { case (idx, d) => {
         val vertex = Vertex.vertexOf(idx.toInt)
         val value = d._2
-        (idx.toLong, createElement(vertex, FromCoefficientsReader(problem, value.toMap))(ctx))
+        (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, value.toMap))(ctx))
       }
       }
   }

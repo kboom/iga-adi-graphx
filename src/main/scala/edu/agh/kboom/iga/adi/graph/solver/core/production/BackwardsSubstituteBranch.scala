@@ -18,14 +18,11 @@ case object BackwardsSubstituteBranch extends Production
 
   private val Log = LoggerFactory.getLogger(getClass)
 
-  // todo: This can be run multiple times... the state could be modified twice... don't do it here
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteBranchMessage] = {
     val copiedSource = IgaElement.copy(src)
     partialBackwardsSubstitution(2, 6, ctx.mc.mesh.yDofs)(copiedSource)
     swapDofs(0, 2, 6, ctx.mc.mesh.yDofs)(copiedSource)
     swapDofs(1, 3, 6, ctx.mc.mesh.yDofs)(copiedSource)
-
-    Log.debug(f"v${src.v}\n ${IgaElement.print(copiedSource)}")
 
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteBranchMessage(

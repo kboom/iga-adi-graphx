@@ -21,7 +21,9 @@ sealed trait ProblemConfig {
 final case class HeatTransferProblemConfig(size: Int, steps: Int) extends ProblemConfig
 final case class ProjectionProblemConfig(size: Int, steps: Int) extends ProblemConfig
 
-sealed case class SolverConfig(problem: ProblemConfig, output: OutputConfig)
+final case class LoggingConfig(operations: Boolean, elements: Boolean, surfaces: Boolean)
+
+sealed case class SolverConfig(problem: ProblemConfig, output: OutputConfig, logging: LoggingConfig)
 
 object SolverConfig {
 

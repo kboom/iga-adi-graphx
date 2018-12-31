@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.tree
 
+import edu.agh.kboom.iga.adi.graph.solver.SolverConfig
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 
@@ -22,6 +23,8 @@ case class Element(elements: Int) {
 }
 
 object IgaElement {
+
+  val LoggingConfig = SolverConfig.LoadedSolverConfig.logging
 
   def print(e: IgaElement): String = f"Element pressure=${e.p}\n${Element.print(e.e)}"
 

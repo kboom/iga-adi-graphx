@@ -9,14 +9,21 @@ import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 
 case class StepSolver(directionSolver: DirectionSolver) {
 
+  val loggingConfig = SolverConfig.LoadedSolverConfig.logging
+
   def solve(ctx: IgaContext)(surface: Surface)(implicit sc: SparkContext): SplineSurface = {
     val partialSolution = directionSolver.solve(ctx, HorizontalInitializer(surface, ctx.problem))
     val transposedPartialSolution = SplineSurface(transposeRowMatrix(partialSolution.m), ctx.mesh)
-    SplineSurface.print(transposedPartialSolution)
+
+    if (loggingConfig.elements) {
+      SplineSurface.print(transposedPartialSolution)
+    }
 
     val newProjection = directionSolver.solve(ctx.changedDirection(), VerticalInitializer(transposedPartialSolution))
 
-    SplineSurface.print(newProjection)
+    if (loggingConfig.elements) {
+      SplineSurface.print(newProjection)
+    }
     newProjection
   }
 
