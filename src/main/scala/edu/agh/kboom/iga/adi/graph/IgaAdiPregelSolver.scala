@@ -3,12 +3,16 @@ package edu.agh.kboom.iga.adi.graph
 import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory}
 import edu.agh.kboom.iga.adi.graph.solver._
 import edu.agh.kboom.iga.adi.graph.solver.core._
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SparkSession
 
 object IgaAdiPregelSolver {
 
   def main(args: Array[String]) {
-    implicit val sc = new SparkContext(new SparkConf())
+    val spark = SparkSession.builder
+      .appName("IGA ADI Pregel Solver")
+      .getOrCreate()
+
+    implicit val sc = spark.sparkContext
 
     val problemConfig = SolverConfig.LoadedSolverConfig.problem
     val problemSize = problemConfig.size
@@ -26,6 +30,8 @@ object IgaAdiPregelSolver {
     val totalInSeconds = (System.currentTimeMillis() - steps.head.timer.start) / 1000
 
     println(f"Total time (s): ${totalInSeconds}")
+
+    spark.stop()
   }
 
 }
