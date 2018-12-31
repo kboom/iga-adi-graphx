@@ -1,6 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
+import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{Spline1T, Spline2T, Spline3T}
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
@@ -65,7 +66,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
       .mapValues(_.map(_._2))
 
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
-    sc.parallelize(leafIndices)
+    val elementsByVertex = sc.parallelize(leafIndices)
       .map(id => (id.toLong, id))
       .join(data)
       .map { case (idx, d) => {
@@ -74,15 +75,18 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
         (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, value.toMap))(ctx))
       }
       }
+
+    data.unpersist(blocking = false)
+    elementsByVertex
   }
 
   private def createElement(v: Vertex, vp: ValueProvider)(implicit ctx: IgaContext): Element = {
     val e = Element.createForX(ctx.mesh)
     MethodCoefficients.bind(e.mA)
     for (i <- 0 until ctx.mesh.xDofs) {
-      fillRightHandSide(v, e, vp, Spline3(), 0, i)
-      fillRightHandSide(v, e, vp, Spline2(), 1, i)
-      fillRightHandSide(v, e, vp, Spline1(), 2, i)
+      fillRightHandSide(v, e, vp, Spline3T, 0, i)
+      fillRightHandSide(v, e, vp, Spline2T, 1, i)
+      fillRightHandSide(v, e, vp, Spline1T, 2, i)
     }
     e
   }
@@ -98,15 +102,15 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 1) {
           val y = (gpl.v + i - 2) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline1().getValue(gpl.v) * vp.valueAt(x, y))
+          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline1T.getValue(gpl.v) * vp.valueAt(x, y))
         }
         if (i > 0 && (i - 1) < mesh.ySize) {
           val y = (gpl.v + i - 1) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline2().getValue(gpl.v) * vp.valueAt(x, y))
+          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline2T.getValue(gpl.v) * vp.valueAt(x, y))
         }
         if (i < mesh.ySize) {
           val y = (gpl.v + i) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline3().getValue(gpl.v) * vp.valueAt(x, y))
+          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline3T.getValue(gpl.v) * vp.valueAt(x, y))
         }
       }
     }

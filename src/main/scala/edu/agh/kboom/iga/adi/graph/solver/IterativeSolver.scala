@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
+import edu.agh.kboom.iga.adi.graph.Timer
 import edu.agh.kboom.iga.adi.graph.solver.SolverConfig.LoadedSolverConfig
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import org.apache.spark.SparkContext
@@ -13,7 +14,7 @@ object IterativeSolver {
 
 }
 
-case class StepInformation(step: Int) {
+case class StepInformation(step: Int, timer: Timer = Timer.start()) {
   def nextStep(): StepInformation = StepInformation(step + 1)
 }
 
@@ -24,24 +25,29 @@ case class IterativeSolver(stepSolver: StepSolver) {
 
   private val mesh: Mesh = stepSolver.directionSolver.mesh
 
-  def solve(initialProblem: StaticProblem, nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): Unit = {
-    solveAll(initialProblem, PlainSurface(mesh), StepInformation(0), nextProblem)
-  }
+  def solve(initialProblem: StaticProblem, nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): Seq[StepInformation] =
+    solveAll(initialProblem, PlainSurface(mesh), Seq(), nextProblem)
+
 
   @tailrec
-  private def solveAll(problem: Problem, surface: Surface, stepInformation: StepInformation, nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): StepInformation = {
-    if (LoggingConfig.operations) {
-      println(f"Iteration ${stepInformation.step}")
-    }
+  private def solveAll(problem: Problem, surface: Surface, historicSteps: Seq[StepInformation], nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): Seq[StepInformation] = {
+    val step = historicSteps.lastOption.map(_.nextStep()).getOrElse(StepInformation(0))
+
+    println(f"Iteration ${step.step}, start time: ${step.timer.startTimestamp()}")
+
     val ctx = IgaContext(mesh, problem)
     val nextProjection = stepSolver.solve(ctx)(surface)
 
-    processSolution(nextProjection, stepInformation)
+    surface match {
+      case SplineSurface(rows, _) => rows.rows.unpersist(blocking = false)
+      case _ => Unit
+    }
 
-    val nextStep = stepInformation.nextStep()
-    nextProblem(nextProjection, nextStep) match {
-      case Some(next) => solveAll(next, nextProjection, nextStep, nextProblem)
-      case None => stepInformation
+    processSolution(nextProjection, step)
+
+    nextProblem(nextProjection, step) match {
+      case Some(next) => solveAll(next, nextProjection, historicSteps ++ Seq(step), nextProblem)
+      case None => Seq(step)
     }
   }
 

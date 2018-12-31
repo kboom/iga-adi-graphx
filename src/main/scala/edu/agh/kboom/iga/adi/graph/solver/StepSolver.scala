@@ -15,6 +15,8 @@ case class StepSolver(directionSolver: DirectionSolver) {
     val partialSolution = directionSolver.solve(ctx, HorizontalInitializer(surface, ctx.problem))
     val transposedPartialSolution = SplineSurface(transposeRowMatrix(partialSolution.m), ctx.mesh)
 
+    partialSolution.m.rows.unpersist(blocking = false)
+
     if (loggingConfig.elements) {
       SplineSurface.print(transposedPartialSolution)
     }

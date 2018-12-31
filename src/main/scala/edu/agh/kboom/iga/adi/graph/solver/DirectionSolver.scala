@@ -31,7 +31,7 @@ case class DirectionSolver(mesh: Mesh) {
 
     val hs = extractSolution(problemTree, result)
 
-//    dataItemGraph.unpersist(blocking = false)
+    dataItemGraph.unpersist(blocking = false)
 
     SplineSurface(hs, mesh)
   }

@@ -20,10 +20,14 @@ object IgaAdiPregelSolver {
 
     val initialProblem = ProblemFactory.initialProblem(problemConfig)
 
-    iterativeSolver.solve(initialProblem, (_, step) => step match {
-      case StepInformation(step) if step < problemConfig.steps => Some(HeatTransferProblem(mesh))
+    val steps = iterativeSolver.solve(initialProblem, (_, step) => step match {
+      case StepInformation(step, _) if step < problemConfig.steps => Some(HeatTransferProblem(mesh))
       case _ => None
     })
+
+    val totalInSeconds = (System.currentTimeMillis() - steps.head.timer.start) / 1000
+
+    println(f"Total time (s): ${totalInSeconds}")
 
     spark.stop()
   }

@@ -82,7 +82,7 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
       .mapValues(_.map(_._2))
 
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
-    sc.parallelize(leafIndices)
+    val elementsByVertexId = sc.parallelize(leafIndices)
       .map(id => (id.toLong, id))
       .join(data)
       .map { case (idx, d) => {
@@ -91,6 +91,10 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
         (idx.toLong, createElement(vertex, value.toMap)(ctx))
       }
       }
+
+    data.unpersist(blocking = false)
+
+    elementsByVertexId
   }
 
   def createElement(v: Vertex, rows: Map[Int, Array[Double]])(implicit ctx: IgaContext): Element = {

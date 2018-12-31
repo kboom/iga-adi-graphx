@@ -5,7 +5,7 @@ import java.util.Calendar
 
 sealed case class OutputConfig(store: Boolean, dir: String) {
 
-  private val dateFormat = new SimpleDateFormat("yyyymmddHHmmss")
+  private val dateFormat = new SimpleDateFormat("yyyyMMddHHmmss")
   private val timeStamp = dateFormat.format(Calendar.getInstance().getTime())
 
   def filenameFor(stepInformation: StepInformation): String = f"$dir/$timeStamp/${stepInformation.step}"
