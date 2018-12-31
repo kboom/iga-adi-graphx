@@ -3,7 +3,7 @@ package edu.agh.kboom.iga.adi.graph.solver
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-sealed case class OutputConfig(dir: String) {
+sealed case class OutputConfig(store: Boolean, dir: String) {
 
   private val dateFormat = new SimpleDateFormat("yyyymmddHHmmss")
   private val timeStamp = dateFormat.format(Calendar.getInstance().getTime())

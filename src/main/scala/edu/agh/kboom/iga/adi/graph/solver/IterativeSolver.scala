@@ -19,6 +19,9 @@ case class StepInformation(step: Int) {
 
 case class IterativeSolver(stepSolver: StepSolver) {
 
+  val LoggingConfig = LoadedSolverConfig.logging
+  val OutputConfig = LoadedSolverConfig.output
+
   private val mesh: Mesh = stepSolver.directionSolver.mesh
 
   def solve(initialProblem: StaticProblem, nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): Unit = {
@@ -27,11 +30,13 @@ case class IterativeSolver(stepSolver: StepSolver) {
 
   @tailrec
   private def solveAll(problem: Problem, surface: Surface, stepInformation: StepInformation, nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): StepInformation = {
-    println(f"Iteration ${stepInformation.step}")
+    if (LoggingConfig.operations) {
+      println(f"Iteration ${stepInformation.step}")
+    }
     val ctx = IgaContext(mesh, problem)
     val nextProjection = stepSolver.solve(ctx)(surface)
 
-    saveSolution(nextProjection, stepInformation)
+    processSolution(nextProjection, stepInformation)
 
     val nextStep = stepInformation.nextStep()
     nextProblem(nextProjection, nextStep) match {
@@ -40,16 +45,21 @@ case class IterativeSolver(stepSolver: StepSolver) {
     }
   }
 
-  private def saveSolution(projection: SplineSurface, stepInformation: StepInformation)(implicit sc: SparkContext) = {
-    val filename = LoadedSolverConfig.output.filenameFor(stepInformation)
+  private def processSolution(projection: SplineSurface, stepInformation: StepInformation)(implicit sc: SparkContext) = {
     val surface = SplineSurface.surface(projection)
 
-    printSurface(stepInformation, surface)
-    surface.rows.map(row => (row.index, row.vector.toArray.mkString("[", ",", "]"))).saveAsTextFile(filename)
+    if (LoggingConfig.surfaces) {
+      printSurface(stepInformation, surface)
+    }
+
+    if (OutputConfig.store) {
+      val filename = LoadedSolverConfig.output.filenameFor(stepInformation)
+      surface.rows.map(row => (row.index, row.vector.toArray.mkString("[", ",", "]"))).saveAsTextFile(filename)
+    }
   }
 
   private def printSurface(stepInformation: StepInformation, surface: IndexedRowMatrix) = {
     val stringMatrix = surface.rows.sortBy(_.index).map(_.vector.toArray.map(s => f"$s%.2f").mkString("\t")).collect().mkString(System.lineSeparator())
-    println(f"Surface ${stepInformation.step}\n${stringMatrix}")
+    println(f"\nSurface ${stepInformation.step}\n${stringMatrix}\n")
   }
 }
