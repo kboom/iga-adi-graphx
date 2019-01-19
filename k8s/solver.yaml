@@ -1,0 +1,16 @@
+apiVersion: sparkoperator.k8s.io/v1beta1
+kind: SparkApplication
+metadata:
+  name: iga-adi-graphx
+  namespace: default
+spec:
+  type: Scala
+  mode: cluster
+  image: kbhit/iga-adi-graphx
+  imagePullPolicy: Always
+  mainClass: edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver
+  mainApplicationFile: local:///usr/src/app/iga-adi-pregel.jar
+  restartPolicy: Never
+  sparkConf:
+    "spark.ui.port": "4045"
+    "spark.eventLog.enabled": "true"
