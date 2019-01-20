@@ -1,6 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core
 
-import edu.agh.kboom.iga.adi.graph.solver.SolverConfig
+import edu.agh.kboom.iga.adi.graph.solver.SolverConfig.LoadedSolverConfig
 import edu.agh.kboom.iga.adi.graph.solver.core.production._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
 import org.slf4j.LoggerFactory
@@ -9,7 +9,7 @@ object IgaTaskExecutor {
 
   private val Log = LoggerFactory.getLogger(getClass)
 
-  val LoggingConfig = SolverConfig.LoadedSolverConfig.logging
+  val LoggingConfig = LoadedSolverConfig.logging
 
   def sendMessage(op: IgaOperation)(src: IgaElement, dst: IgaElement)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
     if (LoggingConfig.operations) {

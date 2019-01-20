@@ -3,16 +3,26 @@ package edu.agh.kboom.iga.adi.graph
 import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory}
 import edu.agh.kboom.iga.adi.graph.solver._
 import edu.agh.kboom.iga.adi.graph.solver.core._
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.{SparkConf, SparkContext}
 
 object IgaAdiPregelSolver {
 
   def main(args: Array[String]) {
-    val spark = SparkSession.builder
-      .appName("IGA ADI Pregel Solver")
-      .getOrCreate()
+    val cfg = SolverConfig.LoadedSolverConfig
+    val scfg = cfg.spark
 
-    implicit val sc = spark.sparkContext
+    implicit val sc = Some(new SparkConf())
+      .map(
+        _.setAppName("IGA ADI Pregel Solver")
+          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
+//          .set("spark.kryo.registrationRequired", "true")
+          .set("spark.kryo.unsafe", "true")
+          .set("spark.kryoserializer.buffer", "24m")
+      )
+      .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
+      .map(conf => scfg.jars.map(conf.set("spark.jars", _)).getOrElse(conf))
+      .map(new SparkContext(_)).get
 
     val problemConfig = SolverConfig.LoadedSolverConfig.problem
     val problemSize = problemConfig.size
@@ -31,7 +41,7 @@ object IgaAdiPregelSolver {
 
     println(f"Total time (s): ${totalInSeconds}")
 
-    spark.stop()
+    sc.stop()
   }
 
 }

@@ -20,16 +20,15 @@ sealed trait ProblemConfig {
 
 final case class HeatTransferProblemConfig(size: Int, steps: Int) extends ProblemConfig
 final case class ProjectionProblemConfig(size: Int, steps: Int) extends ProblemConfig
-
 final case class LoggingConfig(operations: Boolean, elements: Boolean, surfaces: Boolean)
-
-sealed case class SolverConfig(problem: ProblemConfig, output: OutputConfig, logging: LoggingConfig)
+final case class SparkConfig(master: Option[String], jars: Option[String])
+final case class SolverConfig(problem: ProblemConfig, output: OutputConfig, logging: LoggingConfig, spark: SparkConfig)
 
 object SolverConfig {
 
   import pureconfig.generic.auto._
 
-  val LoadedSolverConfig = load()
+  val LoadedSolverConfig: SolverConfig = load()
 
   private def load(): SolverConfig = pureconfig.loadConfig[SolverConfig] match {
     case Right(config) => config
@@ -37,3 +36,4 @@ object SolverConfig {
   }
 
 }
+

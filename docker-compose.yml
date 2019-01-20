@@ -6,6 +6,8 @@ services:
     ports:
     - "8080:8080"
     - "7077:7077"
+    volumes:
+    - /Users/kbhit/Sources/phd/iga-adi-graphx/target/scala-2.11/:/opt/solver
     environment:
     - INIT_DAEMON_STEP=setup_spark
   spark-worker-1:
@@ -13,6 +15,8 @@ services:
       container_name: spark-worker-1
       depends_on:
       - spark-master
+      volumes:
+      - /Users/kbhit/Sources/phd/iga-adi-graphx/target/scala-2.11/:/opt/solver
       ports:
       - "8081:8081"
       environment:
@@ -22,6 +26,8 @@ services:
       container_name: spark-worker-2
       depends_on:
       - spark-master
+      volumes:
+      - /Users/kbhit/Sources/phd/iga-adi-graphx/target/scala-2.11/:/opt/solver
       ports:
       - "8082:8082"
       environment:
