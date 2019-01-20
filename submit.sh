@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# https://spark.apache.org/docs/latest/configuration.html
 bin/spark-submit \
     --master k8s://http://localhost:8001 \
     --deploy-mode cluster \

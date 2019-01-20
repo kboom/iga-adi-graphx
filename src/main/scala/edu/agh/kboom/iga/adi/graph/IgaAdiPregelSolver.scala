@@ -20,6 +20,12 @@ object IgaAdiPregelSolver {
           .set("spark.kryo.registrationRequired", "true")
           .set("spark.kryo.unsafe", "true")
           .set("spark.kryoserializer.buffer", "24m")
+          .set("spark.kryo.referenceTracking", "false")
+          .set("spark.cleaner.periodicGC.interval", "30s")
+          .set("spark.scheduler.maxRegisteredResourcesWaitingTime", "120s")
+          .set("spark.scheduler.minRegisteredResourcesRatio", "1.0")
+          .set("spark.rpc.message.maxSize", "1000")
+          .set("spark.network.timeout", "10000s")
       )
       .map(conf => {
         GraphXUtils.registerKryoClasses(conf)
