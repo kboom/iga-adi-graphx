@@ -8,7 +8,6 @@ bin/spark-submit \
     --executor-cores 3 \
     --executor-memory 3G \
     --conf spark.executor.instances=6 \
-    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
     --conf spark.kubernetes.container.image.pullPolicy=Always \
     --conf spark.kubernetes.container.image=kbhit/spark \
     --conf spark.executor.extraJavaOptions="-XX:+UseCompressedOops" \
