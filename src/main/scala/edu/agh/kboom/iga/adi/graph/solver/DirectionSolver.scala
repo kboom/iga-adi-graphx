@@ -7,10 +7,12 @@ import edu.agh.kboom.iga.adi.graph.solver.core.production.{InitialMessage, Produ
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBranchingRow, lastIndexOfBranchingRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, ProblemTree, Vertex}
 import org.apache.spark.SparkContext
+import org.apache.spark.graphx.PartitionStrategy.EdgePartition2D
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.storage.StorageLevel.{MEMORY_AND_DISK_SER, MEMORY_ONLY}
 
 case class DirectionSolver(mesh: Mesh) {
 
@@ -23,7 +25,9 @@ case class DirectionSolver(mesh: Mesh) {
           .map(e => Edge(e.src.id, e.dst.id, e))
       )
 
-    val dataItemGraph = Graph.fromEdges(edges, None)
+    val dataItemGraph = Graph.fromEdges(edges, None, MEMORY_ONLY, MEMORY_ONLY)
+      .partitionBy(EdgePartition2D)
+      .cache()
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
       .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
 

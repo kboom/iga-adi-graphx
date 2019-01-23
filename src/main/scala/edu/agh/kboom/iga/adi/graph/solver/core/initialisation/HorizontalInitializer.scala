@@ -16,11 +16,13 @@ sealed trait ValueProvider {
 }
 
 case class FromCoefficientsValueProvider(problem: Problem, rows: Map[Int, Array[Double]]) extends ValueProvider {
-  override def valueAt(x: Double, y: Double): Double = problem.valueAt((i, j) => rows(i)(j), x, y)
+  private val Extractor: (Int, Int) => Double = (i, j) => rows(i)(j)
+  override def valueAt(x: Double, y: Double): Double = problem.valueAt(Extractor, x, y)
 }
 
 case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
-  override def valueAt(x: Double, y: Double): Double = problem.valueAt((_, _) => 1, x, y)
+  private val Extractor: (Int, Int) => Double = (_, _) => 1
+  override def valueAt(x: Double, y: Double): Double = problem.valueAt(Extractor, x, y)
 }
 
 object HorizontalInitializer {
@@ -72,7 +74,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
       .map { case (idx, d) => {
         val vertex = Vertex.vertexOf(idx.toInt)
         val value = d._2
-        (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, value.toMap))(ctx))
+          (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, value.toMap))(ctx))
       }
       }
 
