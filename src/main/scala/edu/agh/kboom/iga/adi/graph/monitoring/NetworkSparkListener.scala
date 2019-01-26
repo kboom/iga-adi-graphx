@@ -15,4 +15,8 @@ class NetworkSparkListener extends SparkListener {
     si => - si.taskMetrics.shuffleReadMetrics.totalBlocksFetched
   )
 
+  def stagesByExecutionTime(): Seq[StageInfo] = sb.sortBy(
+    si => - si.taskMetrics.executorRunTime
+  )
+
 }

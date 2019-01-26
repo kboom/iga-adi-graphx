@@ -51,6 +51,7 @@ object IgaAdiPregelSolver {
     })
 
     println(StageInfoReader.asString("Most shuffles", networkListener.stagesByShuffles().head))
+    println(StageInfoReader.asString("Top execution time", networkListener.stagesByExecutionTime().head))
 
     println(f"Total time (s): ${System.currentTimeMillis() - sc.startTime}")
     sc.stop()
