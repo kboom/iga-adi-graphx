@@ -34,7 +34,7 @@ object VerticalInitializer {
 
     val span = Math.min(3, 1 + Math.min(rowNo, elements - 1 - rowNo))
 
-    return if (rowNo < elements / 2) all.take(span) else all.takeRight(span)
+    if (rowNo < elements / 2) all.take(span) else all.takeRight(span)
   }
 
   def findLocalRowFor(v: Vertex, rowNo: Int)(implicit ctx: IgaContext): Int = {
