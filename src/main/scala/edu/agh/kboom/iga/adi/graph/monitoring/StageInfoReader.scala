@@ -11,13 +11,14 @@ object StageInfoReader {
        |  Stage ${s.name}
        | -------------------------------------------
        | tasks: ${s.numTasks}
-       | executorCPU: ${s.taskMetrics.executorCpuTime / 1000000}
-       | peakMemory: ${s.taskMetrics.peakExecutionMemory}
-       | gctime: ${s.taskMetrics.jvmGCTime}
+       | executorCPU: ${s.taskMetrics.executorCpuTime / 1000000}ms
+       | peakMemory: ${s.taskMetrics.peakExecutionMemory / 1000000}MB
+       | gctime: ${s.taskMetrics.jvmGCTime}ms
        | rdd: ${s.rddInfos.map(_.name).mkString(",")}
        | shuffle:
        | - records read: ${s.taskMetrics.shuffleReadMetrics.recordsRead}
        | - total blocks fetched: ${s.taskMetrics.shuffleReadMetrics.totalBlocksFetched}
+       | - records written: ${s.taskMetrics.shuffleWriteMetrics.recordsWritten}
        | ${s.details}
        |""".stripMargin
 

@@ -4,7 +4,7 @@ import org.apache.spark.scheduler.{SparkListener, SparkListenerStageCompleted, S
 
 import scala.collection.mutable.ListBuffer
 
-class NetworkSparkListener extends SparkListener {
+class StageAccumulator extends SparkListener {
   private val sb = new ListBuffer[StageInfo]()
 
   override def onStageCompleted(stageCompleted: SparkListenerStageCompleted): Unit = {

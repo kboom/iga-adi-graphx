@@ -1,6 +1,6 @@
 package edu.agh.kboom.iga.adi.graph
 
-import edu.agh.kboom.iga.adi.graph.monitoring.{NetworkSparkListener, StageInfoReader}
+import edu.agh.kboom.iga.adi.graph.monitoring.{StageAccumulator, StageInfoReader}
 import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory}
 import edu.agh.kboom.iga.adi.graph.solver._
 import edu.agh.kboom.iga.adi.graph.solver.core._
@@ -30,9 +30,8 @@ object IgaAdiPregelSolver {
       .map(conf => scfg.jars.map(conf.set("spark.jars", _)).getOrElse(conf))
       .map(new SparkContext(_)).get
 
-    val networkListener = new NetworkSparkListener()
+    val networkListener = new StageAccumulator()
     if (cfg.logging.spark) {
-      //      sc.addSparkListener(JobSparkListener)
       sc.addSparkListener(networkListener)
       //      sc.addSparkListener(ShuffleSparkListener)
     }
