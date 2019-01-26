@@ -92,8 +92,6 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
       }
       }
 
-    data.unpersist(blocking = false)
-
     elementsByVertexId
   }
 

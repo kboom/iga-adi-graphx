@@ -23,21 +23,21 @@ case class DirectionSolver(mesh: Mesh) {
       sc.parallelize(
         IgaTasks.generateOperations(problemTree)
           .map(e => Edge(e.src.id, e.dst.id, e))
-      )
+      ).setName("Operation edges")
 
-    val dataItemGraph = Graph.fromEdges(edges, None, MEMORY_ONLY, MEMORY_ONLY)
-      .partitionBy(EdgePartition2D)
-      .cache()
+    val graph = Graph.fromEdges(edges, None, MEMORY_ONLY, MEMORY_ONLY)
+      .partitionBy(EdgePartition2D)  // todo create an efficient partitioner for IGA-ADI operations
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
       .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
 
-    val result = execute(dataItemGraph)(ctx)
+    val solvedGraph = execute(graph)(ctx)
+    val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint() // forget about lineage
+    if(!solutionRows.isEmpty()) {
+      println("Trigger checkpoint")
+    }
 
-    val hs = extractSolution(problemTree, result)
-
-    dataItemGraph.unpersist(blocking = false)
-
-    SplineSurface(hs, mesh)
+    solvedGraph.unpersist()
+    SplineSurface(new IndexedRowMatrix(solutionRows), mesh)
   }
 
   private def execute(dataItemGraph: Graph[IgaElement, IgaOperation])(implicit igaContext: IgaContext) = {
@@ -49,12 +49,11 @@ case class DirectionSolver(mesh: Mesh) {
     )
   }
 
-  private def extractSolution(problemTree: ProblemTree, result: Graph[IgaElement, IgaOperation]) = {
-    new IndexedRowMatrix(result.vertices
+  private def extractSolutionRows(problemTree: ProblemTree, result: Graph[IgaElement, IgaOperation]) = {
+    result.vertices
       .filterByRange(firstIndexOfBranchingRow(problemTree), lastIndexOfBranchingRow(problemTree))
       .map { case (v, e) => (v - firstIndexOfBranchingRow(problemTree), e) }
       .map { case (v, be) => if (v == 0) (v, be.e.mX.arr.dropRight(1)) else (v, be.e.mX.arr.drop(2).dropRight(1)) }
       .flatMap { case (vid, be) => be.map(Vectors.dense).zipWithIndex.map { case (v, i) => if (vid == 0) IndexedRow(i, v) else IndexedRow(5 + (vid - 1) * 3 + i, v) } }
-    )
   }
 }
