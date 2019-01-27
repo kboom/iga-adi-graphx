@@ -11,7 +11,8 @@ object StageInfoReader {
        |  Stage ${s.name}
        | -------------------------------------------
        | tasks: ${s.numTasks}
-       | executorCPU: ${s.taskMetrics.executorCpuTime / 1000000}ms
+       | run time: ${s.taskMetrics.executorRunTime / 1000000}ms
+       | cpu utilisation: ${(s.taskMetrics.executorCpuTime + 0.0) / Math.max(s.taskMetrics.executorCpuTime, s.taskMetrics.executorRunTime * 1000000)}%
        | peakMemory: ${s.taskMetrics.peakExecutionMemory / 1000000}MB
        | gctime: ${s.taskMetrics.jvmGCTime}ms
        | rdd: ${s.rddInfos.map(_.name).mkString(",")}

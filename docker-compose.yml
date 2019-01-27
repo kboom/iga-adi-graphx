@@ -32,14 +32,3 @@ services:
       - "8082:8082"
       environment:
       - "SPARK_MASTER=spark://spark-master:7077"
-  spark-worker-3:
-      image: bde2020/spark-worker:2.4.0-hadoop2.7
-      container_name: spark-worker-3
-      depends_on:
-      - spark-master
-      volumes:
-      - /Users/kbhit/Sources/phd/iga-adi-graphx/target/scala-2.11/:/opt/solver
-      ports:
-      - "8083:8083"
-      environment:
-      - "SPARK_MASTER=spark://spark-master:7077"
