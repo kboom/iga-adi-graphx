@@ -1,22 +1,27 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
-import edu.agh.kboom.iga.adi.graph.VertexProgram
+import edu.agh.kboom.iga.adi.graph.solver.DirectionSolver.Log
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.LeafInitializer
 import edu.agh.kboom.iga.adi.graph.solver.core.production.{InitialMessage, ProductionMessage}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBranchingRow, lastIndexOfBranchingRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, ProblemTree, Vertex}
+import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
-import org.apache.spark.graphx.PartitionStrategy.EdgePartition2D
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel.{MEMORY_AND_DISK_SER, MEMORY_ONLY}
+import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
+import org.slf4j.LoggerFactory
+
+object DirectionSolver {
+  private val Log = LoggerFactory.getLogger(classOf[IterativeSolver])
+}
 
 case class DirectionSolver(mesh: Mesh) {
 
-  def solve(ctx: IgaContext, initializer: LeafInitializer)(implicit sc: SparkContext): SplineSurface = {
+  def solve(ctx: IgaContext, initializer: LeafInitializer, rec: TimeRecorder)(implicit sc: SparkContext): SplineSurface = {
     val problemTree = ctx.tree()
 
     val edges: RDD[Edge[IgaOperation]] =
@@ -26,17 +31,23 @@ case class DirectionSolver(mesh: Mesh) {
       ).setName("Operation edges")
 
     val graph = Graph.fromEdges(edges, None, MEMORY_ONLY, MEMORY_ONLY)
-      .partitionBy(EdgePartition2D)  // todo create an efficient partitioner for IGA-ADI operations
+      .partitionBy(IgaPartitioner) // todo create an efficient partitioner for IGA-ADI operations
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
       .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
+      .cache()
+
+    graph.triangleCount() // trigger cache
+
+    rec.record(TimeEvent.initialized(ctx.direction))
 
     val solvedGraph = execute(graph)(ctx)
     val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint() // forget about lineage
-    if(!solutionRows.isEmpty()) {
-      println("Trigger checkpoint")
+    if (!solutionRows.isEmpty()) {
+      Log.info("Trigger checkpoint")
     }
 
-    solvedGraph.unpersist()
+    solvedGraph.unpersist(blocking = false)
+    graph.unpersist(blocking = false)
     SplineSurface(new IndexedRowMatrix(solutionRows), mesh)
   }
 

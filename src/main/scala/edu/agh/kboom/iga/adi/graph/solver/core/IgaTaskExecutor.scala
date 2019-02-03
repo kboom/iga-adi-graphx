@@ -17,7 +17,7 @@ object IgaTaskExecutor {
     }
     if (src.hasMorePressureThan(dst)) {
       if (LoggingConfig.operations) {
-        Log.debug(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Sending messages")
+        Log.info(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Sending messages")
       }
       op.p.asInstanceOf[BaseProduction[ProductionMessage]].emit(src, dst)
     } else {
@@ -53,7 +53,7 @@ object IgaTaskExecutor {
     val vertex = Vertex.vertexOf(taskCtx.vid)(taskCtx.mc.xTree())
 
     if (LoggingConfig.operations) {
-      Log.trace(s"Running ${m.production} on ${e.v}/(${e.p})")
+      Log.info(s"Running ${m.production} on ${e.v}/(${e.p})")
     }
 
     m.production match {

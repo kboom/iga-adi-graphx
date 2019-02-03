@@ -4,26 +4,28 @@ import edu.agh.kboom.iga.adi.graph.monitoring.{StageAccumulator, StageInfoReader
 import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory}
 import edu.agh.kboom.iga.adi.graph.solver._
 import edu.agh.kboom.iga.adi.graph.solver.core._
-import org.apache.spark.graphx.GraphXUtils
 import org.apache.spark.{SparkConf, SparkContext}
+import org.slf4j.LoggerFactory
 
 object IgaAdiPregelSolver {
 
+  private val Log = LoggerFactory.getLogger(IgaAdiPregelSolver.getClass)
+
   def main(args: Array[String]) {
-    val cfg = SolverConfig.LoadedSolverConfig
+    implicit val cfg: SolverConfig = SolverConfig.LoadedSolverConfig
     val scfg = cfg.spark
 
     implicit val sc = Some(new SparkConf())
       .map(
         _.setAppName("IGA ADI Pregel Solver")
-          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-          //          .set("spark.kryo.classesToRegister", "org.apache.spark.graphx.impl.ShippableVertexPartition,org.apache.spark.util.collection.OpenHashSet.class")
-          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
-          //          .set("spark.kryo.registrationRequired", "true")
-          .set("spark.kryo.unsafe", "true")
+        //          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        //          .set("spark.kryo.classesToRegister", "org.apache.spark.graphx.impl.ShippableVertexPartition,org.apache.spark.util.collection.OpenHashSet.class")
+        //          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
+        //          .set("spark.kryo.registrationRequired", "true")
+        //          .set("spark.kryo.unsafe", "true")
       )
       .map(conf => {
-        GraphXUtils.registerKryoClasses(conf)
+        //        GraphXUtils.registerKryoClasses(conf)
         conf
       })
       .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
@@ -49,10 +51,15 @@ object IgaAdiPregelSolver {
       case _ => None
     })
 
-    println(StageInfoReader.asString("Most shuffles", networkListener.stagesByShuffles().head))
-    println(StageInfoReader.asString("Top execution time", networkListener.stagesByExecutionTime().head))
+    Log.info(SolverConfig.describe)
+    Log.info(StageInfoReader.asString("Most shuffles", networkListener.stagesByShuffles().head))
+    Log.info(StageInfoReader.asString("Top execution time", networkListener.stagesByExecutionTime().head))
 
-    println(f"Total time (s): ${System.currentTimeMillis() - sc.startTime}")
+    Log.info(f"Total time (ms): ${System.currentTimeMillis() - sc.startTime}")
+
+    steps.foreach(step => Log.info(s"\nStep ${step.step} times:\n${step.timeRecorder.summary().mkString(System.lineSeparator())}\n"))
+
+    sc.cancelAllJobs()
     sc.stop()
   }
 

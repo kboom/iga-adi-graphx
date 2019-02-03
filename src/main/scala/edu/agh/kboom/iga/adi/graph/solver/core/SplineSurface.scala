@@ -4,6 +4,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{Spline1T, Spline2T, Splin
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
+import org.slf4j.LoggerFactory
 
 sealed trait Surface {
   def mesh: Mesh
@@ -12,6 +13,8 @@ case class SplineSurface(m: IndexedRowMatrix, mesh: Mesh) extends Surface
 case class PlainSurface(mesh: Mesh) extends Surface
 
 object SplineSurface {
+
+  private val Log = LoggerFactory.getLogger(classOf[SplineSurface])
 
   def asArray(s: SplineSurface): Array[Array[Double]] = s.m
     .rows
@@ -27,8 +30,8 @@ object SplineSurface {
 
 
   def print(s: SplineSurface): Unit = {
-    println(f"2D B-Spline Coefficients ${s.m.numRows()}x${s.m.numCols()}")
-    println(asString(s))
+    Log.info(f"2D B-Spline Coefficients ${s.m.numRows()}x${s.m.numCols()}")
+    Log.info(asString(s))
   }
 
   def valueRowsDependentOn(coefficientRow: Int)(implicit mesh: Mesh): Seq[Int] = {
@@ -41,11 +44,11 @@ object SplineSurface {
 
     val span = Math.min(3, 1 + Math.min(coefficientRow, elements - 1 - coefficientRow))
 
-    return if (coefficientRow < elements / 2) all.take(span) else all.takeRight(span)
+    if (coefficientRow < elements / 2) all.take(span) else all.takeRight(span)
   }
 
   def surface(p: SplineSurface)(implicit sc: SparkContext): IndexedRowMatrix = {
-    implicit val mesh = p.mesh
+    implicit val mesh: Mesh = p.mesh
 
     val coefficientsBySolutionRows = p.m.rows
       .flatMap(row => {

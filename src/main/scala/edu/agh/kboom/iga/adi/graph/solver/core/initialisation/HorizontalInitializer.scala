@@ -50,7 +50,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   }
 
   private def initializeSurface(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
-    implicit val tree = ctx.xTree()
+    implicit val tree: ProblemTree = ctx.xTree()
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices)
       .map { idx =>

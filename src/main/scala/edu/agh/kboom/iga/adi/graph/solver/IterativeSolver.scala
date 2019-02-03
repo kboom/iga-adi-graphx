@@ -1,20 +1,25 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
-import edu.agh.kboom.iga.adi.graph.Timer
+import edu.agh.kboom.iga.adi.graph.TimeEventType.{STEP_FINISHED, STEP_STARTED}
+import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, solver}
 import edu.agh.kboom.iga.adi.graph.solver.SolverConfig.LoadedSolverConfig
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix
+import org.apache.spark.sql.catalyst.expressions.Log
+import org.slf4j.LoggerFactory
 
 import scala.annotation.tailrec
 
 object IterativeSolver {
 
+  private val Log = LoggerFactory.getLogger(classOf[IterativeSolver])
+
   def noCoefficients(i: Int, j: Int): Double = 0
 
 }
 
-case class StepInformation(step: Int, timer: Timer = Timer.start()) {
+case class StepInformation(step: Int, timeRecorder: TimeRecorder = TimeRecorder.empty()) {
   def nextStep(): StepInformation = StepInformation(step + 1)
 }
 
@@ -33,10 +38,15 @@ case class IterativeSolver(stepSolver: StepSolver) {
   private def solveAll(problem: Problem, surface: Surface, historicSteps: Seq[StepInformation], nextProblem: (SplineSurface, StepInformation) => Option[Problem])(implicit sc: SparkContext): Seq[StepInformation] = {
     val step = historicSteps.lastOption.map(_.nextStep()).getOrElse(StepInformation(0))
 
-    println(f"Iteration ${step.step}, start time: ${step.timer.startTimestamp()}")
+    val recorder = step.timeRecorder
 
-    val ctx = IgaContext(mesh, problem)
-    val nextProjection = stepSolver.solve(ctx)(surface)
+    recorder.record(STEP_STARTED)
+    IterativeSolver.Log.info(f"Iteration ${step.step}, start time: ${recorder.times.head.startTimestamp()}")
+
+    val ctx = IgaContext(mesh, problem, HORIZONTAL)
+    val nextProjection = stepSolver.solve(ctx, recorder)(surface)
+
+    recorder.record(STEP_FINISHED)
 
     surface match {
       case SplineSurface(rows, _) => rows.rows.unpersist(blocking = false)
@@ -51,7 +61,7 @@ case class IterativeSolver(stepSolver: StepSolver) {
     }
   }
 
-  private def processSolution(projection: SplineSurface, stepInformation: StepInformation)(implicit sc: SparkContext) = {
+  private def processSolution(projection: SplineSurface, stepInformation: StepInformation)(implicit sc: SparkContext): Unit = {
     val surface = SplineSurface.surface(projection)
 
     if (LoggingConfig.surfaces) {

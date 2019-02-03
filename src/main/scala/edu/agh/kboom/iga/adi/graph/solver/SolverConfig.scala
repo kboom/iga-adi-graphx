@@ -35,5 +35,17 @@ object SolverConfig {
     case Left(failures) => throw new IllegalStateException(f"Could not load config $failures")
   }
 
+  def describe(implicit sc: SolverConfig): String =
+    s"""
+      | ####################################################
+      |   Solution description
+      | ####################################################
+      | Problem:
+      | - size: ${sc.problem.size},
+      | - steps: ${sc.problem.steps}
+      | ####################################################
+      |
+    """.stripMargin
+
 }
 

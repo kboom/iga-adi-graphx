@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
+import edu.agh.kboom.iga.adi.graph.TimeRecorder
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree
 
