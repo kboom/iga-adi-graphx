@@ -22,7 +22,7 @@ object VerticalInitializer {
   private val LAST_PARTITION = Array(1 / 3d, 1 / 2d, 1d)
 
   def verticesDependentOnRow(rowNo: Int)(implicit ctx: IgaContext): Seq[Vertex] = {
-    implicit val tree = ctx.yTree()
+    implicit val tree: ProblemTree = ctx.yTree()
     val elements = ctx.mesh.yDofs
 
     val all = Seq(-1, 0, 1)
@@ -38,12 +38,12 @@ object VerticalInitializer {
   }
 
   def findLocalRowFor(v: Vertex, rowNo: Int)(implicit ctx: IgaContext): Int = {
-    implicit val tree = ctx.yTree()
-    return rowNo - Vertex.offsetLeft(v)
+    implicit val tree: ProblemTree = ctx.yTree()
+    rowNo - Vertex.offsetLeft(v)
   }
 
   def findPartitionFor(v: Vertex, rowNo: Int)(implicit ctx: IgaContext): Double = {
-    implicit val tree = ctx.yTree()
+    implicit val tree: ProblemTree = ctx.yTree()
     val localRow = findLocalRowFor(v, rowNo)
     val firstIdx = ProblemTree.firstIndexOfLeafRow
     val lastIdx = ProblemTree.lastIndexOfLeafRow
@@ -74,7 +74,7 @@ object VerticalInitializer {
 case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
 
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
-    implicit val tree = ctx.yTree()
+    implicit val tree: ProblemTree = ctx.yTree()
 
     val data = hsi.m.rows
       .flatMap(m => VerticalInitializer.collocate(m)(ctx))
@@ -83,14 +83,16 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
 
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     val elementsByVertexId = sc.parallelize(leafIndices)
-      .map(id => (id.toLong, id))
+      .mapPartitions(_.toList.map { id => (id.toLong, id) }.iterator, preservesPartitioning = true)
       .join(data)
-      .map { case (idx, d) => {
-        val vertex = Vertex.vertexOf(idx.toInt)
-        val value = d._2
-        (idx.toLong, createElement(vertex, value.toMap)(ctx))
-      }
-      }
+      .mapPartitions(
+        _.toList.map { case (idx, d) =>
+          val vertex = Vertex.vertexOf(idx.toInt)
+          val value = d._2
+          (idx.toLong, createElement(vertex, value.toMap)(ctx))
+        }.iterator,
+        preservesPartitioning = true
+      )
 
     elementsByVertexId
   }

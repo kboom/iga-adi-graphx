@@ -17,11 +17,13 @@ sealed trait ValueProvider {
 
 case class FromCoefficientsValueProvider(problem: Problem, rows: Map[Int, Array[Double]]) extends ValueProvider {
   private val Extractor: (Int, Int) => Double = (i, j) => rows(i)(j)
+
   override def valueAt(x: Double, y: Double): Double = problem.valueAt(Extractor, x, y)
 }
 
 case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
   private val Extractor: (Int, Int) => Double = (_, _) => 1
+
   override def valueAt(x: Double, y: Double): Double = problem.valueAt(Extractor, x, y)
 }
 
@@ -53,10 +55,10 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     implicit val tree: ProblemTree = ctx.xTree()
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices)
-      .map { idx =>
+      .mapPartitions(_.toList.map { idx =>
         val vertex = Vertex.vertexOf(idx)
         (idx.toLong, createElement(vertex, FromProblemValueProvider(problem))(ctx))
-      }
+      }.iterator, preservesPartitioning = true)
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
@@ -71,12 +73,14 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     val elementsByVertex = sc.parallelize(leafIndices)
       .map(id => (id.toLong, id))
       .join(data)
-      .map { case (idx, d) => {
-        val vertex = Vertex.vertexOf(idx.toInt)
-        val value = d._2
+      .mapPartitions(
+        _.toList.map { case (idx, d) =>
+          val vertex = Vertex.vertexOf(idx.toInt)
+          val value = d._2
           (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, value.toMap))(ctx))
-      }
-      }
+        }.iterator,
+        preservesPartitioning = true
+      )
 
     data.unpersist(blocking = false)
     elementsByVertex

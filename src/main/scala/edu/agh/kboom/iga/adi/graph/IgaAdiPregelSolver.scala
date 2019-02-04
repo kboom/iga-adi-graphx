@@ -4,6 +4,7 @@ import edu.agh.kboom.iga.adi.graph.monitoring.{StageAccumulator, StageInfoReader
 import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory}
 import edu.agh.kboom.iga.adi.graph.solver._
 import edu.agh.kboom.iga.adi.graph.solver.core._
+import org.apache.spark.graphx.GraphXUtils
 import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
 
@@ -18,14 +19,13 @@ object IgaAdiPregelSolver {
     implicit val sc = Some(new SparkConf())
       .map(
         _.setAppName("IGA ADI Pregel Solver")
-        //          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-        //          .set("spark.kryo.classesToRegister", "org.apache.spark.graphx.impl.ShippableVertexPartition,org.apache.spark.util.collection.OpenHashSet.class")
-        //          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
-        //          .set("spark.kryo.registrationRequired", "true")
+//          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+//          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
+//          .set("spark.kryo.registrationRequired", "true")
         //          .set("spark.kryo.unsafe", "true")
       )
       .map(conf => {
-        //        GraphXUtils.registerKryoClasses(conf)
+//        GraphXUtils.registerKryoClasses(conf)
         conf
       })
       .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
@@ -52,8 +52,10 @@ object IgaAdiPregelSolver {
     })
 
     Log.info(SolverConfig.describe)
+    Log.info(StageInfoReader.asString("Most fetch wait ratio", networkListener.stagesByFetchVsRuntimeRatio().head))
     Log.info(StageInfoReader.asString("Most shuffles", networkListener.stagesByShuffles().head))
     Log.info(StageInfoReader.asString("Top execution time", networkListener.stagesByExecutionTime().head))
+    Log.info(StageInfoReader.asString("Peak memory", networkListener.stagesByMemory().head))
 
     Log.info(f"Total time (ms): ${System.currentTimeMillis() - sc.startTime}")
 

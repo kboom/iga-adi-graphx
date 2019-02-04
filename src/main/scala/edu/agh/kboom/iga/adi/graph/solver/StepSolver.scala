@@ -8,6 +8,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.{SplineSurface, Surface}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
+import org.apache.spark.storage.StorageLevel
 
 case class StepSolver(directionSolver: DirectionSolver) {
 
@@ -19,7 +20,9 @@ case class StepSolver(directionSolver: DirectionSolver) {
 
     rec.record(TRANSPOSITION_STARTED)
 
-    val transposedPartialSolution = SplineSurface(transposeRowMatrix(partialSolution.m), ctx.mesh)
+    val transposedMatrix = transposeRowMatrix(partialSolution.m)
+
+    val transposedPartialSolution = SplineSurface(transposedMatrix, ctx.mesh)
 
     if (loggingConfig.elements) {
       SplineSurface.print(transposedPartialSolution)
@@ -32,6 +35,9 @@ case class StepSolver(directionSolver: DirectionSolver) {
     if (loggingConfig.elements) {
       SplineSurface.print(newProjection)
     }
+
+    transposedPartialSolution.m.rows.unpersist(blocking = false)
+
     newProjection
   }
 
@@ -44,6 +50,12 @@ object StepSolver {
       .flatMap(x => x) // now we have triplets (newRowIndex, (newColIndex, value))
       .groupByKey
       .map { case (a, b) => buildRow(a, b) }
+      .cache()
+
+    if(!transposedRowsRDD.isEmpty()) {
+      // trigger operation
+    }
+
     new IndexedRowMatrix(transposedRowsRDD)
   }
 
