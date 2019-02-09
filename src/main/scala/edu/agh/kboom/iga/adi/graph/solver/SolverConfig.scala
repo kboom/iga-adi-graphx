@@ -20,6 +20,7 @@ sealed trait ProblemConfig {
 
 final case class HeatTransferProblemConfig(size: Int, steps: Int) extends ProblemConfig
 final case class ProjectionProblemConfig(size: Int, steps: Int) extends ProblemConfig
+final case class OneProjectionProblemConfig(size: Int, steps: Int) extends ProblemConfig
 final case class LoggingConfig(operations: Boolean, elements: Boolean, surfaces: Boolean, spark: Boolean)
 final case class SparkConfig(master: Option[String], jars: Option[String])
 final case class SolverConfig(problem: ProblemConfig, output: OutputConfig, logging: LoggingConfig, spark: SparkConfig)
