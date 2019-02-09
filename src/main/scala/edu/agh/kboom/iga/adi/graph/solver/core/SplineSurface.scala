@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core
 
+import breeze.linalg.DenseMatrix
 import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{Spline1T, Spline2T, Spline3T}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
@@ -9,18 +10,24 @@ import org.slf4j.LoggerFactory
 sealed trait Surface {
   def mesh: Mesh
 }
+
 case class SplineSurface(m: IndexedRowMatrix, mesh: Mesh) extends Surface
+
 case class PlainSurface(mesh: Mesh) extends Surface
 
 object SplineSurface {
 
   private val Log = LoggerFactory.getLogger(classOf[SplineSurface])
 
-  def asArray(s: SplineSurface): Array[Array[Double]] = s.m
-    .rows
-    .sortBy(_.index)
-    .map(_.vector.toArray)
-    .collect()
+  def asArray(s: SplineSurface): DenseMatrix[Double] = {
+    val arr2d = s.m
+      .rows
+      .sortBy(_.index)
+      .map(_.vector.toArray)
+      .collect()
+
+    DenseMatrix.create(arr2d.length, arr2d(0).length, arr2d.reduce(_ ++ _))
+  }
 
   def asString(s: SplineSurface): String = s.m
     .rows
@@ -73,7 +80,7 @@ object SplineSurface {
       }
       }
 
-    return new IndexedRowMatrix(surface)
+    new IndexedRowMatrix(surface)
   }
 
   def projectedValue(c: (Int, Int) => Double, y: Double, x: Double)(implicit mesh: Mesh): Double = {

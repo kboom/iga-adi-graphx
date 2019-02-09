@@ -1,9 +1,10 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.production
 
-import edu.agh.kboom.iga.adi.graph.solver.core.Array2D.move
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixA, MatrixB}
+import edu.agh.kboom.iga.adi.graph.solver.core.MatrixA.MatrixA
+import edu.agh.kboom.iga.adi.graph.solver.core.MatrixB.MatrixB
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD}
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixA, MatrixB}
 
 sealed case class MergeAndEliminateRootMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateRoot
@@ -15,12 +16,12 @@ case object MergeAndEliminateRoot extends Production
 
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateRootMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateRootMessage(
-      src.mA.transformedBy(0 until 4, 0 until 4)(move(2, 2))(),
-      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(2, 0))()
+      src.mA(2 until 6, 2 until 6),
+      src.mB(2 until 6, 0 until ctx.mc.mesh.yDofs)
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateRootMessage(
-      src.mA.transformedBy(0 until 4, 0 until 4)(move(2, 2))(move(2, 2)),
-      src.mB.transformedBy(0 until 4, 0 until ctx.mc.mesh.yDofs)(move(2, 0))(move(2, 0))
+      MatrixA.ofDim(src.mA)(2 until 6, 2 until 6) :+= src.mA(2 until 6, 2 until 6),
+      MatrixB.ofDim(src.mB)(2 until 6, 0 until ctx.mc.mesh.yDofs) :+= src.mB(2 until 6, 0 until ctx.mc.mesh.yDofs)
     ))
   }
 
@@ -30,10 +31,10 @@ case object MergeAndEliminateRoot extends Production
   )
 
   override def consume(dst: IgaElement, msg: MergeAndEliminateRootMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mA.add(msg.ca)
-    dst.mB.add(msg.cb)
+    dst.mA :+= msg.ca
+    dst.mB :+= msg.cb
 
-    partialForwardElimination(6, 6, ctx.mc.mesh.yDofs)(dst)
-    partialBackwardsSubstitution(6, 6, ctx.mc.mesh.yDofs)(dst)
+    partialForwardElimination(6, 6)(dst)
+    partialBackwardsSubstitution(6, 6)(dst)
   }
 }

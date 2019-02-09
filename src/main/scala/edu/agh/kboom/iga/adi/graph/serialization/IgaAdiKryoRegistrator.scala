@@ -1,18 +1,17 @@
 package edu.agh.kboom.iga.adi.graph.serialization
 
+import breeze.linalg.DenseMatrix
 import com.esotericsoftware.kryo.Kryo
+import edu.agh.kboom.iga.adi.graph.solver.core.IgaOperation
 import edu.agh.kboom.iga.adi.graph.solver.core.production._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaOperation, MatrixA, MatrixB, MatrixX}
 import org.apache.spark.graphx.Edge
 import org.apache.spark.serializer.KryoRegistrator
 
 class IgaAdiKryoRegistrator extends KryoRegistrator {
   override def registerClasses(kryo: Kryo) = {
     Array(
-      classOf[MatrixA],
-      classOf[MatrixB],
-      classOf[MatrixX],
+      classOf[DenseMatrix[Double]],
       classOf[IgaElement],
       classOf[Element],
       classOf[IgaOperation],
@@ -41,6 +40,6 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       classOf[Array[Array[Double]]]
     ).foreach(kryo.register)
 
-//    kryo.register(classOf[MergeAndEliminateRoot], new HelloSerializer())
+    //    kryo.register(classOf[MergeAndEliminateRoot], new HelloSerializer())
   }
 }

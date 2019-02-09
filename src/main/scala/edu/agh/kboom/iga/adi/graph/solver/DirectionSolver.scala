@@ -71,8 +71,12 @@ case class DirectionSolver(mesh: Mesh) {
         _.toList.view
           .filter { x => x._1 >= firstIndex && x._1 <= lastIndex }
           .map { case (v, e) => (v - firstIndex, e) }
-          .map { case (v, be) => if (v == 0) (v, be.e.mX.arr.dropRight(1)) else (v, be.e.mX.arr.view.drop(2).dropRight(1).toArray) }
-          .flatMap { case (vid, be) => be.view.map(Vectors.dense).zipWithIndex.map { case (v, i) => if (vid == 0) IndexedRow(i, v) else IndexedRow(5 + (vid - 1) * 3 + i, v) }.toList }
+          .map { case (v, be) => if (v == 0) (v, be.e.mX(0 to -2, ::)) else (v, be.e.mX(2 until -2, ::)) }
+          .flatMap { case (vid, be) => (0 until be.rows).map(be(_, ::).inner.data)
+            .map(Vectors.dense)
+            .zipWithIndex
+            .map { case (v, i) => if (vid == 0) IndexedRow(i, v) else IndexedRow(5 + (vid - 1) * 3 + i, v) }.toList
+          }
           .iterator
       )
   }

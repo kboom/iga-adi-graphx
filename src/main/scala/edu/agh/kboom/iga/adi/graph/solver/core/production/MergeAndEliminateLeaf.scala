@@ -1,9 +1,10 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.production
 
-import edu.agh.kboom.iga.adi.graph.solver.core.Array2D.move
+import edu.agh.kboom.iga.adi.graph.solver.core.MatrixA.MatrixA
+import edu.agh.kboom.iga.adi.graph.solver.core.MatrixB.MatrixB
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
-import edu.agh.kboom.iga.adi.graph.solver.core.{MatrixA, MatrixB, IgaTaskContext}
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixA, MatrixB}
 
 case class MergeAndEliminateLeafMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateLeaf
@@ -22,12 +23,12 @@ case object MergeAndEliminateLeaf extends Production
       src.mB
     ))
     case MIDDLE_CHILD => Some(MergeAndEliminateLeafMessage(
-      src.mA.transformedBy(0 until 3, 0 until 3)()(move(1, 1)),
-      src.mB.transformedBy(0 until 3, 0 until ctx.mc.mesh.yDofs)()(move(1, 0))
+      MatrixA.ofDim(src.mA)(1 until 4, 1 until 4) :+= src.mA(0 until 3, 0 until 3),
+      MatrixB.ofDim(src.mB)(1 until 4, ::) :+= src.mB(0 until 3, ::)
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateLeafMessage(
-      src.mA.transformedBy(0 until 3, 0 until 3)()(move(2, 2)),
-      src.mB.transformedBy(0 until 3, 0 until ctx.mc.mesh.yDofs)()(move(2, 0))
+      MatrixA.ofDim(src.mA)(2 until 5, 2 until 5) :+= src.mA(0 until 3, 0 until 3),
+      MatrixB.ofDim(src.mB)(2 until 5, ::) :+= src.mB(0 until 3, ::)
     ))
   }
 
@@ -37,13 +38,13 @@ case object MergeAndEliminateLeaf extends Production
   )
 
   override def consume(dst: IgaElement, msg: MergeAndEliminateLeafMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mA.add(msg.ca)
-    dst.mB.add(msg.cb)
+    dst.mA :+= msg.ca
+    dst.mB :+= msg.cb
 
-    swapDofs(0, 2, 5, ctx.mc.mesh.yDofs)(dst)
-    swapDofs(1, 2, 5, ctx.mc.mesh.yDofs)(dst)
+    swapDofs(0, 2, 5)(dst)
+    swapDofs(1, 2, 5)(dst)
 
-    partialForwardElimination(1, 5, ctx.mc.mesh.yDofs)(dst)
+    partialForwardElimination(1, 5)(dst)
   }
 
 }

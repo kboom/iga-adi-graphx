@@ -109,15 +109,15 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 1) {
           val y = (gpl.v + i - 2) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline1T.getValue(gpl.v) * vp.valueAt(x, y))
+          e.mB(r, i to i) :+= gpk.w * spline.getValue(gpk.v) * gpl.w * Spline1T.getValue(gpl.v) * vp.valueAt(x, y)
         }
         if (i > 0 && (i - 1) < mesh.ySize) {
           val y = (gpl.v + i - 1) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline2T.getValue(gpl.v) * vp.valueAt(x, y))
+          e.mB(r, i to i) :+= gpk.w * spline.getValue(gpk.v) * gpl.w * Spline2T.getValue(gpl.v) * vp.valueAt(x, y)
         }
         if (i < mesh.ySize) {
           val y = (gpl.v + i) * mesh.dy
-          e.mB.mapEntry(r, i)(_ + gpk.w * spline.getValue(gpk.v) * gpl.w * Spline3T.getValue(gpl.v) * vp.valueAt(x, y))
+          e.mB(r, i to i) :+= gpk.w * spline.getValue(gpk.v) * gpl.w * Spline3T.getValue(gpl.v) * vp.valueAt(x, y)
         }
       }
     }

@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
+import breeze.linalg.DenseMatrix
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.VerticalInitializer.collocate
@@ -90,8 +91,10 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
       .mapPartitions(
         _.toList.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx.toInt)
-          val value = d._2
-          (idx.toLong, createElement(vertex, value.toMap)(ctx))
+          val value = d._2.toMap
+          (idx.toLong, createElement(vertex, DenseMatrix.create(3, ctx.mesh.yDofs,
+            value(1) ++ value(2) ++ value(3) // todo is this costly?
+          ))(ctx))
         }.iterator,
         preservesPartitioning = true
       )
@@ -99,12 +102,10 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
     elementsByVertexId
   }
 
-  def createElement(v: Vertex, rows: Map[Int, Array[Double]])(implicit ctx: IgaContext): Element = {
+  def createElement(v: Vertex, rows: DenseMatrix[Double])(implicit ctx: IgaContext): Element = {
     val e = Element.createForX(ctx.mesh)
     MethodCoefficients.bind(e.mA)
-    for (r <- 0 until 3) {
-      e.mB.replaceRow(r, rows(r))
-    }
+    e.mB(0 until 3, ::) := rows
     e
   }
 
