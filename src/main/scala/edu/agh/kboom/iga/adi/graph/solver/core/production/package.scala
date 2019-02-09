@@ -16,7 +16,7 @@ package object production {
     for (irow <- 0 until elim) {
       val diag = p.mA(irow, irow)
       p.mA(irow, irow until size) :/= diag
-      p.mB(irow, irow until size) :/= diag
+      p.mB(irow, ::) :/= diag
 
       for (isub <- irow + 1 until size) {
         val mult = p.mA(isub, irow)

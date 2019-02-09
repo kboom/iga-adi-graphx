@@ -1,8 +1,8 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.production
 
 import edu.agh.kboom.MatrixUtils.{generatedMatrixA, _}
-import edu.agh.kboom.iga.adi.graph.solver.core.Mesh
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, RootVertex}
+import edu.agh.kboom.iga.adi.graph.solver.core.{MatrixA, Mesh}
 import edu.agh.kboom.{ElementUtils, MethodSpec}
 
 
@@ -138,6 +138,30 @@ class packageTest extends MethodSpec {
       )
     }
 
+    it("eliminate 6 in 6x6 MatrixA") {
+      implicit val boundElement: IgaElement = ElementUtils.elementBoundTo(mesh, AnyVertex)(
+        matrixA(
+          4, 0, 1, 0, 1, 0,
+          8, 4, 0, 1, 0, 1,
+          4, 0, 4, 0, 0, 0,
+          0, 0, 0, 4, 0, 0,
+          0, 3, 0, 0, 4, 0,
+          1, 0, 0, 0, 0, 4
+        )
+      )
+
+      partialForwardElimination(6, 6)
+
+      weakPrecision(boundElement.mA) shouldEqual fromVector(6, 6)(
+        +01.00, +00.00, +00.25, +00.00, +00.25, +00.00,
+        +00.00, +01.00, -00.50, +00.25, -00.50, +00.25,
+        +00.00, +00.00, +01.00, +00.00, -00.33, +00.00,
+        +00.00, +00.00, +00.00, +01.00, +00.00, +00.00,
+        +00.00, +00.00, +00.00, +00.00, +01.00, -00.13,
+        +00.00, +00.00, +00.00, +00.00, +00.00, +01.00
+      )
+    }
+
   }
 
   describe("swapDofs") {
@@ -257,9 +281,9 @@ class packageTest extends MethodSpec {
       partialBackwardsSubstitution(6, 6)
 
       boundElement should have(
-//        'mB (matrixB(
-//
-//        )),
+        //        'mB (matrixB(
+        //
+        //        )),
         'mX (matrixX(
           +00.00, -10.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +10.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
