@@ -2,9 +2,8 @@ package edu.agh.kboom.iga.adi.graph.solver.core.production
 
 import edu.agh.kboom.ElementUtils.elementBoundTo
 import edu.agh.kboom.MatrixUtils._
-import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{BranchVertex, LeafVertex}
-import edu.agh.kboom.{DummyProblem, MatrixColors, SubjectSpec}
+import edu.agh.kboom.{DummyProblem, MatrixColors, MatrixUtils, SubjectSpec}
 
 class MergeAndEliminateLeafTest extends SubjectSpec
   with DummyProblem
@@ -50,28 +49,28 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
-          'ca (fromVector(6, 6)(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).map(MatrixUtils.exploded).get should equal(
+          fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.01, +00.02, +00.00, +00.00,
             +00.00, +01.00, +01.01, +01.02, +00.00, +00.00,
             +00.00, +02.00, +02.01, +02.02, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
-          ))
+          )
         )
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
-          'cb (fromVector(6, 14)(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).map(MatrixUtils.exploded).get should equal(
+          fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
             +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
             +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
-          ))
+          )
         )
       }
 
@@ -88,28 +87,28 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
-          'ca (fromVector(6, 6)(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).map(MatrixUtils.exploded).get should equal(
+          fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.01, +00.02, +00.00,
             +00.00, +00.00, +01.00, +01.01, +01.02, +00.00,
             +00.00, +00.00, +02.00, +02.01, +02.02, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
-          ))
+          )
         )
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).get should have(
-          'cb (fromVector(6, 14)(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).map(MatrixUtils.exploded).get should be(
+          fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
             +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
             +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00
-          ))
+          )
         )
       }
 

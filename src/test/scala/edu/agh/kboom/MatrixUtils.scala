@@ -9,18 +9,18 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.Element.{COLS_BOUND_TO_NODE,
 
 object MatrixUtils {
 
+  def exploded(m: DenseMatrix[Double]): DenseMatrix[Double] =
+    DenseMatrix.create(m.majorStride, m.data.length / m.majorStride, m.data)
+
   def weakPrecision(m: DenseMatrix[Double]): DenseMatrix[Double] =
     m.mapValues(BigDecimal(_).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble)
 
-  def fromVector(r: Int, c: Int)(cells: Double*): DenseMatrix[Double] = DenseMatrix.create(r, c, cells.toArray)
+  def fromVector(r: Int, c: Int)(cells: Double*): DenseMatrix[Double] = DenseMatrix.create(c, r, cells.toArray).t
 
-  def identityMatrix(size: Int): Array[Array[Double]] = {
-    val arr = Array.ofDim[Double](size, size)
-    for (i <- 0 until size) {
-      arr(i)(i) = 1
-    }
-    arr
-  }
+  def identityMatrix(size: Int): DenseMatrix[Double] =
+    assembleMatrix(size, size)(Seq(diagonal))
+
+  def diagonal: (Int, Int) => Double = (i, j) => if (i == j) 1 else 0
 
   def unit: (Int, Int) => Double = fill(1)
 
@@ -65,7 +65,6 @@ object MatrixUtils {
   def featuredBMatrix(f: Int*)(implicit mesh: Mesh): MatrixB = featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*)
 
   def featuredXMatrix(f: Int*)(implicit mesh: Mesh): MatrixX = featuredMatrix(ROWS_BOUND_TO_NODE, mesh.xDofs)(f: _*)
-
 
   def generatedMatrixA(g: Seq[(Int, Int) => Double]): MatrixA
   = assembleMatrix(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)(g)

@@ -27,9 +27,9 @@ object ElementUtils {
     mX: MatrixX = generatedMatrixX(Seq(index))(mesh)
   ): IgaElement = {
     val element = Element.createForX(mesh)
-    element.mA :+= mA
-    element.mB :+= mB
-    element.mX :+= mX
+    element.mA += mA
+    element.mB += mB
+    element.mX += mX
     IgaElement(vertex, element)
   }
 
@@ -37,9 +37,9 @@ object ElementUtils {
 
   def weakPrecision(e: Element): Element = {
     val ne = Element(e.elements)
-    ne.mA :+= MatrixUtils.weakPrecision(e.mA)
-    ne.mB :+= MatrixUtils.weakPrecision(e.mB)
-    ne.mX :+= MatrixUtils.weakPrecision(e.mX)
+    ne.mA += MatrixUtils.weakPrecision(e.mA)
+    ne.mB += MatrixUtils.weakPrecision(e.mB)
+    ne.mX += MatrixUtils.weakPrecision(e.mX)
     ne
   }
 

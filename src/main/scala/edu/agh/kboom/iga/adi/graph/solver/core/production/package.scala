@@ -6,8 +6,8 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.IgaElement
 package object production {
 
   def swapDofs(a: Int, b: Int, size: Int)(implicit p: IgaElement): Unit = {
-    p.mA.swapRows(a, b)
-    p.mA.swapCols(a, b)
+    p.mA.swapRows(a, b, size)
+    p.mA.swapCols(a, b, size)
     p.mB.swapRows(a, b)
     p.mX.swapRows(a, b)
   }
@@ -34,7 +34,6 @@ package object production {
     for (irhs <- 0 until p.dofs) {
       for (irow <- (elim - 1) to 0 by -1) {
         p.mX(irow, irhs to irhs) := p.mB(irow, irhs)
-
         for (icol <- irow + 1 until size) {
           p.mX(irow, irhs to irhs) :+= -p.mA(irow, icol) * p.mX(icol, irhs)
         }

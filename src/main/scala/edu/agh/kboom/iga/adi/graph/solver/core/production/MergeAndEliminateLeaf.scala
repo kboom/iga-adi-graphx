@@ -5,6 +5,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.MatrixB.MatrixB
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
 import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixA, MatrixB}
+import edu.agh.kboom.iga.adi.graph.solver.core.MatrixUtil.DenseMatrixUtil
 
 case class MergeAndEliminateLeafMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateLeaf
@@ -23,12 +24,12 @@ case object MergeAndEliminateLeaf extends Production
       src.mB
     ))
     case MIDDLE_CHILD => Some(MergeAndEliminateLeafMessage(
-      MatrixA.ofDim(src.mA)(1 until 4, 1 until 4) :+= src.mA(0 until 3, 0 until 3),
-      MatrixB.ofDim(src.mB)(1 until 4, ::) :+= src.mB(0 until 3, ::)
+      MatrixA.ofDim(src.mA)(1 until 4, 1 until 4) ::+ src.mA(0 until 3, 0 until 3),
+      MatrixB.ofDim(src.mB)(1 until 4, ::) ::+ src.mB(0 until 3, ::)
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateLeafMessage(
-      MatrixA.ofDim(src.mA)(2 until 5, 2 until 5) :+= src.mA(0 until 3, 0 until 3),
-      MatrixB.ofDim(src.mB)(2 until 5, ::) :+= src.mB(0 until 3, ::)
+      MatrixA.ofDim(src.mA)(2 until 5, 2 until 5) ::+ src.mA(0 until 3, 0 until 3),
+      MatrixB.ofDim(src.mB)(2 until 5, ::) ::+ src.mB(0 until 3, ::)
     ))
   }
 
@@ -38,8 +39,8 @@ case object MergeAndEliminateLeaf extends Production
   )
 
   override def consume(dst: IgaElement, msg: MergeAndEliminateLeafMessage)(implicit ctx: IgaTaskContext): Unit = {
-    dst.mA :+= msg.ca
-    dst.mB :+= msg.cb
+    dst.mA += msg.ca
+    dst.mB += msg.cb
 
     swapDofs(0, 2, 5)(dst)
     swapDofs(1, 2, 5)(dst)
