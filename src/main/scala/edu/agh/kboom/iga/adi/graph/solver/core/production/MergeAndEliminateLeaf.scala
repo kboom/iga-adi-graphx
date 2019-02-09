@@ -20,8 +20,8 @@ case object MergeAndEliminateLeaf extends Production
 
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateLeafMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateLeafMessage(
-      src.mA,
-      src.mB
+      MatrixA.ofDim(src.mA)(0 until 3, 0 until 3) ::+ src.mA(0 until 3, 0 until 3),
+      MatrixB.ofDim(src.mB)(0 until 3, ::) ::+ src.mB(0 until 3, ::)
     ))
     case MIDDLE_CHILD => Some(MergeAndEliminateLeafMessage(
       MatrixA.ofDim(src.mA)(1 until 4, 1 until 4) ::+ src.mA(0 until 3, 0 until 3),

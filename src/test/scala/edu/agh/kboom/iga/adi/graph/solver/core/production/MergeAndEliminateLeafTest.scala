@@ -29,11 +29,30 @@ class MergeAndEliminateLeafTest extends SubjectSpec
         MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
-      "emits unchanged matrices" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldBe Some(MergeAndEliminateLeafMessage(
-          generatedMatrixA(Seq(index)),
-          generatedMatrixB(Seq(index))
-        ))
+      "emits A" in {
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).map(MatrixUtils.exploded).get should equal(
+          fromVector(6, 6)(
+            0.0, 0.01, 0.02, 0.0, 0.0, 0.0,
+            1.0, 1.01, 1.02, 0.0, 0.0, 0.0,
+            2.0, 2.01, 2.02, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+          )
+        )
+      }
+
+      "emits B" in {
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).map(MatrixUtils.exploded).get should equal(
+          fromVector(6, 14)(
+            0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13,
+            1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13,
+            2.0, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.1, 2.11, 2.12, 2.13,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+          )
+        )
       }
 
     }
