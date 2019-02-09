@@ -2,10 +2,10 @@ package edu.agh.kboom.iga.adi.graph.solver.core.production
 
 import edu.agh.kboom.iga.adi.graph.solver.core.MatrixA.MatrixA
 import edu.agh.kboom.iga.adi.graph.solver.core.MatrixB.MatrixB
+import edu.agh.kboom.iga.adi.graph.solver.core.MatrixFactory.ofDim
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixA, MatrixB}
-import edu.agh.kboom.iga.adi.graph.solver.core.MatrixUtil.DenseMatrixUtil
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixFactory}
 
 case class MergeAndEliminateLeafMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateLeaf
@@ -20,16 +20,28 @@ case object MergeAndEliminateLeaf extends Production
 
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateLeafMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateLeafMessage(
-      MatrixA.ofDim(src.mA)(0 until 3, 0 until 3) ::+ src.mA(0 until 3, 0 until 3),
-      MatrixB.ofDim(src.mB)(0 until 3, ::) ::+ src.mB(0 until 3, ::)
+      ofDim(src.mA) {
+        _ (0 until 3, 0 until 3) += src.mA(0 until 3, 0 until 3)
+      },
+      ofDim(src.mB) {
+        _ (0 until 3, ::) += src.mB(0 until 3, ::)
+      }
     ))
     case MIDDLE_CHILD => Some(MergeAndEliminateLeafMessage(
-      MatrixA.ofDim(src.mA)(1 until 4, 1 until 4) ::+ src.mA(0 until 3, 0 until 3),
-      MatrixB.ofDim(src.mB)(1 until 4, ::) ::+ src.mB(0 until 3, ::)
+      ofDim(src.mA) {
+        _ (1 until 4, 1 until 4) += src.mA(0 until 3, 0 until 3)
+      },
+      ofDim(src.mB) {
+        _ (1 until 4, ::) += src.mB(0 until 3, ::)
+      }
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateLeafMessage(
-      MatrixA.ofDim(src.mA)(2 until 5, 2 until 5) ::+ src.mA(0 until 3, 0 until 3),
-      MatrixB.ofDim(src.mB)(2 until 5, ::) ::+ src.mB(0 until 3, ::)
+      ofDim(src.mA) {
+        _ (2 until 5, 2 until 5) += src.mA(0 until 3, 0 until 3)
+      },
+      ofDim(src.mB) {
+        _ (2 until 5, ::) += src.mB(0 until 3, ::)
+      }
     ))
   }
 

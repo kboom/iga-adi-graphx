@@ -2,8 +2,7 @@ package edu.agh.kboom.iga.adi.graph.solver.core.production
 
 import edu.agh.kboom.iga.adi.graph.solver.core.MatrixX.MatrixX
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixX}
-import edu.agh.kboom.iga.adi.graph.solver.core.MatrixUtil.DenseMatrixUtil
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixFactory}
 
 sealed case class BackwardsSubstituteInterimMessage(cx: MatrixX) extends ProductionMessage {
   override val production: Production = BackwardsSubstituteInterim
@@ -21,10 +20,14 @@ case object BackwardsSubstituteInterim extends Production
 
     Vertex.childPositionOf(dst.v)(ctx.tree) match {
       case LEFT_CHILD => Some(BackwardsSubstituteInterimMessage(
-        MatrixX.ofDim(copiedElement.mX)(2 to -1, ::) ::+ copiedElement.mX(0 until 4, ::)
+        MatrixFactory.ofDim(copiedElement.mX) {
+          _ (2 to -1, ::) += copiedElement.mX(0 until 4, ::)
+        }
       ))
       case RIGHT_CHILD => Some(BackwardsSubstituteInterimMessage(
-        MatrixX.ofDim(copiedElement.mX)(2 to -1, ::) ::+ copiedElement.mX(2 until 6, ::)
+        MatrixFactory.ofDim(copiedElement.mX) {
+          _ (2 to -1, ::) += copiedElement.mX(2 until 6, ::)
+        }
       ))
     }
   }

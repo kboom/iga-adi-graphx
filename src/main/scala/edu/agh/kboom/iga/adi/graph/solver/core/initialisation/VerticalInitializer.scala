@@ -93,7 +93,7 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
           val vertex = Vertex.vertexOf(idx.toInt)
           val value = d._2.toMap
           (idx.toLong, createElement(vertex, DenseMatrix.create(3, ctx.mesh.yDofs,
-            value(1) ++ value(2) ++ value(3) // todo is this costly?
+            value(0) ++ value(1) ++ value(2) // todo is this costly?
           ))(ctx))
         }.iterator,
         preservesPartitioning = true

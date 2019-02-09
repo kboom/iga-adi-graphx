@@ -50,12 +50,23 @@ object MatrixUtil {
 
 }
 
+object MatrixFactory {
+
+  def ofDim(a: MatrixA)(f: DenseMatrix[Double] => Unit): DenseMatrix[Double] = {
+    val b = DenseMatrix.zeros[Double](a.rows, a.cols)
+    f(b)
+    b
+  }
+
+}
+
 object MatrixA {
   type MatrixA = DenseMatrix[Double]
 
   def ofDim(rows: Int, cols: Int): MatrixA = DenseMatrix.zeros(rows, cols)
 
   def ofDim(m: MatrixA): MatrixA = DenseMatrix.zeros(m.rows, m.cols)
+
 }
 
 object MatrixB {

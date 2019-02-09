@@ -4,8 +4,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.MatrixA.MatrixA
 import edu.agh.kboom.iga.adi.graph.solver.core.MatrixB.MatrixB
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD}
-import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixA, MatrixB}
-import edu.agh.kboom.iga.adi.graph.solver.core.MatrixUtil.DenseMatrixUtil
+import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixFactory}
 
 sealed case class MergeAndEliminateBranchMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateBranch
@@ -21,12 +20,20 @@ case object MergeAndEliminateBranch extends Production
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext):
   Option[MergeAndEliminateBranchMessage] = childPositionOf(src.v)(ctx.tree) match {
     case LEFT_CHILD => Some(MergeAndEliminateBranchMessage(
-      MatrixA.ofDim(src.mA)(0 until 4, 0 until 4) ::+ src.mA(1 until 5, 1 until 5),
-      MatrixB.ofDim(src.mB)(0 until 4, ::) ::+ src.mB(1 until 5, ::)
+      MatrixFactory.ofDim(src.mA) {
+        _ (0 until 4, 0 until 4) += src.mA(1 until 5, 1 until 5)
+      },
+      MatrixFactory.ofDim(src.mB) {
+        _ (0 until 4, ::) += src.mB(1 until 5, ::)
+      }
     ))
     case RIGHT_CHILD => Some(MergeAndEliminateBranchMessage(
-      MatrixA.ofDim(src.mA)(2 until 6, 2 until 6) ::+ src.mA(1 until 5, 1 until 5),
-      MatrixB.ofDim(src.mB)(2 until 6, ::) ::+ src.mB(1 until 5, ::)
+      MatrixFactory.ofDim(src.mA) {
+        _ (2 until 6, 2 until 6) += src.mA(1 until 5, 1 until 5)
+      },
+      MatrixFactory.ofDim(src.mB) {
+        _ (2 until 6, ::) += src.mB(1 until 5, ::)
+      }
     ))
   }
 

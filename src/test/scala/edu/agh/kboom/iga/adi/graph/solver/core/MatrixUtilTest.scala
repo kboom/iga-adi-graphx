@@ -32,15 +32,11 @@ class MatrixUtilTest extends MethodSpec {
 
 //  describe("::+") {
 //
-//    val addition = MatrixUtils.assembleMatrix(4, 4)(Seq(fill(1)))
-//
 //    it("swaps 0 and 1 row") {
-//      MatrixUtils.assembleMatrix(4, 4)(Seq(fill(1)))(1 to 2, 1 to 2) ::+ addition(0 to 1, 0 to 1) shouldBe MatrixUtils.fromVector(4, 4)(
-//        1.0, 1.01, 1.02, 1.03,
-//        0, 0.01, 0.02, 0.03,
-//        2.0, 2.01, 2.02, 2.03,
-//        2.0, 2.01, 2.02, 2.03
-//      )
+//      val left = MatrixUtils.identityMatrix(4)(1 to 2, 1 to 2)
+//      val right = MatrixUtils.identityMatrix(4)(2 to 3, 2 to 3)
+//
+//      left + right shouldBe MatrixUtils.identity(4,4)
 //    }
 //
 //  }
