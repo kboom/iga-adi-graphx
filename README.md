@@ -21,6 +21,12 @@ Forward SparkUI from kubernetes driver pod
 kubectl port-forward $(kubectl get  pods --selector=spark-role=driver --output=jsonpath="{.items..metadata.name}") 4040
 ```
 
+### Useful commands
+
+```bash
+kubectl delete po $(kubectl get po -o=jsonpath='{.items[*].metadata.name}')
+```
+
 #### Performance tuning
 
 https://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-2/

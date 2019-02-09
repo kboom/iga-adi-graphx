@@ -29,16 +29,17 @@ case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
 
 object HorizontalInitializer {
 
-  def collocate(row: IndexedRow)(implicit ctx: IgaContext): Seq[(Vertex, (Int, Array[Double]))] = {
-    val idx = row.index.toInt
+  def collocate(r: Iterator[IndexedRow])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, Array[Double]))] =
+    r.toList.flatMap { row =>
+      val idx = row.index.toInt
 
-    VerticalInitializer.verticesDependentOnRow(idx)
-      .map(vertex => {
-        val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
-        val vertexRowValues = row.vector.toArray
-        (vertex, (localRow, vertexRowValues))
-      })
-  }
+      VerticalInitializer.verticesDependentOnRow(idx)
+        .map(vertex => {
+          val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
+          val vertexRowValues = row.vector.toArray
+          (vertex, (localRow, vertexRowValues))
+        })
+    }.iterator
 
 }
 
@@ -65,7 +66,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     implicit val tree: ProblemTree = ctx.xTree()
 
     val data = ss.m.rows
-      .flatMap(m => collocate(m)(ctx))
+      .mapPartitions(collocate(_)(ctx))
       .groupBy(_._1.id.toLong)
       .mapValues(_.map(_._2))
 

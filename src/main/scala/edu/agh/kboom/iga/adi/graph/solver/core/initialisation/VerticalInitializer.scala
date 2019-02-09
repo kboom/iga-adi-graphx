@@ -2,6 +2,7 @@ package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
+import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.VerticalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
 import org.apache.spark.SparkContext
@@ -58,17 +59,18 @@ object VerticalInitializer {
     }
   }
 
-  def collocate(row: IndexedRow)(implicit ctx: IgaContext): Seq[(Vertex, (Int, Array[Double]))] = {
-    val idx = row.index.toInt
+  def collocate(r: Iterator[IndexedRow])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, Array[Double]))] =
+    r.toList.flatMap { row =>
+      val idx = row.index.toInt
 
-    VerticalInitializer.verticesDependentOnRow(idx)
-      .map(vertex => {
-        val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
-        val partition = VerticalInitializer.findPartitionFor(vertex, idx)
-        val vertexRowValues = row.vector.toArray.map(_ * partition)
-        (vertex, (localRow, vertexRowValues))
-      })
-  }
+      VerticalInitializer.verticesDependentOnRow(idx)
+        .map(vertex => {
+          val localRow = findLocalRowFor(vertex, idx)
+          val partition = findPartitionFor(vertex, idx)
+          val vertexRowValues = row.vector.toArray.map(_ * partition)
+          (vertex, (localRow, vertexRowValues))
+        })
+    }.iterator
 }
 
 case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
@@ -77,7 +79,7 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
     implicit val tree: ProblemTree = ctx.yTree()
 
     val data = hsi.m.rows
-      .flatMap(m => VerticalInitializer.collocate(m)(ctx))
+      .mapPartitions(collocate(_)(ctx))
       .groupBy(_._1.id.toLong)
       .mapValues(_.map(_._2))
 

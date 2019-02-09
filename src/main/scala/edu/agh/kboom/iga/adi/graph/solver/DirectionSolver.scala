@@ -8,12 +8,11 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBra
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, ProblemTree, Vertex}
 import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
-import org.apache.spark.graphx.PartitionStrategy.RandomVertexCut
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel.{MEMORY_ONLY,MEMORY_AND_DISK}
+import org.apache.spark.storage.StorageLevel.{MEMORY_AND_DISK, MEMORY_ONLY}
 import org.slf4j.LoggerFactory
 
 object DirectionSolver {
@@ -64,10 +63,17 @@ case class DirectionSolver(mesh: Mesh) {
   }
 
   private def extractSolutionRows(problemTree: ProblemTree, result: Graph[IgaElement, IgaOperation]) = {
+    val firstIndex = firstIndexOfBranchingRow(problemTree)
+    val lastIndex = lastIndexOfBranchingRow(problemTree)
+
     result.vertices
-      .filterByRange(firstIndexOfBranchingRow(problemTree), lastIndexOfBranchingRow(problemTree))
-      .map { case (v, e) => (v - firstIndexOfBranchingRow(problemTree), e) }
-      .map { case (v, be) => if (v == 0) (v, be.e.mX.arr.dropRight(1)) else (v, be.e.mX.arr.drop(2).dropRight(1)) }
-      .flatMap { case (vid, be) => be.map(Vectors.dense).zipWithIndex.map { case (v, i) => if (vid == 0) IndexedRow(i, v) else IndexedRow(5 + (vid - 1) * 3 + i, v) } }
+      .mapPartitions(
+        _.toList.view
+          .filter { x => x._1 >= firstIndex && x._1 <= lastIndex }
+          .map { case (v, e) => (v - firstIndex, e) }
+          .map { case (v, be) => if (v == 0) (v, be.e.mX.arr.dropRight(1)) else (v, be.e.mX.arr.view.drop(2).dropRight(1).toArray) }
+          .flatMap { case (vid, be) => be.view.map(Vectors.dense).zipWithIndex.map { case (v, i) => if (vid == 0) IndexedRow(i, v) else IndexedRow(5 + (vid - 1) * 3 + i, v) }.toList }
+          .iterator
+      )
   }
 }

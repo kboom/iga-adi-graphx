@@ -31,6 +31,9 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-graphx" % sparkVersion % "provided",
   "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
 
+  "org.scalanlp" %% "breeze" % "0.13.2",
+  "org.scalanlp" %% "breeze-natives" % "0.13.2",
+
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
   "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test"
 )
