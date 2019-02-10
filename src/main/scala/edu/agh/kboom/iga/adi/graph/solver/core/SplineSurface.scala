@@ -38,7 +38,7 @@ object SplineSurface {
 
   def print(s: SplineSurface): Unit = {
     Log.info(f"2D B-Spline Coefficients ${s.m.numRows()}x${s.m.numCols()}")
-    Log.info(asString(s))
+    Log.info(s"\n${asString(s)}")
   }
 
   def valueRowsDependentOn(coefficientRow: Int)(implicit mesh: Mesh): Seq[Int] = {

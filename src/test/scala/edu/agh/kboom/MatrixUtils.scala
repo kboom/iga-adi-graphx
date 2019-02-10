@@ -15,6 +15,9 @@ object MatrixUtils {
   def weakPrecision(m: DenseMatrix[Double]): DenseMatrix[Double] =
     m.mapValues(BigDecimal(_).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble)
 
+  def precisionCut(m: DenseMatrix[Double]): DenseMatrix[Double] =
+    m.mapValues(BigDecimal(_).setScale(3, BigDecimal.RoundingMode.FLOOR).toDouble)
+
   def fromVector(r: Int, c: Int)(cells: Double*): DenseMatrix[Double] = DenseMatrix.create(c, r, cells.toArray).t
 
   def identityMatrix(size: Int): DenseMatrix[Double] =

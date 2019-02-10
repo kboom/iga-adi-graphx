@@ -54,6 +54,8 @@ case object MergeAndEliminateLeaf extends Production
     dst.mA += msg.ca
     dst.mB += msg.cb
 
+//    println(IgaElement.print(dst))
+
     swapDofs(0, 2, 5)(dst)
     swapDofs(1, 2, 5)(dst)
 
