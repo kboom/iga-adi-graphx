@@ -84,6 +84,14 @@ object MatrixUtils {
   def matrixX(a: Double*)(implicit m: Mesh): MatrixX
   = fromVector(ROWS_BOUND_TO_NODE, m.xDofs)(a: _*)
 
+  def emptyMatrixA(): MatrixA =
+    generatedMatrixA(Seq(fill(0)))
+
+  def emptyMatrixB()(implicit m: Mesh): MatrixB =
+    generatedMatrixB(Seq(fill(0)))
+
+  def emptyMatrixX()(implicit m: Mesh): MatrixX =
+    generatedMatrixX(Seq(fill(0)))
 
   def assembleMatrix(s: Int)(g: Seq[(Int, Int) => Double]): DenseMatrix[Double] = assembleMatrix(s, s)(g)
 

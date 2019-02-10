@@ -9,15 +9,11 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, Vertex
 
 object ElementUtils {
 
-  def cleanElementBoundTo(mesh: Mesh, vertex: Vertex)(
-    mA: MatrixA = generatedMatrixA(Seq(fill(0))),
-    mB: MatrixB = generatedMatrixB(Seq(fill(0)))(mesh),
-    mX: MatrixX = generatedMatrixX(Seq(fill(0)))(mesh)
-  ): IgaElement = {
+  def cleanElementBoundTo(mesh: Mesh, vertex: Vertex): IgaElement = {
     val element = Element.createForX(mesh)
-    element.mA :+= mA
-    element.mB :+= mB
-    element.mX :+= mX
+    element.mA :+= generatedMatrixA(Seq(fill(0)))
+    element.mB :+= generatedMatrixB(Seq(fill(0)))(mesh)
+    element.mX :+= generatedMatrixX(Seq(fill(0)))(mesh)
     IgaElement(vertex, element)
   }
 
@@ -31,6 +27,18 @@ object ElementUtils {
     element.mB += mB
     element.mX += mX
     IgaElement(vertex, element)
+  }
+
+  def element(mesh: Mesh)(
+    mA: MatrixA = generatedMatrixA(Seq(identity)),
+    mB: MatrixB = generatedMatrixB(Seq(index))(mesh),
+    mX: MatrixX = generatedMatrixX(Seq(index))(mesh)
+  ): Element = {
+    val element = Element.createForX(mesh)
+    element.mA += mA
+    element.mB += mB
+    element.mX += mX
+    element
   }
 
   def weakPrecision(e: IgaElement): IgaElement = IgaElement(e.v, weakPrecision(e.e), e.p)

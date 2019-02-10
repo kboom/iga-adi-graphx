@@ -29,7 +29,7 @@ class BackwardsSubstituteRootTest extends SubjectSpec
       }
 
       "emits matrix X translated by 2 rows" in {
-        result.map(_.cx).map(MatrixUtils.exploded).get shouldBe fromVector(6, 14)(
+        result.map(_.cx).get shouldBe fromVector(6, 14)(
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
@@ -55,7 +55,7 @@ class BackwardsSubstituteRootTest extends SubjectSpec
       }
 
       "emits matrix A translated by 2 rows" in {
-        result.map(_.cx).map(MatrixUtils.exploded).get shouldBe fromVector(6, 14)(
+        result.map(_.cx).get shouldBe fromVector(6, 14)(
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,

@@ -50,7 +50,7 @@ object Element {
   def createForX(implicit mesh: Mesh): Element = Element(elementCount)
 
   def print(e: Element): String = (0 until ROWS_BOUND_TO_NODE)
-    .map(row => s"${printRow(e.mA(row, ::).inner)}  |  ${printRow(e.mX(row, ::).inner)}  |  ${printRow(e.mB(row, ::).inner)}")
+    .map(row => s"${printRow(e.mA(row, ::).inner)}\t|\t${printRow(e.mX(row, ::).inner)}\t|\t${printRow(e.mB(row, ::).inner)}")
     .mkString(System.lineSeparator())
 
   def printRow(row: DenseVector[Double]): String = row.map(i => f"$i%+.3f").data.mkString(" ")

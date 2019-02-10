@@ -2,8 +2,8 @@ package edu.agh.kboom.iga.adi.graph.solver.core.production
 
 import edu.agh.kboom.ElementUtils.elementBoundTo
 import edu.agh.kboom.MatrixUtils._
+import edu.agh.kboom._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{BranchVertex, LeafVertex}
-import edu.agh.kboom.{DummyProblem, MatrixColors, MatrixUtils, SubjectSpec}
 
 class MergeAndEliminateLeafTest extends SubjectSpec
   with DummyProblem
@@ -30,7 +30,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits A" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).map(MatrixUtils.exploded).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).get should equal(
           fromVector(6, 6)(
             0.0, 0.01, 0.02, 0.0, 0.0, 0.0,
             1.0, 1.01, 1.02, 0.0, 0.0, 0.0,
@@ -43,7 +43,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits B" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).map(MatrixUtils.exploded).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).get should equal(
           fromVector(6, 14)(
             0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13,
             1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13,
@@ -60,7 +60,8 @@ class MergeAndEliminateLeafTest extends SubjectSpec
     "applied on middle child" should {
 
       val srcElement = elementBoundTo(TestMesh, MiddleChild)(
-        generatedMatrixA(Seq(index))
+        generatedMatrixA(Seq(index)),
+        generatedMatrixB(Seq(index))
       )
 
       "is not empty" in {
@@ -68,7 +69,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).map(MatrixUtils.exploded).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).get should equal(
           fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.01, +00.02, +00.00, +00.00,
@@ -81,7 +82,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).map(MatrixUtils.exploded).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).get should equal(
           fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
@@ -105,8 +106,8 @@ class MergeAndEliminateLeafTest extends SubjectSpec
         MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
       }
 
-      "emits matrix A translated by 1,1" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).map(MatrixUtils.exploded).get should equal(
+      "emits matrix A translated by 2,2" in {
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).get should equal(
           fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
@@ -118,8 +119,8 @@ class MergeAndEliminateLeafTest extends SubjectSpec
         )
       }
 
-      "emits matrix B translated by one row" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).map(MatrixUtils.exploded).get should be(
+      "emits matrix B translated by two rows" in {
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).get should be(
           fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
