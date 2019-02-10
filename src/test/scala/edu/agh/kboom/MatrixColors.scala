@@ -9,5 +9,6 @@ trait MatrixColors {
 
   val RedFeature: (Int, Int) => Double = entry(0, 0)(-7)
   val BlueFeature: (Int, Int) => Double = entry(6, 6)(-15)
+  val GreenFeature: (Int, Int) => Double = entry(3, 3)(-9)
 
 }

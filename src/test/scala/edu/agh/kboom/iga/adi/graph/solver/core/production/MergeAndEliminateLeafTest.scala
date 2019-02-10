@@ -142,16 +142,16 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       generatedMatrixB(Seq(GreyFabric, RedFeature))
     )
     val greenMsg = MergeAndEliminateLeafMessage(
-      generatedMatrixA(Seq(GreyFabric, BlueFeature)),
-      generatedMatrixB(Seq(WhiteFabric, BlueFeature))
+      generatedMatrixA(Seq(GreyFabric, BlueFeature, GreenFeature)),
+      generatedMatrixB(Seq(WhiteFabric, BlueFeature, GreenFeature))
     )
 
     "two messages" should {
 
       "produce a sum of matrices" in {
-        MergeAndEliminateLeaf.merge(redMsg, greenMsg) shouldBe MergeAndEliminateLeafMessage(
-          generatedMatrixA(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature)),
-          generatedMatrixB(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature))
+        MergeAndEliminateLeaf.merge(redMsg, greenMsg) should have(
+          'ca (generatedMatrixA(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature, GreenFeature))),
+          'cb (generatedMatrixB(Seq(WhiteFabric, GreyFabric, RedFeature, BlueFeature, GreenFeature)))
         )
       }
 
