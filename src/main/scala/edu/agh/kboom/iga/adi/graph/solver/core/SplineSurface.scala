@@ -26,6 +26,7 @@ object SplineSurface {
       .map(_.vector.toArray)
       .collect()
 
+    // todo column major!
     DenseMatrix.create(arr2d.length, arr2d(0).length, arr2d.reduce(_ ++ _))
   }
 
