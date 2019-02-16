@@ -101,10 +101,11 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   private def fillRightHandSide(v: Vertex, e: Element, vp: ValueProvider, spline: Spline, r: Int, i: Int)(implicit ctx: IgaContext): Unit = {
     implicit val problemTree: ProblemTree = ctx.tree()
     implicit val mesh: Mesh = ctx.mesh
+    val segment = Vertex.segmentOf(v)._1
 
     for (k <- 0 until GaussPoint.gaussPointCount) {
       val gpk = GaussPoint.gaussPoints(k)
-      val x = gpk.v * mesh.dx + Vertex.segmentOf(v)._1
+      val x = gpk.v * mesh.dx + segment
       for (l <- 0 until GaussPoint.gaussPointCount) {
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 1) {
