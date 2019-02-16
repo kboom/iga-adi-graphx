@@ -91,10 +91,8 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
       .mapPartitions(
         _.toList.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx.toInt)
-          val value = d._2.toMap
-          (idx.toLong, createElement(vertex, DenseMatrix.create(3, ctx.mesh.yDofs,
-            value(0) ++ value(1) ++ value(2) // todo is this costly?
-          ))(ctx))
+          val value = d._2
+          (idx.toLong, createElement(vertex, value.toMap)(ctx))
         }.iterator,
         preservesPartitioning = true
       )
@@ -102,10 +100,13 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
     elementsByVertexId
   }
 
-  def createElement(v: Vertex, rows: DenseMatrix[Double])(implicit ctx: IgaContext): Element = {
+  def createElement(v: Vertex, rows: Map[Int, Array[Double]])(implicit ctx: IgaContext): Element = {
     val e = Element.createForX(ctx.mesh)
     MethodCoefficients.bind(e.mA)
-    e.mB(0 until 3, ::) := rows
+
+    for (r <- 0 until 3) {
+      e.mB(r to r, ::) += DenseMatrix.create(1, e.elements, rows(r), 0, 1)
+    }
     e
   }
 
