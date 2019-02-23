@@ -22,7 +22,6 @@ object IgaAdiPregelSolver {
 //          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 //          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
 //          .set("spark.kryo.registrationRequired", "true")
-        //          .set("spark.kryo.unsafe", "true")
       )
       .map(conf => {
 //        GraphXUtils.registerKryoClasses(conf)

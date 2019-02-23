@@ -1,2 +1,3 @@
 **/*
 !target/scala-2.11/iga-adi*.jar
+!monitoring

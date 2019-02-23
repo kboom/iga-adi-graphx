@@ -1,6 +1,7 @@
 FROM kbhit/spark
 
-ARG JAR_NAME=iga-adi-pregel.jar
-
-COPY target/scala-2.11/iga-adi-graphx-assembly*.jar /opt/$JAR_NAME
+COPY monitoring/metrics.properties /opt/metrics.properties
+COPY monitoring/metrics-influxdb.jar /opt/metrics-influxdb.jar
+COPY monitoring/spark-influx-sink.jar /opt/spark-influx-sink.jar
+COPY target/scala-2.11/iga-adi-graphx-assembly*.jar /opt/iga-adi-pregel.jar
 
