@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: influx-datasource
+  labels:
+    grafana_datasource: "1"
+data:
+  datasource.yaml: |-
+    apiVersion: 1
+    deleteDatasources:
+      - name: Influx
+        orgId: 1
+    datasources:
+    - name: Influx
+      type: influx
+      access: proxy
+      orgId: 1
+      url: http://influxdb-influxdb.monitoring:8086
+      password: admin
+      user: admin
+      database: spark
+      version: 1
+      editable: true

@@ -1,0 +1,6 @@
+image:
+  repository: kbhit/grafana
+  tag: latest
+sidecar:
+  datasources:
+    enabled: true

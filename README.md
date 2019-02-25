@@ -29,4 +29,5 @@ kubectl delete po $(kubectl get po -o=jsonpath='{.items[*].metadata.name}')
 
 #### Performance tuning
 
-https://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-2/
+* [Monitoring stats](https://spark.apache.org/docs/latest/monitoring.html)
+* [Tuning Spark](https://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-2/)

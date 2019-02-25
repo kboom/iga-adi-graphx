@@ -13,7 +13,7 @@ bin/spark-submit \
     --executor-cores 3 \
     --executor-memory 5G \
     --conf spark.executor.instances=6 \
-    --conf spark.default.parallelism=36 \
+    --conf spark.default.parallelism=108 \
     --conf spark.kubernetes.container.image.pullPolicy=Always \
     --conf spark.kubernetes.container.image=kbhit/spark \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
@@ -22,15 +22,18 @@ bin/spark-submit \
     --conf spark.metrics.conf=/opt/metrics.properties \
     --jars /opt/metrics-influxdb.jar,/opt/spark-influx-sink.jar \
     --conf spark.driver.extraClassPath=spark-influx-sink.jar:metrics-influxdb.jar  \
-    --conf spark.executor.extraClassPath=spark-influx-sink.jar:metrics-influxdb.jar  \
+    --conf spark.executor.extraClassPath=/opt/spark-influx-sink.jar:/opt/metrics-influxdb.jar  \
     --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:+UseCompressedOops" \
-    --conf spark.driver.extraJavaOptions="-XX:+UseG1GC -XX:+UseCompressedOops -Dproblem.size=1536 -Dproblem.steps=100" \
+    --conf spark.driver.extraJavaOptions="-XX:+UseG1GC -XX:+UseCompressedOops -Dproblem.size=3072 -Dproblem.steps=1" \
+    --conf spark.locality.wait=3600s \
+    --conf spark.locality.wait.node=0 \
+    --conf spark.locality.wait.process=0 \
+    --conf spark.cleaner.periodicGC.interval=10s \
+    --conf spark.graphx.pregel.checkpointInterval=10 \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     local:///opt/iga-adi-pregel.jar &
 
-
-
-    --conf spark.cleaner.periodicGC.interval=10s \
+    -
     --conf spark.cleaner.referenceTracking.blocking=false \
     --conf spark.cleaner.referenceTracking.blocking.shuffle=false \
     --conf spark.default.parallelism=54 \
