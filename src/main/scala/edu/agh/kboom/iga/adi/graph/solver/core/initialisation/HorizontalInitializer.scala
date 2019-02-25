@@ -106,6 +106,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     for (k <- 0 until GaussPoint.gaussPointCount) {
       val gpk = GaussPoint.gaussPoints(k)
       val x = gpk.v * mesh.dx + segment
+
       for (l <- 0 until GaussPoint.gaussPointCount) {
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 1) {

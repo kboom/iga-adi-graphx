@@ -90,15 +90,22 @@ object SplineSurface {
     val localx = x - mesh.dx * ielemx
     val localy = y - mesh.dy * ielemy
 
-    c(0, ielemy) * Spline1T.getValue(localx) * Spline1T.getValue(localy) +
-      c(0, ielemy + 1) * Spline1T.getValue(localx) * Spline2T.getValue(localy) +
-      c(0, ielemy + 2) * Spline1T.getValue(localx) * Spline3T.getValue(localy) +
-      c(1, ielemy) * Spline2T.getValue(localx) * Spline1T.getValue(localy) +
-      c(1, ielemy + 1) * Spline2T.getValue(localx) * Spline2T.getValue(localy) +
-      c(1, ielemy + 2) * Spline2T.getValue(localx) * Spline3T.getValue(localy) +
-      c(2, ielemy) * Spline3T.getValue(localx) * Spline1T.getValue(localy) +
-      c(2, ielemy + 1) * Spline3T.getValue(localx) * Spline2T.getValue(localy) +
-      c(2, ielemy + 2) * Spline3T.getValue(localx) * Spline3T.getValue(localy)
+    val sp1x = Spline1T.getValue(localx)
+    val sp1y = Spline1T.getValue(localy)
+    val sp2y = Spline2T.getValue(localy)
+    val sp2x = Spline2T.getValue(localx)
+    val sp3y = Spline3T.getValue(localy)
+    val sp3x = Spline3T.getValue(localx)
+
+    c(0, ielemy) * sp1x * sp1y +
+      c(0, ielemy + 1) * sp1x * sp2y +
+      c(0, ielemy + 2) * sp1x * sp3y +
+      c(1, ielemy) * sp2x * sp1y +
+      c(1, ielemy + 1) * sp2x * sp2y +
+      c(1, ielemy + 2) * sp2x * sp3y +
+      c(2, ielemy) * sp3x * sp1y +
+      c(2, ielemy + 1) * sp3x * sp2y +
+      c(2, ielemy + 2) * sp3x * sp3y
   }
 
 }
