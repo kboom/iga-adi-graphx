@@ -66,7 +66,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     implicit val tree: ProblemTree = ctx.xTree()
 
     val data = ss.m.rows
-      .mapPartitions(collocate(_)(ctx))
+      .mapPartitions(collocate(_)(ctx), preservesPartitioning = true)
       .groupBy(_._1.id.toLong)
       .mapValues(_.map(_._2))
 
