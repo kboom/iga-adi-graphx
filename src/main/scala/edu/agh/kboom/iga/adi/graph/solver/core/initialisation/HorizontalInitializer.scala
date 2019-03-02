@@ -1,7 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
-import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{Spline1T, Spline2T, Spline3T}
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
@@ -75,11 +74,11 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
       .map(id => (id.toLong, id))
       .join(data)
       .mapPartitions(
-        _.toList.map { case (idx, d) =>
+        _.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx.toInt)
           val value = d._2
           (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, value.toMap))(ctx))
-        }.iterator,
+        },
         preservesPartitioning = true
       )
 
@@ -91,17 +90,37 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     val e = Element.createForX(ctx.mesh)
     MethodCoefficients.bind(e.mA)
     for (i <- 0 until ctx.mesh.xDofs) {
-      fillRightHandSide(v, e, vp, Spline3T, 0, i)
-      fillRightHandSide(v, e, vp, Spline2T, 1, i)
-      fillRightHandSide(v, e, vp, Spline1T, 2, i)
+      e.mB(0, i) = force(v, e, vp, 0, i)
+      e.mB(1, i) = force(v, e, vp, 1, i)
+      e.mB(2, i) = force(v, e, vp, 2, i)
     }
     e
   }
 
-  private def fillRightHandSide(v: Vertex, e: Element, vp: ValueProvider, spline: Spline, r: Int, i: Int)(implicit ctx: IgaContext): Unit = {
+  private def force(v: Vertex, e: Element, vp: ValueProvider, r: Int, i: Int)(implicit ctx: IgaContext): Double = {
     implicit val problemTree: ProblemTree = ctx.tree()
     implicit val mesh: Mesh = ctx.mesh
     val segment = Vertex.segmentOf(v)._1
+
+    val left = r match {
+      case (0) => GaussPoint.S31
+      case (1) => GaussPoint.S21
+      case (2) => GaussPoint.S11
+    }
+
+    val center = r match {
+      case (0) => GaussPoint.S32
+      case (1) => GaussPoint.S22
+      case (2) => GaussPoint.S12
+    }
+
+    val right = r match {
+      case (0) => GaussPoint.S33
+      case (1) => GaussPoint.S23
+      case (2) => GaussPoint.S13
+    }
+
+    var value = 0.0
 
     for (k <- 0 until GaussPoint.gaussPointCount) {
       val gpk = GaussPoint.gaussPoints(k)
@@ -111,18 +130,20 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
         val gpl = GaussPoint.gaussPoints(l)
         if (i > 1) {
           val y = (gpl.v + i - 2) * mesh.dy
-          e.mB(r, i to i) :+= gpk.w * spline.getValue(gpk.v) * gpl.w * Spline1T.getValue(gpl.v) * vp.valueAt(x, y)
+          value += left(k, l) * vp.valueAt(x, y)
         }
         if (i > 0 && (i - 1) < mesh.ySize) {
           val y = (gpl.v + i - 1) * mesh.dy
-          e.mB(r, i to i) :+= gpk.w * spline.getValue(gpk.v) * gpl.w * Spline2T.getValue(gpl.v) * vp.valueAt(x, y)
+          value += center(k, l) * vp.valueAt(x, y)
         }
         if (i < mesh.ySize) {
           val y = (gpl.v + i) * mesh.dy
-          e.mB(r, i to i) :+= gpk.w * spline.getValue(gpk.v) * gpl.w * Spline3T.getValue(gpl.v) * vp.valueAt(x, y)
+          value += right(k, l) * vp.valueAt(x, y)
         }
       }
     }
+
+    value
   }
 
 }

@@ -19,12 +19,12 @@ object IgaAdiPregelSolver {
     implicit val sc = Some(new SparkConf())
       .map(
         _.setAppName("IGA ADI Pregel Solver")
-//          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-//          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
-//          .set("spark.kryo.registrationRequired", "true")
+          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+          .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
+          .set("spark.kryo.registrationRequired", "true")
       )
       .map(conf => {
-//        GraphXUtils.registerKryoClasses(conf)
+        GraphXUtils.registerKryoClasses(conf)
         conf
       })
       .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))

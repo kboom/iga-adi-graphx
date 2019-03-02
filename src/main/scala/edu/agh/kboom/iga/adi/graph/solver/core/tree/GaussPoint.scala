@@ -1,5 +1,8 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.tree
 
+import breeze.linalg.DenseMatrix
+import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{ Spline1T, Spline2T, Spline3T }
+
 case class GaussPoint(v: Double, w: Double)
 
 object GaussPoint {
@@ -18,5 +21,87 @@ object GaussPoint {
   )
 
   val gaussPointCount: Int = gaussPoints.length
+
+
+  val S11 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline1T.getValue(gpk.v) * gpl.w * Spline1T.getValue(gpl.v)
+  } }
+
+  val S12 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline1T.getValue(gpk.v) * gpl.w * Spline2T.getValue(gpl.v)
+  } }
+
+  val S13 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline1T.getValue(gpk.v) * gpl.w * Spline3T.getValue(gpl.v)
+  } }
+
+  val S21 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline2T.getValue(gpk.v) * gpl.w * Spline1T.getValue(gpl.v)
+  } }
+
+  val S22 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline2T.getValue(gpk.v) * gpl.w * Spline2T.getValue(gpl.v)
+  } }
+
+  val S23 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline2T.getValue(gpk.v) * gpl.w * Spline3T.getValue(gpl.v)
+  } }
+
+  val S31 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline3T.getValue(gpk.v) * gpl.w * Spline1T.getValue(gpl.v)
+  } }
+
+  val S32 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline3T.getValue(gpk.v) * gpl.w * Spline2T.getValue(gpl.v)
+  } }
+
+  val S33 = DenseMatrix.tabulate(
+    GaussPoint.gaussPointCount,
+    GaussPoint.gaussPointCount
+  ){ case (k, l) => {
+    val gpk = GaussPoint.gaussPoints(k)
+    val gpl = GaussPoint.gaussPoints(l)
+    gpk.w * Spline3T.getValue(gpk.v) * gpl.w * Spline3T.getValue(gpl.v)
+  } }
 
 }

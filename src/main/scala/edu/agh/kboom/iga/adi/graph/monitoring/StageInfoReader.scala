@@ -6,6 +6,7 @@ object StageInfoReader {
 
   def gctimeRatio(s: StageInfo): Double = if( s.taskMetrics.executorRunTime != 0) (s.taskMetrics.jvmGCTime + 0.0) / s.taskMetrics.executorRunTime else 0
   def fetchRuntimeRatio(s: StageInfo): Double = if(s.taskMetrics.executorRunTime != 0) (s.taskMetrics.shuffleReadMetrics.fetchWaitTime + 0.0) / s.taskMetrics.executorRunTime else 0
+  def cpuUtilisation(s: StageInfo): Double = if(s.taskMetrics.executorRunTime != 0) (s.taskMetrics.executorCpuTime / 1000000 + 0.0) / s.taskMetrics.executorRunTime else 1
   def localFetchRatio(s: StageInfo): Double = if(s.taskMetrics.shuffleReadMetrics.totalBlocksFetched != 0) (s.taskMetrics.shuffleReadMetrics.remoteBlocksFetched + 0.0) / s.taskMetrics.shuffleReadMetrics.totalBlocksFetched else 0
   def peakMemory(s: StageInfo): Long = s.taskMetrics.peakExecutionMemory / 1000000
 
@@ -17,6 +18,7 @@ object StageInfoReader {
        | -------------------------------------------
        | tasks: ${s.numTasks}
        | run time: ${s.taskMetrics.executorRunTime}ms
+       | CPU utilisation: ${cpuUtilisation(s)*100}%
        | gctime ratio: ${gctimeRatio(s)*100}%
        | fetch / runtime: ${fetchRuntimeRatio(s)*100}%
        | peakMemory: ${peakMemory(s)}MB

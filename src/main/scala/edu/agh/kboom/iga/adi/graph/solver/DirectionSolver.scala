@@ -12,7 +12,7 @@ import org.apache.spark.graphx.{Edge, EdgeDirection, Graph}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
+import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
 import org.slf4j.LoggerFactory
 
 object DirectionSolver {
@@ -30,11 +30,11 @@ case class DirectionSolver(mesh: Mesh) {
           .map(e => Edge(e.src.id, e.dst.id, e))
       ).setName("Operation edges")
 
-    val graph = Graph.fromEdges(edges, None, MEMORY_AND_DISK, MEMORY_AND_DISK)
+    val graph = Graph.fromEdges(edges, None, MEMORY_ONLY, MEMORY_ONLY)
       .partitionBy(IgaPartitioner) // todo create an efficient partitioner for IGA-ADI operations
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
       .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
-      .cache()
+      .cache() // todo is this really necessary? It greatly reduces the available memory and might not be needed at all
 
     // trigger operations and cache
     graph.edges.isEmpty()
