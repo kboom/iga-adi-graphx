@@ -29,9 +29,9 @@ class HeatTransferIT extends AbstractIT {
 
     "steady state surface" should {
 
-      "should not modify the surface" in new SolverContext(12) {
+      "should not modify the surface" in new SolverContext(24) {
         val finalSurface = runSolver(iterativeSolver)(OneProblem, HeatTransferProblem(mesh))
-        weakPrecision(SplineSurface.asArray(finalSurface)) should equal(MatrixUtils.assembleMatrix(14)(Seq(unit)))
+        weakPrecision(SplineSurface.asArray(finalSurface)) should equal(MatrixUtils.assembleMatrix(26)(Seq(unit)))
       }
 
     }
