@@ -15,7 +15,7 @@ bin/spark-submit \
     --conf spark.executor.instances=6 \
     --conf spark.default.parallelism=18 \
     --conf spark.kubernetes.container.image.pullPolicy=Always \
-    --conf spark.kubernetes.container.image=kbhit/spark \
+    --conf spark.kubernetes.container.image=kbhit/iga-adi-pregel \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
     --conf spark.scheduler.maxRegisteredResourcesWaitingTime=300s \
     --files /opt/metrics.properties \

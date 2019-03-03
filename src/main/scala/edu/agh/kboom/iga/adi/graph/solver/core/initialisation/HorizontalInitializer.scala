@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
+import breeze.linalg.DenseMatrix
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
@@ -14,16 +15,14 @@ sealed trait ValueProvider {
   def valueAt(i: Double, j: Double): Double
 }
 
-case class FromCoefficientsValueProvider(problem: Problem, rows: Map[Int, Array[Double]]) extends ValueProvider {
-  private val Extractor: (Int, Int) => Double = (i, j) => rows(i)(j)
+case class FromCoefficientsValueProvider(problem: Problem, m: DenseMatrix[Double]) extends ValueProvider {
+  private val extractor = MatrixExtractor(m)
 
-  override def valueAt(x: Double, y: Double): Double = problem.valueAt(Extractor, x, y)
+  override def valueAt(x: Double, y: Double): Double = problem.valueAt(extractor, x, y)
 }
 
 case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
-  private val Extractor: (Int, Int) => Double = (_, _) => 1
-
-  override def valueAt(x: Double, y: Double): Double = problem.valueAt(Extractor, x, y)
+  override def valueAt(x: Double, y: Double): Double = problem.valueAt(NoExtractor, x, y)
 }
 
 object HorizontalInitializer {
@@ -76,8 +75,12 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
       .mapPartitions(
         _.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx.toInt)
-          val value = d._2
-          (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, value.toMap))(ctx))
+          val value = d._2.toMap
+          (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, DenseMatrix(
+            value(0),
+            value(1),
+            value(2)
+          )))(ctx)) // todo this might be incorrect for more complex computations (column major)
         },
         preservesPartitioning = true
       )

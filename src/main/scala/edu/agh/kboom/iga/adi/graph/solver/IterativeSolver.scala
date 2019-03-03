@@ -1,12 +1,11 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
 import edu.agh.kboom.iga.adi.graph.TimeEventType.{STEP_FINISHED, STEP_STARTED}
-import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, solver}
+import edu.agh.kboom.iga.adi.graph.TimeRecorder
 import edu.agh.kboom.iga.adi.graph.solver.SolverConfig.LoadedSolverConfig
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix
-import org.apache.spark.sql.catalyst.expressions.Log
 import org.slf4j.LoggerFactory
 
 import scala.annotation.tailrec
@@ -14,8 +13,6 @@ import scala.annotation.tailrec
 object IterativeSolver {
 
   private val Log = LoggerFactory.getLogger(classOf[IterativeSolver])
-
-  def noCoefficients(i: Int, j: Int): Double = 0
 
 }
 
