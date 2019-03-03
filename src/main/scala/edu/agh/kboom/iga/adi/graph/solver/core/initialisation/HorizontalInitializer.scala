@@ -62,23 +62,30 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
 
-    val dataRDD = ss.m.rows
+    val data = ss.m.rows
       .mapPartitions(collocate(_)(ctx), preservesPartitioning = true)
-      .groupBy(_._1.id)
+      .groupBy(_._1.id.toLong)
+      .mapValues(_.map(_._2))
+
+    val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
+    val elementsByVertex = sc.parallelize(leafIndices)
+      .map(id => (id.toLong, id))
+      .join(data)
       .mapPartitions(
         _.map { case (idx, d) =>
-          val vertex = Vertex.vertexOf(idx)
-          val dx = d.view.map(_._2).toMap
+          val vertex = Vertex.vertexOf(idx.toInt)
+          val value = d._2.toMap
           (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, DenseMatrix(
-            dx(0),
-            dx(1),
-            dx(2)
+            value(0),
+            value(1),
+            value(2)
           )))(ctx)) // todo this might be incorrect for more complex computations (column major)
         },
         preservesPartitioning = true
       )
 
-    dataRDD
+    data.unpersist(blocking = false)
+    elementsByVertex
   }
 
   private def createElement(v: Vertex, vp: ValueProvider)(implicit ctx: IgaContext): Element = {

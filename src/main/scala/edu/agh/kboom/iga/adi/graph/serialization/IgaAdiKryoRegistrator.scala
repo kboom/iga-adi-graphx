@@ -54,6 +54,6 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       classOf[Array[Array[Double]]]
     ).foreach(kryo.register)
 
-    //    kryo.register(classOf[MergeAndEliminateRoot], new HelloSerializer())
+    OptionSerializers.register(kryo)
   }
 }
