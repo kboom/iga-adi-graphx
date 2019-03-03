@@ -1,12 +1,12 @@
 package edu.agh.kboom.iga.adi.graph
 
 import edu.agh.kboom.MatrixUtils
-import edu.agh.kboom.MatrixUtils.{fill, sumOfIndexes, unit, weakPrecision}
-import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, LinearProblem, OneProblem}
-import edu.agh.kboom.iga.adi.graph.solver._
+import edu.agh.kboom.MatrixUtils.{unit, weakPrecision}
+import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, OneProblem, RadialProblem}
 import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Problem, SplineSurface, StaticProblem}
+import edu.agh.kboom.iga.adi.graph.solver.{DirectionSolver, IterativeSolver, StepInformation, StepSolver}
 
-class IterativeSolverIT extends AbstractIT {
+class HeatTransferIT extends AbstractIT {
 
   class SolverContext(problemSize: Int) {
     implicit val mesh: Mesh = Mesh(problemSize, problemSize, problemSize, problemSize)
@@ -25,18 +25,13 @@ class IterativeSolverIT extends AbstractIT {
     lastSurface.get
   }
 
-  "running solver for" when {
+  "running heat transfer for" when {
 
-    "element count is 12x12" should {
+    "steady state surface" should {
 
-      "should produce valid results for f(x,y) = 1" in new SolverContext(12) {
-        val finalSurface = runSolver(iterativeSolver)(OneProblem, OneProblem)
+      "should not modify the surface" in new SolverContext(12) {
+        val finalSurface = runSolver(iterativeSolver)(OneProblem, HeatTransferProblem(mesh))
         weakPrecision(SplineSurface.asArray(finalSurface)) should equal(MatrixUtils.assembleMatrix(14)(Seq(unit)))
-      }
-
-      "should produce valid results for f(x,y) = x + y" in new SolverContext(12) {
-        val finalSurface = runSolver(iterativeSolver)(LinearProblem, LinearProblem)
-        weakPrecision(SplineSurface.asArray(finalSurface)) should equal(MatrixUtils.assembleMatrix(14)(Seq(fill(-1), sumOfIndexes())))
       }
 
     }
