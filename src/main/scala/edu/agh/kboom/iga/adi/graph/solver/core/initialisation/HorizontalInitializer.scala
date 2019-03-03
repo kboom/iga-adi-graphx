@@ -28,7 +28,7 @@ case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
 object HorizontalInitializer {
 
   def collocate(r: Iterator[IndexedRow])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, Array[Double]))] =
-    r.toList.flatMap { row =>
+    r.flatMap { row =>
       val idx = row.index.toInt
 
       VerticalInitializer.verticesDependentOnRow(idx)
@@ -36,7 +36,7 @@ object HorizontalInitializer {
           val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
           (vertex, (localRow, row.vector.toArray))
         })
-    }.iterator
+    }.toIterator
 
 }
 
@@ -53,10 +53,10 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     implicit val tree: ProblemTree = ctx.xTree()
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices)
-      .mapPartitions(_.toList.map { idx =>
+      .mapPartitions(_.map { idx =>
         val vertex = Vertex.vertexOf(idx)
         (idx.toLong, createElement(vertex, FromProblemValueProvider(problem))(ctx))
-      }.iterator, preservesPartitioning = true)
+      }, preservesPartitioning = true)
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {

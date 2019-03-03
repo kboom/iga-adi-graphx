@@ -28,6 +28,7 @@ object VerticalInitializer {
     val elements = ctx.mesh.yDofs
 
     val all = Seq(-1, 0, 1)
+      .view
       .map(_ + ProblemTree.firstIndexOfLeafRow)
       .map(_ + rowNo - 1)
       .filterNot { x => x < ProblemTree.firstIndexOfLeafRow || x > ProblemTree.lastIndexOfLeafRow }
@@ -61,7 +62,7 @@ object VerticalInitializer {
   }
 
   def collocate(r: Iterator[IndexedRow])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, Array[Double]))] =
-    r.toList.flatMap { row =>
+    r.flatMap { row =>
       val idx = row.index.toInt
 
       VerticalInitializer.verticesDependentOnRow(idx)
@@ -71,7 +72,7 @@ object VerticalInitializer {
           val vertexRowValues = row.vector.toArray.map(_ * partition)
           (vertex, (localRow, vertexRowValues))
         })
-    }.iterator
+    }
 }
 
 case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
@@ -89,11 +90,11 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
       .mapPartitions(_.toList.map { id => (id.toLong, id) }.iterator, preservesPartitioning = true)
       .join(data)
       .mapPartitions(
-        _.toList.map { case (idx, d) =>
+        _.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx.toInt)
           val value = d._2
           (idx.toLong, createElement(vertex, value.toMap)(ctx))
-        }.iterator,
+        },
         preservesPartitioning = true
       )
 

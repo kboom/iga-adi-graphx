@@ -13,7 +13,7 @@ bin/spark-submit \
     --executor-cores 3 \
     --executor-memory 5G \
     --conf spark.executor.instances=6 \
-    --conf spark.default.parallelism=18 \
+    --conf spark.default.parallelism=432 \
     --conf spark.kubernetes.container.image.pullPolicy=Always \
     --conf spark.kubernetes.container.image=kbhit/iga-adi-pregel \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
@@ -24,9 +24,10 @@ bin/spark-submit \
     --conf spark.driver.extraClassPath=spark-influx-sink.jar:metrics-influxdb.jar  \
     --conf spark.executor.extraClassPath=/opt/spark-influx-sink.jar:/opt/metrics-influxdb.jar  \
     --conf spark.executor.extraJavaOptions="" \
-    --conf spark.driver.extraJavaOptions="-Dproblem.size=1536 -Dproblem.steps=1" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=3072 -Dproblem.steps=1" \
     --conf spark.kryo.unsafe=true \
     --conf spark.kryoserializer.buffer=32m \
+    --conf spark.network.timeout=360s \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     local:///opt/iga-adi-pregel.jar &
 
