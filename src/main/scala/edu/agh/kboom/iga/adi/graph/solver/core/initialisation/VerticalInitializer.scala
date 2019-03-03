@@ -102,7 +102,7 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
 
   def createElement(v: Vertex, rows: Map[Int, Array[Double]])(implicit ctx: IgaContext): Element = {
     val e = Element.createForX(ctx.mesh)
-    MethodCoefficients.bind(e.mA)
+    MethodCoefficients.bound(e.mA)
 
     for (r <- 0 until 3) {
       e.mB(r to r, ::) += DenseMatrix.create(1, e.elements, rows(r), 0, 1)

@@ -1,6 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core
 
-import breeze.linalg.{*, DenseMatrix, DenseVector, sum}
+import breeze.linalg.DenseMatrix
 import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{Spline1T, Spline2T, Spline3T}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors

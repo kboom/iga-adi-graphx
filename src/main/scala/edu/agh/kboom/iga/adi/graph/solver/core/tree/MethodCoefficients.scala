@@ -11,7 +11,9 @@ object MethodCoefficients {
     (1.0 / 120.0, 13.0 / 120.0, 1.0 / 20.0)
   ).t
 
-  def bind(a: MatrixA): Unit = {
+  def bound(a: MatrixA): MatrixA = {
     a(0 until 3, 0 until 3) += initMatrix
+    a
   }
+
 }

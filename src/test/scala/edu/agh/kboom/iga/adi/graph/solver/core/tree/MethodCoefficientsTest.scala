@@ -8,7 +8,7 @@ class MethodCoefficientsTest extends FunSpec with Matchers {
   it("should initialise with proper coefficients") {
     val mA = MatrixUtils.emptyMatrixA
 
-    MethodCoefficients.bind(mA)
+    MethodCoefficients.bound(mA)
 
     MatrixUtils.precisionCut(mA) shouldBe MatrixUtils.fromVector(6, 6)(
       0.05, 0.108, 0.008, 0.0, 0.0, 0.0,

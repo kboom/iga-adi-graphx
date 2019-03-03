@@ -34,8 +34,7 @@ object HorizontalInitializer {
       VerticalInitializer.verticesDependentOnRow(idx)
         .map(vertex => {
           val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
-          val vertexRowValues = row.vector.toArray
-          (vertex, (localRow, vertexRowValues))
+          (vertex, (localRow, row.vector.toArray))
         })
     }.iterator
 
@@ -63,47 +62,41 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
 
-    val data = ss.m.rows
+    val dataRDD = ss.m.rows
       .mapPartitions(collocate(_)(ctx), preservesPartitioning = true)
-      .groupBy(_._1.id.toLong)
-      .mapValues(_.map(_._2))
-
-    val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
-    val elementsByVertex = sc.parallelize(leafIndices)
-      .map(id => (id.toLong, id))
-      .join(data)
+      .groupBy(_._1.id)
       .mapPartitions(
         _.map { case (idx, d) =>
-          val vertex = Vertex.vertexOf(idx.toInt)
-          val value = d._2.toMap
+          val vertex = Vertex.vertexOf(idx)
+          val dx = d.view.map(_._2).toMap
           (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, DenseMatrix(
-            value(0),
-            value(1),
-            value(2)
+            dx(0),
+            dx(1),
+            dx(2)
           )))(ctx)) // todo this might be incorrect for more complex computations (column major)
         },
         preservesPartitioning = true
       )
 
-    data.unpersist(blocking = false)
-    elementsByVertex
+    dataRDD
   }
 
   private def createElement(v: Vertex, vp: ValueProvider)(implicit ctx: IgaContext): Element = {
-    val e = Element.createForX(ctx.mesh)
-    MethodCoefficients.bind(e.mA)
-    for (i <- 0 until ctx.mesh.xDofs) {
-      e.mB(0, i) = force(v, e, vp, 0, i)
-      e.mB(1, i) = force(v, e, vp, 1, i)
-      e.mB(2, i) = force(v, e, vp, 2, i)
-    }
-    e
+    implicit val mesh: Mesh = ctx.mesh
+    implicit val problemTree: ProblemTree = ctx.tree()
+    val segment = Vertex.segmentOf(v)._1
+    Element(
+      mesh.xDofs,
+      mA = MethodCoefficients.bound(Element.createMatA()),
+      mB = DenseMatrix.tabulate(6, mesh.xDofs)((j, i) => if(j < 3) force(vp, segment, j, i) else 0),
+      mX = Element.createMatX
+    )
   }
 
-  private def force(v: Vertex, e: Element, vp: ValueProvider, r: Int, i: Int)(implicit ctx: IgaContext): Double = {
+  private def force(vp: ValueProvider, segment: Double, r: Int, i: Int)(implicit ctx: IgaContext): Double = {
     implicit val problemTree: ProblemTree = ctx.tree()
     implicit val mesh: Mesh = ctx.mesh
-    val segment = Vertex.segmentOf(v)._1
+
 
     val left = r match {
       case (0) => GaussPoint.S31

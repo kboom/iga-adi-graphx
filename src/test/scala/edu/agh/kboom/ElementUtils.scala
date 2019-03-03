@@ -44,7 +44,7 @@ object ElementUtils {
   def weakPrecision(e: IgaElement): IgaElement = IgaElement(e.v, weakPrecision(e.e), e.p)
 
   def weakPrecision(e: Element): Element = {
-    val ne = Element(e.elements)
+    val ne = Element.createForX(e.elements)
     ne.mA += MatrixUtils.weakPrecision(e.mA)
     ne.mB += MatrixUtils.weakPrecision(e.mB)
     ne.mX += MatrixUtils.weakPrecision(e.mX)

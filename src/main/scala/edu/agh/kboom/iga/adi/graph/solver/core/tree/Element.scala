@@ -7,7 +7,6 @@ import edu.agh.kboom.iga.adi.graph.solver.core.MatrixA.MatrixA
 import edu.agh.kboom.iga.adi.graph.solver.core.MatrixB.MatrixB
 import edu.agh.kboom.iga.adi.graph.solver.core.MatrixX.MatrixX
 import edu.agh.kboom.iga.adi.graph.solver.core._
-import edu.agh.kboom.iga.adi.graph.solver.core.tree.Element.{COLS_BOUND_TO_NODE, ROWS_BOUND_TO_NODE}
 
 sealed case class IgaElement(v: Vertex, e: Element, p: Int = 0) {
   def mA: MatrixA = e.mA
@@ -25,11 +24,7 @@ sealed case class IgaElement(v: Vertex, e: Element, p: Int = 0) {
   def dofs = mX.cols
 }
 
-case class Element(elements: Int) {
-  val mA: MatrixA = MatrixA.ofDim(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
-  val mB: MatrixB = MatrixB.ofDim(ROWS_BOUND_TO_NODE, elements)
-  val mX: MatrixX = MatrixX.ofDim(ROWS_BOUND_TO_NODE, elements)
-}
+case class Element(elements: Int, mA: MatrixA, mB: MatrixB, mX: MatrixX)
 
 object IgaElement {
 
@@ -47,7 +42,21 @@ object Element {
 
   def elementCount(implicit mesh: Mesh): Int = mesh.xDofs
 
-  def createForX(implicit mesh: Mesh): Element = Element(elementCount)
+  def createForX(implicit mesh: Mesh): Element = createForX(elementCount)
+
+  def createForX(elements: Int): Element = Element(
+    elements,
+    mA = createMatA(),
+    mB = createMatB(elements),
+    mX = createMatX(elements)
+  )
+
+  def createMatA(): MatrixA = MatrixA.ofDim(ROWS_BOUND_TO_NODE, COLS_BOUND_TO_NODE)
+  def createMatB(elements: Int): MatrixB = MatrixA.ofDim(ROWS_BOUND_TO_NODE, elements)
+  def createMatB(implicit mesh: Mesh): MatrixB = createMatB(elementCount)
+
+  def createMatX(elements: Int): MatrixX = MatrixX.ofDim(ROWS_BOUND_TO_NODE, elements)
+  def createMatX(implicit mesh: Mesh): MatrixX = createMatX(elementCount)
 
   def print(e: Element): String = (0 until ROWS_BOUND_TO_NODE)
     .map(row => s"${printRow(e.mA(row, ::).inner)}\t|\t${printRow(e.mX(row, ::).inner)}\t|\t${printRow(e.mB(row, ::).inner)}")
@@ -56,7 +65,7 @@ object Element {
   def printRow(row: DenseVector[Double]): String = row.map(i => f"$i%+.3f").data.mkString(" ")
 
   def copy(src: Element): Element = {
-    val dst = Element(src.elements)
+    val dst = createForX(src.elements)
     dst.mX :+= src.mX
     dst.mA :+= src.mA
     dst.mB :+= src.mB
