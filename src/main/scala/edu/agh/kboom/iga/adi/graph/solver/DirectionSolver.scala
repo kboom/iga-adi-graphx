@@ -31,12 +31,9 @@ case class DirectionSolver(mesh: Mesh) {
       ).setName("Operation edges")
 
     val graph = Graph.fromEdges(edges, None, MEMORY_ONLY, MEMORY_ONLY)
-      .partitionBy(IgaPartitioner)
-      .mapVertices((vid, _) => Vertex.vertexOf(vid.toInt)(problemTree))
-      .outerJoinVertices(initializer.leafData(ctx))((_, v, se) => se match {
-        case Some(e) => IgaElement(v, e)
-        case None => IgaElement(v, Element.createForX(mesh))
-      })
+      .partitionBy(IgaPartitioner) // todo create an efficient partitioner for IGA-ADI operations
+      .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
+      .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
       .cache() // todo is this really necessary? It greatly reduces the available memory and might not be needed at all
 
     // trigger operations and cache
