@@ -49,7 +49,7 @@ object StepSolver {
       .mapPartitions(_.flatten) // now we have triplets (newRowIndex, (newColIndex, value))
       .groupByKey
       .mapPartitions(
-        _.toList.map { case (a, b) => buildRow(a, b) }.iterator,
+        _.map { case (a, b) => buildRow(a, b) },
         preservesPartitioning = true
       )
       .cache()
@@ -62,9 +62,9 @@ object StepSolver {
   }
 
   def rowToTransposedTriplet(i: Iterator[IndexedRow]): Iterator[Array[(Long, (Long, Double))]] =
-    i.toList.map(row => row.vector.toArray.zipWithIndex.map {
+    i.map(row => row.vector.toArray.zipWithIndex.map {
       case (value, colIndex) => (colIndex.toLong, (row.index, value))
-    }).iterator
+    })
 
   def buildRow(rowIndex: Long, rowWithIndexes: Iterable[(Long, Double)]): IndexedRow = {
     val resArr = new Array[Double](rowWithIndexes.size)
