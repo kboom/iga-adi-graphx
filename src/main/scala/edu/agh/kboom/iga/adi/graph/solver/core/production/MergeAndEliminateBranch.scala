@@ -39,8 +39,8 @@ case object MergeAndEliminateBranch extends Production
 
   override def merge(a: MergeAndEliminateBranchMessage, b: MergeAndEliminateBranchMessage):
   MergeAndEliminateBranchMessage = MergeAndEliminateBranchMessage(
-    a.ca + b.ca,
-    a.cb + b.cb
+    a.ca += b.ca,
+    a.cb += b.cb
   )
 
   override def consume(dst: IgaElement, msg: MergeAndEliminateBranchMessage)(implicit ctx: IgaTaskContext): Unit = {

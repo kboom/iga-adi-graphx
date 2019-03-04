@@ -21,6 +21,8 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       Class.forName("org.apache.spark.graphx.util.collection.GraphXPrimitiveKeyOpenHashMap$$anonfun$1", false, loader),
       Class.forName("org.apache.spark.graphx.util.collection.GraphXPrimitiveKeyOpenHashMap$$anonfun$2", false, loader),
       Class.forName("org.apache.spark.util.collection.OpenHashSet$LongHasher", false, loader),
+      Class.forName("org.apache.spark.graphx.impl.ShippableVertexPartition", false, loader),
+      Class.forName("org.apache.spark.graphx.impl.RoutingTablePartition", false, loader),
       classOf[IndexedRow],
       classOf[Array[IndexedRow]],
       classOf[DenseMatrix[Double]],

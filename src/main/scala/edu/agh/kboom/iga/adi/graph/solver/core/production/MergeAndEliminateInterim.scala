@@ -34,8 +34,8 @@ case object MergeAndEliminateInterim extends Production
   }
 
   override def merge(a: MergeAndEliminateInterimMessage, b: MergeAndEliminateInterimMessage): MergeAndEliminateInterimMessage = MergeAndEliminateInterimMessage(
-    a.ca + b.ca,
-    a.cb + b.cb
+    a.ca += b.ca,
+    a.cb += b.cb
   )
 
   override def consume(dst: IgaElement, msg: MergeAndEliminateInterimMessage)(implicit ctx: IgaTaskContext): Unit = {

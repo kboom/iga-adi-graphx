@@ -36,7 +36,7 @@ object HorizontalInitializer {
           val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
           (vertex, (localRow, row.vector.toArray))
         })
-    }.toIterator
+    }
 
 }
 
