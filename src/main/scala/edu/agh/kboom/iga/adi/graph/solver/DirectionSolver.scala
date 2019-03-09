@@ -36,6 +36,9 @@ case class DirectionSolver(mesh: Mesh) {
       .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
       .cache() // todo is this really necessary? It greatly reduces the available memory and might not be needed at all
 
+    graph.edges.isEmpty()
+    graph.vertices.isEmpty() // extremely important for performance (for some reason)
+
     rec.record(TimeEvent.initialized(ctx.direction))
 
     val solvedGraph = execute(graph)(ctx)
