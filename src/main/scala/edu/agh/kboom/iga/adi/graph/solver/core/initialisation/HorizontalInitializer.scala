@@ -1,6 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
-import breeze.linalg.DenseMatrix
+import breeze.linalg.{DenseMatrix, DenseVector}
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
@@ -8,7 +8,6 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLea
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.VertexId
-import org.apache.spark.mllib.linalg.distributed.IndexedRow
 import org.apache.spark.rdd.RDD
 
 sealed trait ValueProvider {
@@ -27,14 +26,14 @@ case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
 
 object HorizontalInitializer {
 
-  def collocate(r: Iterator[IndexedRow])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, Array[Double]))] =
+  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, DenseVector[Double]))] =
     r.flatMap { row =>
-      val idx = row.index.toInt
+      val idx = row._1.toInt
 
       VerticalInitializer.verticesDependentOnRow(idx)
         .map(vertex => {
           val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
-          (vertex, (localRow, row.vector.toArray))
+          (vertex, (localRow, row._2))
         })
     }
 
@@ -62,30 +61,21 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
 
-    val data = ss.m.rows
-      .mapPartitions(collocate(_)(ctx), preservesPartitioning = true)
-      .groupBy(_._1.id.toLong)
-      .mapValues(_.map(_._2))
-
-    val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
-    val elementsByVertex = sc.parallelize(leafIndices)
-      .map(id => (id.toLong, id))
-      .join(data)
+    ss.m
+      .mapPartitions(collocate(_)(ctx))
+      .groupBy(_._1.id)
       .mapPartitions(
         _.map { case (idx, d) =>
-          val vertex = Vertex.vertexOf(idx.toInt)
-          val value = d._2.toMap
+          val vertex = Vertex.vertexOf(idx)
+          val dx = d.view.map(_._2).toMap
           (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, DenseMatrix(
-            value(0),
-            value(1),
-            value(2)
+            dx(0),
+            dx(1),
+            dx(2)
           )))(ctx)) // todo this might be incorrect for more complex computations (column major)
         },
         preservesPartitioning = true
       )
-
-    data.unpersist(blocking = false)
-    elementsByVertex
   }
 
   private def createElement(v: Vertex, vp: ValueProvider)(implicit ctx: IgaContext): Element = {
@@ -95,7 +85,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     Element(
       mesh.xDofs,
       mA = MethodCoefficients.bound(Element.createMatA()),
-      mB = DenseMatrix.tabulate(6, mesh.xDofs)((j, i) => if(j < 3) force(vp, segment, j, i) else 0),
+      mB = DenseMatrix.tabulate(6, mesh.xDofs)((j, i) => if (j < 3) force(vp, segment, j, i) else 0),
       mX = Element.createMatX
     )
   }

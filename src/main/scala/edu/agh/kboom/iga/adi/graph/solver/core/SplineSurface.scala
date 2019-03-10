@@ -1,17 +1,18 @@
 package edu.agh.kboom.iga.adi.graph.solver.core
 
-import breeze.linalg.DenseMatrix
+import breeze.linalg.{DenseMatrix, DenseVector}
 import edu.agh.kboom.iga.adi.graph.solver.core.Spline.{Spline1T, Spline2T, Spline3T}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
+import org.apache.spark.rdd.RDD
 import org.slf4j.LoggerFactory
 
 sealed trait Surface {
   def mesh: Mesh
 }
 
-case class SplineSurface(m: IndexedRowMatrix, mesh: Mesh) extends Surface
+case class SplineSurface(m: RDD[(Long, DenseVector[Double])], mesh: Mesh) extends Surface
 
 case class PlainSurface(mesh: Mesh) extends Surface
 
@@ -21,9 +22,8 @@ object SplineSurface {
 
   def asArray(s: SplineSurface): DenseMatrix[Double] = {
     val arr2d = s.m
-      .rows
-      .sortBy(_.index)
-      .map(_.vector.toArray)
+      .sortBy(_._1)
+      .map(_._2.toArray)
       .collect()
 
     // todo column major!
@@ -31,14 +31,13 @@ object SplineSurface {
   }
 
   def asString(s: SplineSurface): String = s.m
-    .rows
-    .map(_.vector.toArray.map(i => f"$i%+.3f").mkString("\t"))
+    .map(_._2.toArray.map(i => f"$i%+.3f").mkString("\t"))
     .collect
     .mkString(System.lineSeparator())
 
 
   def print(s: SplineSurface): Unit = {
-    Log.info(f"2D B-Spline Coefficients ${s.m.numRows()}x${s.m.numCols()}")
+//    Log.info(f"2D B-Spline Coefficients ${s.m.numRows()}x${s.m.numCols()}")
     Log.info(s"\n${asString(s)}")
   }
 
@@ -58,12 +57,12 @@ object SplineSurface {
   def surface(p: SplineSurface)(implicit sc: SparkContext): IndexedRowMatrix = {
     implicit val mesh: Mesh = p.mesh
 
-    val coefficientsBySolutionRows = p.m.rows
+    val coefficientsBySolutionRows = p.m
       .flatMap(row => {
-        val rid = row.index.toInt
+        val rid = row._1.toInt
         valueRowsDependentOn(rid)
           .map { element =>
-            (element, (rid - element, row.vector.toArray))
+            (element, (rid - element, row._2))
           }
       })
       .groupBy(_._1.toLong)
@@ -72,7 +71,7 @@ object SplineSurface {
     val surface = sc.parallelize(0 until mesh.ySize)
       .map(id => (id.toLong, id))
       .join(coefficientsBySolutionRows)
-      .map { case (y, coefficients) => {
+      .map { case (y, coefficients) =>
         val rows = coefficients._2.toMap
         val cols = 0 until mesh.xSize
         // todo this should be done
@@ -81,7 +80,6 @@ object SplineSurface {
         val row = Vectors.dense(0d)
 
         IndexedRow(y, row)
-      }
       }
 
     new IndexedRowMatrix(surface)

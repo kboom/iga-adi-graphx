@@ -1,14 +1,12 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
-import breeze.linalg.DenseMatrix
+import breeze.linalg.{DenseMatrix, DenseVector}
 import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.VerticalInitializer.collocate
-import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.VertexId
-import org.apache.spark.mllib.linalg.distributed.IndexedRow
 import org.apache.spark.rdd.RDD
 
 object VerticalInitializer {
@@ -61,15 +59,15 @@ object VerticalInitializer {
     }
   }
 
-  def collocate(r: Iterator[IndexedRow])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, Array[Double]))] =
+  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, DenseVector[Double]))] =
     r.flatMap { row =>
-      val idx = row.index.toInt
+      val idx = row._1.toInt
 
       VerticalInitializer.verticesDependentOnRow(idx)
         .map(vertex => {
           val localRow = findLocalRowFor(vertex, idx)
           val partition = findPartitionFor(vertex, idx)
-          val vertexRowValues = row.vector.toArray.map(_ * partition)
+          val vertexRowValues = row._2.map(_ * partition)
           (vertex, (localRow, vertexRowValues))
         })
     }
@@ -80,29 +78,21 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.yTree()
 
-    val data = hsi.m.rows
+    hsi.m
       .mapPartitions(collocate(_)(ctx))
-      .groupBy(_._1.id.toLong)
-      .mapValues(_.map(_._2))
-
-    val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
-    val elementsByVertexId = sc.parallelize(leafIndices)
-      .mapPartitions(_.map { id => (id.toLong, id) }, preservesPartitioning = true)
-      .join(data)
+      .groupBy(_._1.id)
       .mapPartitions(
         _.map { case (idx, d) =>
-          val vertex = Vertex.vertexOf(idx.toInt)
-          val value = d._2.toMap
+          val vertex = Vertex.vertexOf(idx)
+          val dx = d.view.map(_._2).toMap
           (idx.toLong, createElement(vertex, DenseMatrix(
-            value(0),
-            value(1),
-            value(2) // todo this might be a problem due to column major approach
+            dx(0),
+            dx(1),
+            dx(2) // todo this might be a problem due to column major approach
           ))(ctx))
         },
         preservesPartitioning = true
       )
-
-    elementsByVertexId
   }
 
   def createElement(v: Vertex, rows: DenseMatrix[Double])(implicit ctx: IgaContext): Element = {

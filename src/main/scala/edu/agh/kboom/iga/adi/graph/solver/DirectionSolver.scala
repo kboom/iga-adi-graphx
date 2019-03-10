@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
+import breeze.linalg.DenseVector
 import edu.agh.kboom.iga.adi.graph.solver.DirectionSolver.Log
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.LeafInitializer
@@ -9,8 +10,6 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, Proble
 import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph}
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
 import org.slf4j.LoggerFactory
@@ -49,7 +48,7 @@ case class DirectionSolver(mesh: Mesh) {
 
     solvedGraph.unpersist(blocking = false)
     graph.unpersist(blocking = false)
-    SplineSurface(new IndexedRowMatrix(solutionRows), mesh)
+    SplineSurface(solutionRows, mesh)
   }
 
   private def execute(dataItemGraph: Graph[IgaElement, IgaOperation])(implicit igaContext: IgaContext) = {
@@ -61,7 +60,7 @@ case class DirectionSolver(mesh: Mesh) {
     )
   }
 
-  private def extractSolutionRows(problemTree: ProblemTree, result: Graph[IgaElement, IgaOperation]) = {
+  private def extractSolutionRows(problemTree: ProblemTree, result: Graph[IgaElement, IgaOperation]): RDD[(Long, DenseVector[Double])] = {
     val firstIndex = firstIndexOfBranchingRow(problemTree)
     val lastIndex = lastIndexOfBranchingRow(problemTree)
 
@@ -71,11 +70,10 @@ case class DirectionSolver(mesh: Mesh) {
         _.map { case (v, be) =>
           val local = v - firstIndex
           if (local == 0) (local, be.e.mX(0 to -2, ::)) else (local, be.e.mX(2 to -2, ::))
-        }.flatMap { case (vid, be) => (0 until be.rows).view.map(be(_, ::).inner.copy.data)
-          .map(Vectors.dense)
+        }.flatMap { case (vid, be) => (0 until be.rows).view.map(be(_, ::).inner.copy)
           .zipWithIndex
-          .map { case (v, i) => if (vid == 0) IndexedRow(i, v) else IndexedRow(5 + (vid - 1) * 3 + i, v) }
-        } // do not preserve partitioning here, it totally destroys the performance
+          .map { case (v, i) => if (vid == 0) (i.toLong, v) else (5 + (vid - 1) * 3 + i, v) }
+        }
       )
   }
 }

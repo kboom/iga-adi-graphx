@@ -15,6 +15,7 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
     Array(
       Class.forName("scala.reflect.ClassTag$$anon$1", false, loader),
       Class.forName("breeze.linalg.DenseMatrix$mcD$sp", false, loader),
+      Class.forName("breeze.linalg.DenseVector$mcD$sp", false, loader),
       Class.forName("scala.reflect.ManifestFactory$$anon$10", false, loader),
       Class.forName("scala.reflect.ManifestFactory$$anon$9", false, loader),
       Class.forName("org.apache.spark.graphx.util.collection.GraphXPrimitiveKeyOpenHashMap$mcJI$sp", false, loader),

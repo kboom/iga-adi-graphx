@@ -1,5 +1,6 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
+import breeze.linalg.DenseVector
 import edu.agh.kboom.iga.adi.graph.TimeEventType._
 import edu.agh.kboom.iga.adi.graph.TimeRecorder
 import edu.agh.kboom.iga.adi.graph.solver.StepSolver.transposeRowMatrix
@@ -8,6 +9,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.{SplineSurface, Surface}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
+import org.apache.spark.rdd.RDD
 
 case class StepSolver(directionSolver: DirectionSolver) {
 
@@ -35,7 +37,7 @@ case class StepSolver(directionSolver: DirectionSolver) {
       SplineSurface.print(newProjection)
     }
 
-    transposedPartialSolution.m.rows.unpersist(blocking = false)
+    transposedPartialSolution.m.unpersist(blocking = false)
 
     newProjection
   }
@@ -44,8 +46,8 @@ case class StepSolver(directionSolver: DirectionSolver) {
 
 object StepSolver {
 
-  def transposeRowMatrix(m: IndexedRowMatrix): IndexedRowMatrix = {
-    val transposedRowsRDD = m.rows.mapPartitions(rowToTransposedTriplet)
+  def transposeRowMatrix(m: RDD[(Long, DenseVector[Double])]): RDD[(Long, DenseVector[Double])] = {
+    val transposedRowsRDD = m.mapPartitions(rowToTransposedTriplet)
       .mapPartitions(_.flatten) // now we have triplets (newRowIndex, (newColIndex, value))
       .groupByKey
       .mapPartitions(
@@ -58,25 +60,24 @@ object StepSolver {
       // trigger operation
     }
 
-    new IndexedRowMatrix(transposedRowsRDD)
+    transposedRowsRDD
   }
 
-  def rowToTransposedTriplet(i: Iterator[IndexedRow]): Iterator[Array[(Long, (Long, Double))]] =
-    i.map(row => row.vector.toArray.zipWithIndex.map {
-      case (value, colIndex) => (colIndex.toLong, (row.index, value))
+  def rowToTransposedTriplet(i: Iterator[(Long, DenseVector[Double])]): Iterator[Array[(Long, (Long, Double))]] =
+    i.map(row => row._2.data.zipWithIndex.map {
+      case (value, colIndex) => (colIndex.toLong, (row._1, value))
     })
 
-  def buildRow(rowIndex: Long, rowWithIndexes: Iterable[(Long, Double)]): IndexedRow = {
-    val resArr = new Array[Double](rowWithIndexes.size)
-
+  def buildRow(rowIndex: Long, rowWithIndexes: Iterable[(Long, Double)]): (Long, DenseVector[Double]) = {
     val it = rowWithIndexes.iterator
+    val resArr =  DenseVector.zeros[Double](rowWithIndexes.size)
 
     while (it.hasNext) {
       val n = it.next()
       resArr(n._1.toInt) = n._2
     }
 
-    IndexedRow(rowIndex, Vectors.dense(resArr))
+    (rowIndex, resArr)
   }
 
 }

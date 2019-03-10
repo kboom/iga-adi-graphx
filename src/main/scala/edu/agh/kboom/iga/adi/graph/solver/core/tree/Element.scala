@@ -22,6 +22,8 @@ sealed case class IgaElement(v: Vertex, e: Element, p: Int = 0) {
   def swapElement(se: Element): IgaElement = IgaElement(v, se, p)
 
   def dofs = mX.cols
+
+//  override def hashCode(): Int = v.hashCode() // by doing this we ensure that vertices "wont fly around"
 }
 
 case class Element(elements: Int, mA: MatrixA, mB: MatrixB, mX: MatrixX)
