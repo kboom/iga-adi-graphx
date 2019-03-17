@@ -66,7 +66,15 @@ class IgaPartitionerTest extends PropSpec with TableDrivenPropertyChecks with Ma
     (768, 16, 4, 2, 0),
     (768, 16, 5, 2, 0),
     (768, 16, 6, 3, 1),
-    (768, 16, 7, 3, 1)
+    (768, 16, 7, 3, 1),
+
+    // reversed
+    (768, 16, 2, 4, 0),
+    (768, 16, 2, 5, 0),
+    (768, 16, 3, 6, 1),
+    (768, 16, 3, 7, 1),
+    (768, 16, 271, 542, 0),
+    (768, 16, 272, 544, 1)
   )
 
   forAll(assignments) { (size: Int, pc: Int, src: Int, dst: Int, prt: Int) =>

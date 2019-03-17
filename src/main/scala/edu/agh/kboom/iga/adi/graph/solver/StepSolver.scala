@@ -2,13 +2,11 @@ package edu.agh.kboom.iga.adi.graph.solver
 
 import breeze.linalg.DenseVector
 import edu.agh.kboom.iga.adi.graph.TimeEventType._
-import edu.agh.kboom.iga.adi.graph.TimeRecorder
 import edu.agh.kboom.iga.adi.graph.solver.StepSolver.transposeRowMatrix
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.{HorizontalInitializer, VerticalInitializer}
 import edu.agh.kboom.iga.adi.graph.solver.core.{SplineSurface, Surface}
+import edu.agh.kboom.iga.adi.graph.{SparkUtil, TimeRecorder}
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
 import org.apache.spark.rdd.RDD
 
 case class StepSolver(directionSolver: DirectionSolver) {

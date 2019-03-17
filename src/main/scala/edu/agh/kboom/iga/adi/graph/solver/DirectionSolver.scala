@@ -8,7 +8,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.production.{InitialMessage, Produ
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBranchingRow, lastIndexOfBranchingRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, ProblemTree, Vertex}
 import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
-import org.apache.spark.SparkContext
+import org.apache.spark.{HashPartitioner, SparkContext}
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel.MEMORY_ONLY

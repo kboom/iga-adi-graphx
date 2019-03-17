@@ -26,14 +26,14 @@ case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
 
 object HorizontalInitializer {
 
-  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, DenseVector[Double]))] =
+  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Int, Seq[(Int, DenseVector[Double])])] =
     r.flatMap { row =>
       val idx = row._1.toInt
 
       VerticalInitializer.verticesDependentOnRow(idx)
         .map(vertex => {
           val localRow = VerticalInitializer.findLocalRowFor(vertex, idx)
-          (vertex, (localRow, row._2))
+          (vertex.id, Seq((localRow, row._2)))
         })
     }
 
@@ -54,21 +54,24 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     sc.parallelize(leafIndices)
       .mapPartitions(_.map { idx =>
         val vertex = Vertex.vertexOf(idx)
-        (idx.toLong, createElement(vertex, FromProblemValueProvider(problem))(ctx))
+        (idx, createElement(vertex, FromProblemValueProvider(problem))(ctx))
       }, preservesPartitioning = true)
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
 
+//    val partitioner = VertexPartitioner(ss.m.getNumPartitions, tree) // better distribute the shit!!!! as of now only 2 nodes involved, locality=0 helps but will crash for greater problem sizes!
+
+    // better distribute the shit!!!! as of now only 2 nodes involved, locality=0 helps but will crash for greater problem sizes!
     ss.m
       .mapPartitions(collocate(_)(ctx))
-      .groupBy(_._1.id)
+      .reduceByKey(_ ++ _)
       .mapPartitions(
-        _.map { case (idx, d) =>
-          val vertex = Vertex.vertexOf(idx)
-          val dx = d.view.map(_._2).toMap
-          (idx.toLong, createElement(vertex, FromCoefficientsValueProvider(problem, DenseMatrix(
+        _.map { case (vid, s) =>
+          val v = Vertex.vertexOf(vid)
+          val dx = s.toMap
+          (vid.toLong, createElement(v, FromCoefficientsValueProvider(problem, DenseMatrix(
             dx(0),
             dx(1),
             dx(2)

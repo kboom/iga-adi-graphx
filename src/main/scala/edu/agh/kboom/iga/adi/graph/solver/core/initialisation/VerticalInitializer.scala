@@ -59,7 +59,7 @@ object VerticalInitializer {
     }
   }
 
-  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Vertex, (Int, DenseVector[Double]))] =
+  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Int, Seq[(Int, DenseVector[Double])])] =
     r.flatMap { row =>
       val idx = row._1.toInt
 
@@ -68,7 +68,7 @@ object VerticalInitializer {
           val localRow = findLocalRowFor(vertex, idx)
           val partition = findPartitionFor(vertex, idx)
           val vertexRowValues = row._2.map(_ * partition)
-          (vertex, (localRow, vertexRowValues))
+          (vertex.id, Seq((localRow, vertexRowValues)))
         })
     }
 }
@@ -80,11 +80,11 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
 
     hsi.m
       .mapPartitions(collocate(_)(ctx))
-      .groupBy(_._1.id)
+      .reduceByKey(_ ++ _)
       .mapPartitions(
         _.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx)
-          val dx = d.view.map(_._2).toMap
+          val dx = d.toMap
           (idx.toLong, createElement(vertex, DenseMatrix(
             dx(0),
             dx(1),
