@@ -1,7 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
-import edu.agh.kboom.iga.adi.graph.solver.core.tree.{ProblemTree, Vertex}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.{offsetLeft, strengthOf, vertexOf}
+import edu.agh.kboom.iga.adi.graph.solver.core.tree.{ProblemTree, Vertex}
 import org.apache.spark.Partitioner
 import org.apache.spark.graphx.{PartitionID, PartitionStrategy, VertexId}
 
@@ -22,9 +22,8 @@ case class IgaPartitioner(tree: ProblemTree) extends PartitionStrategy {
 }
 
 case class VertexPartitioner(numPartitions: Int, tree: ProblemTree) extends Partitioner {
-  override def getPartition(key: Any): PartitionID = {
-    IgaPartitioner.partitionFor(key.asInstanceOf[Int], numPartitions)(tree)
-  }
+  override def getPartition(key: Any): PartitionID =
+    IgaPartitioner.partitionFor(key.asInstanceOf[Long], numPartitions)(tree)
 }
 
 object IgaPartitioner {
@@ -34,7 +33,7 @@ object IgaPartitioner {
   }
 
   def partitionFor(dst: Vertex, numParts: PartitionID)(implicit tree: ProblemTree): Int = {
-    val segments = Math.max(1, strengthOf(dst)(tree) / numParts)
+    val segments = Math.ceil(strengthOf(dst)(tree) / numParts.toFloat)
     val offset = offsetLeft(dst)(tree)
 
     math.floor(offset / segments).toInt

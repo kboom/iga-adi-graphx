@@ -9,7 +9,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBra
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, ProblemTree, Vertex}
 import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.{HashPartitioner, SparkContext}
-import org.apache.spark.graphx.{Edge, EdgeDirection, Graph}
+import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
 import org.slf4j.LoggerFactory
@@ -29,11 +29,16 @@ case class DirectionSolver(mesh: Mesh) {
           .map(e => Edge(e.src.id, e.dst.id, e))
       ).setName("Operation edges")
 
-    val graph = Graph.fromEdges(edges, None, MEMORY_ONLY, MEMORY_ONLY)
-      .partitionBy(IgaPartitioner(problemTree)) // todo create an efficient partitioner for IGA-ADI operations
+    val vertices: RDD[(VertexId, None.type)] =
+      sc.parallelize(
+        (1 to mesh.xSize).map(x => (x.asInstanceOf[VertexId], None))
+      ).partitionBy(VertexPartitioner(sc.defaultParallelism, problemTree))
+
+    val graph = Graph(vertices, edges)
+      .partitionBy(IgaPartitioner(problemTree))
       .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
       .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
-      .cache() // todo is this really necessary? It greatly reduces the available memory and might not be needed at all
+      .cache()
 
     graph.edges.isEmpty()
     graph.vertices.isEmpty() // extremely important for performance (for some reason)
@@ -41,7 +46,9 @@ case class DirectionSolver(mesh: Mesh) {
     rec.record(TimeEvent.initialized(ctx.direction))
 
     val solvedGraph = execute(graph)(ctx)
-    val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint() // forget about lineage
+    val solutionRows = extractSolutionRows(problemTree, solvedGraph)
+      .localCheckpoint()
+      .persist(MEMORY_ONLY) // forget about lineage
     if (!solutionRows.isEmpty()) {
       Log.info("Trigger checkpoint")
     }
@@ -73,7 +80,8 @@ case class DirectionSolver(mesh: Mesh) {
         }.flatMap { case (vid, be) => (0 until be.rows).view.map(be(_, ::).inner.copy)
           .zipWithIndex
           .map { case (v, i) => if (vid == 0) (i.toLong, v) else (5 + (vid - 1) * 3 + i, v) }
-        }
+        },
+        preservesPartitioning = true
       )
   }
 }
