@@ -10,8 +10,8 @@ class BackwardsSubstituteRootTest extends SubjectSpec
   with MatrixColors {
 
   val Parent = RootVertex()
-  val LeftChild = InterimVertex(2)
-  val RightChild = InterimVertex(3)
+  val LeftChild = InterimVertex(2L)
+  val RightChild = InterimVertex(3L)
 
   "emit" when {
 

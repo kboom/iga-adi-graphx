@@ -1,12 +1,12 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import edu.agh.kboom.iga.adi.graph.solver.IgaContext
+import edu.agh.kboom.iga.adi.graph.solver.{IgaContext, VertexPartitioner}
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
-import org.apache.spark.SparkContext
+import org.apache.spark.{HashPartitioner, SparkContext}
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.rdd.RDD
 
@@ -26,7 +26,7 @@ case class FromProblemValueProvider(problem: Problem) extends ValueProvider {
 
 object HorizontalInitializer {
 
-  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Int, Seq[(Int, DenseVector[Double])])] =
+  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Long, Seq[(Int, DenseVector[Double])])] =
     r.flatMap { row =>
       val idx = row._1.toInt
 
@@ -51,22 +51,24 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   private def initializeSurface(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
-    sc.parallelize(leafIndices)
-      .mapPartitions(_.map { idx =>
+    sc.parallelize(leafIndices.map((_, None)))
+      .partitionBy(VertexPartitioner(sc.defaultParallelism, tree))
+      .mapPartitions(_.map { case (idx, _) =>
         val vertex = Vertex.vertexOf(idx)
         (idx, createElement(vertex, FromProblemValueProvider(problem))(ctx))
       }, preservesPartitioning = true)
+      .cache()
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
 
-//    val partitioner = VertexPartitioner(ss.m.getNumPartitions, tree) // better distribute the shit!!!! as of now only 2 nodes involved, locality=0 helps but will crash for greater problem sizes!
-
     // better distribute the shit!!!! as of now only 2 nodes involved, locality=0 helps but will crash for greater problem sizes!
+    val partitioner = ss.m.partitioner.getOrElse(new HashPartitioner(sc.defaultParallelism))
+
     ss.m
       .mapPartitions(collocate(_)(ctx))
-      .reduceByKey(_ ++ _)
+      .reduceByKey(partitioner, _ ++ _)
       .mapPartitions(
         _.map { case (vid, s) =>
           val v = Vertex.vertexOf(vid)

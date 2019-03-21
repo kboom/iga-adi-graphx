@@ -24,10 +24,12 @@ bin/spark-submit \
     --conf spark.driver.extraClassPath=spark-influx-sink.jar:metrics-influxdb.jar  \
     --conf spark.executor.extraClassPath=/opt/spark-influx-sink.jar:/opt/metrics-influxdb.jar  \
     --conf spark.executor.extraJavaOptions="" \
-    --conf spark.driver.extraJavaOptions="-Dproblem.size=3072 -Dproblem.steps=1 -Dlogging.operations=true" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=3072 -Dproblem.steps=1" \
     --conf spark.kryo.unsafe=true \
     --conf spark.kryoserializer.buffer=32m \
     --conf spark.network.timeout=360s \
+    --conf spark.locality.wait.process=0 \
+    --conf spark.locality.wait=999999 \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     local:///opt/iga-adi-pregel.jar &
 

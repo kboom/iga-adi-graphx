@@ -40,7 +40,7 @@ object VerticalInitializer {
 
   def findLocalRowFor(v: Vertex, rowNo: Int)(implicit ctx: IgaContext): Int = {
     implicit val tree: ProblemTree = ctx.yTree()
-    rowNo - Vertex.offsetLeft(v)
+    (rowNo - Vertex.offsetLeft(v)).toInt
   }
 
   def findPartitionFor(v: Vertex, rowNo: Int)(implicit ctx: IgaContext): Double = {
@@ -59,7 +59,7 @@ object VerticalInitializer {
     }
   }
 
-  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Int, Seq[(Int, DenseVector[Double])])] =
+  def collocate(r: Iterator[(Long, DenseVector[Double])])(implicit ctx: IgaContext): Iterator[(Long, Seq[(Int, DenseVector[Double])])] =
     r.flatMap { row =>
       val idx = row._1.toInt
 
@@ -88,7 +88,7 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
           (idx.toLong, createElement(vertex, DenseMatrix(
             dx(0),
             dx(1),
-            dx(2) // todo this might be a problem due to column major approach
+            dx(2) // todo this might sl be a problem due to column major approach
           ))(ctx))
         },
         preservesPartitioning = true

@@ -9,9 +9,9 @@ class MergeAndEliminateBranchTest extends SubjectSpec
   with DummyProblem
   with MatrixColors {
 
-  val Parent = InterimVertex(4)
-  val LeftChild = BranchVertex(8)
-  val RightChild = BranchVertex(9)
+  val Parent = InterimVertex(4L)
+  val LeftChild = BranchVertex(8L)
+  val RightChild = BranchVertex(9L)
 
   "emit" when {
 

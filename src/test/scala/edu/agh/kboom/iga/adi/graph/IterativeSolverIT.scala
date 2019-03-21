@@ -2,7 +2,7 @@ package edu.agh.kboom.iga.adi.graph
 
 import edu.agh.kboom.MatrixUtils
 import edu.agh.kboom.MatrixUtils.{fill, sumOfIndexes, unit, weakPrecision}
-import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, LinearProblem, OneProblem}
+import edu.agh.kboom.iga.adi.graph.problems.{LinearProblem, OneProblem}
 import edu.agh.kboom.iga.adi.graph.solver._
 import edu.agh.kboom.iga.adi.graph.solver.core.{Mesh, Problem, SplineSurface, StaticProblem}
 

@@ -12,22 +12,22 @@ case object MIDDLE_CHILD extends ChildPosition
 case object RIGHT_CHILD extends ChildPosition
 
 sealed abstract class Vertex {
-  def id: Int
+  def id: Long
 }
 
 case class RootVertex() extends Vertex {
-  override def id: Int = 1
+  override def id: Long = 1
 }
 
-case class InterimVertex(id: Int) extends Vertex
+case class InterimVertex(id: Long) extends Vertex
 
-case class BranchVertex(id: Int) extends Vertex
+case class BranchVertex(id: Long) extends Vertex
 
-case class LeafVertex(id: Int) extends Vertex
+case class LeafVertex(id: Long) extends Vertex
 
 object Vertex {
 
-  def vertexOf(id: Int)(implicit tree: ProblemTree): Vertex = id match {
+  def vertexOf(id: Long)(implicit tree: ProblemTree): Vertex = id match {
     case 1 => RootVertex()
     case _ if id < firstIndexOfBranchingRow(tree) => InterimVertex(id)
     case _ if id < firstIndexOfLeafRow(tree) => BranchVertex(id)
@@ -38,7 +38,7 @@ object Vertex {
     case RootVertex() => 1
     case LeafVertex(_) => leafHeight(tree)
     case BranchVertex(_) => branchingHeight(tree)
-    case InterimVertex(_) => floor(log2(v.id)).toInt + 1
+    case InterimVertex(_) => floor(log2(v.id.toDouble)).toInt + 1
   }
 
   def onTopOfBranchingRow(v: Vertex)(implicit tree: ProblemTree): Boolean = v match {
@@ -46,7 +46,7 @@ object Vertex {
     case _ => false
   }
 
-  def strengthOf(v: Vertex)(implicit tree: ProblemTree): Int = strengthOfRow(rowIndexOf(v))
+  def strengthOf(v: Vertex)(implicit tree: ProblemTree): Long = strengthOfRow(rowIndexOf(v))
 
   def childPositionOf(v: Vertex)(implicit tree: ProblemTree): ChildPosition = v match {
     case LeafVertex(_) => (ProblemTree.strengthOfLeaves + Vertex.offsetLeft(v)) % 3 match {
@@ -57,7 +57,7 @@ object Vertex {
     case _ => if (v.id % 2 == 0) LEFT_CHILD else RIGHT_CHILD
   }
 
-  def offsetLeft(v: Vertex)(implicit tree: ProblemTree): Int = v.id - firstIndexOfRow(rowIndexOf(v))
+  def offsetLeft(v: Vertex)(implicit tree: ProblemTree): Long = v.id - firstIndexOfRow(rowIndexOf(v))
 
   def leftChildOf(v: Vertex)(implicit tree: ProblemTree): Option[Vertex] = v match {
     case RootVertex() => Some(InterimVertex(2))
@@ -70,6 +70,7 @@ object Vertex {
     case Some(InterimVertex(id)) => Seq(id, id + 1).map(InterimVertex)
     case Some(BranchVertex(id)) => Seq(id, id + 1).map(BranchVertex)
     case Some(LeafVertex(id)) => Seq(id, id + 1, id + 2).map(LeafVertex)
+    case Some(RootVertex()) => Seq(1L, 2L).map(InterimVertex)
     case None => Nil
   }
 

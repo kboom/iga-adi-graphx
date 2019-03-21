@@ -9,9 +9,9 @@ sealed class MergeAndEliminateInterimTest extends SubjectSpec
   with DummyProblem
   with MatrixColors {
 
-  val Parent = InterimVertex(2)
-  val LeftChild = InterimVertex(4)
-  val RightChild = InterimVertex(5)
+  val Parent = InterimVertex(2L)
+  val LeftChild = InterimVertex(4L)
+  val RightChild = InterimVertex(5L)
 
   "emit" when {
 

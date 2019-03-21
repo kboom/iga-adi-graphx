@@ -9,10 +9,10 @@ class MergeAndEliminateLeafTest extends SubjectSpec
   with DummyProblem
   with MatrixColors {
 
-  val Parent = BranchVertex(4)
-  val LeftChild = LeafVertex(8)
-  val MiddleChild = LeafVertex(9)
-  val RightChild = LeafVertex(10)
+  val Parent = BranchVertex(4L)
+  val LeftChild = LeafVertex(8L)
+  val MiddleChild = LeafVertex(9L)
+  val RightChild = LeafVertex(10L)
 
   "emit" when {
 

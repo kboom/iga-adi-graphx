@@ -46,12 +46,13 @@ object StepSolver {
 
   def transposeRowMatrix(m: RDD[(Long, DenseVector[Double])]): RDD[(Long, DenseVector[Double])] = {
     val transposedRowsRDD = m.mapPartitions(rowToTransposedTriplet)
-      .mapPartitions(_.flatten) // now we have triplets (newRowIndex, (newColIndex, value))
+      .mapPartitions(_.flatten, preservesPartitioning = true) // now we have triplets (newRowIndex, (newColIndex, value))
       .groupByKey
       .mapPartitions(
         _.map { case (a, b) => buildRow(a, b) },
         preservesPartitioning = true
       )
+      .partitionBy(m.partitioner.get)
       .cache()
 
     if (!transposedRowsRDD.isEmpty()) {
