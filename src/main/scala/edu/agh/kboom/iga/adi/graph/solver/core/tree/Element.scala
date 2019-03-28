@@ -36,6 +36,8 @@ object IgaElement {
 
   def copy(src: IgaElement): IgaElement = IgaElement(src.v, Element.copy(src.e), src.p)
 
+  def reflect(src: IgaElement): IgaElement = IgaElement(src.v, src.e, src.p)
+
 }
 
 object Element {

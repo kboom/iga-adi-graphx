@@ -58,7 +58,7 @@ object IgaTaskExecutor {
 
     m.production match {
       case ActivateVertex => if (vertex.isInstanceOf[LeafVertex]) {
-        IgaElement.copy(e)
+        IgaElement.reflect(e) // changing of memory address is necessary for marking element as active
       } else return e
       case MergeAndEliminateLeaf =>
         MergeAndEliminateLeaf.consume(e, m.asInstanceOf[MergeAndEliminateLeafMessage])

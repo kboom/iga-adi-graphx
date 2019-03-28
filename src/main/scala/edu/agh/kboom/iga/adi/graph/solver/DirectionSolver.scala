@@ -8,7 +8,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.production.{InitialMessage, Produ
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBranchingRow, lastIndexOfBranchingRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, ProblemTree, Vertex}
 import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
-import org.apache.spark.{HashPartitioner, SparkContext}
+import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
@@ -27,21 +27,29 @@ case class DirectionSolver(mesh: Mesh) {
       sc.parallelize(
         IgaTasks.generateOperations(problemTree)
           .map(e => Edge(e.src.id, e.dst.id, e))
-      ).setName("Operation edges")
+      ).setName("Operation edges").localCheckpoint()
 
-    val vertices: RDD[(VertexId, None.type)] =
+    val vertices: RDD[(VertexId, IgaElement)] =
       sc.parallelize(
-        (1 to mesh.xSize).map(x => (x.asInstanceOf[VertexId], None))
-      ).partitionBy(VertexPartitioner(sc.defaultParallelism, problemTree))
+        (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
+      ).leftOuterJoin(initializer.leafData(ctx), VertexPartitioner(sc.defaultParallelism, problemTree))
+        .mapPartitions(
+          _.map {
+            case (v, e) =>
+              val vertex = Vertex.vertexOf(v)(problemTree)
+              val element = e._2.map(IgaElement(vertex, _))
+                .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
+
+              (v, element)
+          },
+          preservesPartitioning = true
+        ).localCheckpoint()
 
     val graph = Graph(vertices, edges)
       .partitionBy(IgaPartitioner(problemTree))
-      .mapVertices((vid, _) => IgaElement(Vertex.vertexOf(vid.toInt)(problemTree), Element.createForX(mesh)))
-      .joinVertices(initializer.leafData(ctx))((_, v, se) => v.swapElement(se))
-      .cache()
 
     graph.edges.isEmpty()
-    graph.vertices.isEmpty() // extremely important for performance (for some reason)
+    graph.vertices.isEmpty()
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
@@ -54,7 +62,6 @@ case class DirectionSolver(mesh: Mesh) {
     }
 
     solvedGraph.unpersist(blocking = false)
-    graph.unpersist(blocking = false)
     SplineSurface(solutionRows, mesh)
   }
 

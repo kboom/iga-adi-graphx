@@ -22,14 +22,15 @@ case class IgaPartitioner(tree: ProblemTree) extends PartitionStrategy {
 }
 
 case class VertexPartitioner(numPartitions: Int, tree: ProblemTree) extends Partitioner {
-  override def getPartition(key: Any): PartitionID =
+  override def getPartition(key: Any): PartitionID = {
     IgaPartitioner.partitionFor(key.asInstanceOf[Long], numPartitions)(tree)
+  }
 }
 
 object IgaPartitioner {
 
   def partitionFor(dst: VertexId, numParts: PartitionID)(implicit tree: ProblemTree): Int = {
-    partitionFor(vertexOf(dst.toInt)(tree), numParts)
+    partitionFor(vertexOf(dst)(tree), numParts)
   }
 
   def partitionFor(dst: Vertex, numParts: PartitionID)(implicit tree: ProblemTree): Int = {

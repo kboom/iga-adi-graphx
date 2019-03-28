@@ -12,8 +12,11 @@ bin/spark-submit \
     --driver-memory 5G \
     --executor-cores 3 \
     --executor-memory 6G \
-    --conf spark.executor.instances=6 \
-    --conf spark.default.parallelism=18 \
+    --conf spark.executor.instances=10 \
+    --conf spark.default.parallelism=30 \
+    --conf spark.kubernetes.executor.request.cores=3000m \
+    --conf spark.kubernetes.executor.limit.cores=3000m \
+    --conf spark.kubernetes.memoryOverheadFactor=0.2 \
     --conf spark.kubernetes.container.image.pullPolicy=Always \
     --conf spark.kubernetes.container.image=kbhit/iga-adi-pregel \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
@@ -28,7 +31,7 @@ bin/spark-submit \
     --conf spark.kryo.unsafe=true \
     --conf spark.kryoserializer.buffer=32m \
     --conf spark.network.timeout=360s \
-    --conf spark.locality.wait.process=0 \
+    --conf spark.memory.fraction=0.5 \
     --conf spark.locality.wait=999999 \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     local:///opt/iga-adi-pregel.jar &
@@ -36,6 +39,9 @@ bin/spark-submit \
 
     --conf spark.locality.wait=9999999 \
     --conf spark.memory.fraction=0.6 \
+
+        --conf spark.locality.wait.process=0 \
+    --conf spark.locality.wait=999999 \
 
 # Observations
 - Increasing partitions breaks tree partitioning as vertices are scattered accross multiple nodes (over long distance)

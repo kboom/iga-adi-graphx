@@ -50,7 +50,7 @@ case class IterativeSolver(stepSolver: StepSolver) {
       case _ => Unit
     }
 
-    processSolution(nextProjection, step)
+//    processSolution(nextProjection, step)
 
     nextProblem(nextProjection, step) match {
       case Some(next) => solveAll(next, nextProjection, historicSteps ++ Seq(step), nextProblem)
