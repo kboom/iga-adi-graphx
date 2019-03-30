@@ -5,7 +5,7 @@ import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.VerticalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
-import org.apache.spark.SparkContext
+import org.apache.spark.{HashPartitioner, SparkContext}
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.rdd.RDD
 
@@ -78,9 +78,11 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.yTree()
 
+    val partitioner = hsi.m.partitioner.getOrElse(new HashPartitioner(sc.defaultParallelism))
+
     hsi.m
       .mapPartitions(collocate(_)(ctx))
-      .reduceByKey(_ ++ _)
+      .reduceByKey(partitioner, _ ++ _)
       .mapPartitions(
         _.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx)

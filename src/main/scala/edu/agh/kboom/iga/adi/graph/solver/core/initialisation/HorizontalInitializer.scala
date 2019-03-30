@@ -57,7 +57,6 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
         val vertex = Vertex.vertexOf(idx)
         (idx, createElement(vertex, FromProblemValueProvider(problem))(ctx))
       }, preservesPartitioning = true)
-      .cache()
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
@@ -101,21 +100,21 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
 
 
     val left = r match {
-      case (0) => GaussPoint.S31
-      case (1) => GaussPoint.S21
-      case (2) => GaussPoint.S11
+      case 0 => GaussPoint.S31
+      case 1 => GaussPoint.S21
+      case 2 => GaussPoint.S11
     }
 
     val center = r match {
-      case (0) => GaussPoint.S32
-      case (1) => GaussPoint.S22
-      case (2) => GaussPoint.S12
+      case 0 => GaussPoint.S32
+      case 1 => GaussPoint.S22
+      case 2 => GaussPoint.S12
     }
 
     val right = r match {
-      case (0) => GaussPoint.S33
-      case (1) => GaussPoint.S23
-      case (2) => GaussPoint.S13
+      case 0 => GaussPoint.S33
+      case 1 => GaussPoint.S23
+      case 2 => GaussPoint.S13
     }
 
     var value = 0.0

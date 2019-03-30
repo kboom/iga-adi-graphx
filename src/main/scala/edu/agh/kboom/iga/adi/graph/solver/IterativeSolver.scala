@@ -46,7 +46,7 @@ case class IterativeSolver(stepSolver: StepSolver) {
     recorder.record(STEP_FINISHED)
 
     surface match {
-      case SplineSurface(rows, _) => rows.unpersist(blocking = false)
+      case SplineSurface(rows, _) => rows.unpersist()
       case _ => Unit
     }
 

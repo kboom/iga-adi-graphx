@@ -32,7 +32,8 @@ bin/spark-submit \
     --conf spark.kryoserializer.buffer=32m \
     --conf spark.network.timeout=360s \
     --conf spark.memory.fraction=0.5 \
-    --conf spark.locality.wait=999999 \
+    --conf spark.locality.wait.node=0 \
+    --conf spark.locality.wait=9999999 \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     local:///opt/iga-adi-pregel.jar &
 

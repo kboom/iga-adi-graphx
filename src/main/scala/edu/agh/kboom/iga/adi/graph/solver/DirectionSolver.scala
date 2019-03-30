@@ -11,7 +11,7 @@ import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
+import org.apache.spark.storage.StorageLevel.{MEMORY_ONLY, MEMORY_ONLY_SER}
 import org.slf4j.LoggerFactory
 
 object DirectionSolver {
@@ -23,16 +23,21 @@ case class DirectionSolver(mesh: Mesh) {
   def solve(ctx: IgaContext, initializer: LeafInitializer, rec: TimeRecorder)(implicit sc: SparkContext): SplineSurface = {
     val problemTree = ctx.tree()
 
+    val partitioner = VertexPartitioner(sc.defaultParallelism, problemTree)
+
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(
         IgaTasks.generateOperations(problemTree)
           .map(e => Edge(e.src.id, e.dst.id, e))
-      ).setName("Operation edges").localCheckpoint()
+      ).map(edge => (edge.dstId, edge))
+      .partitionBy(partitioner)
+      .mapPartitions({ _.map { case(_, edge) => edge } }, preservesPartitioning = true)
+        .setName("Operation edges")
 
     val vertices: RDD[(VertexId, IgaElement)] =
       sc.parallelize(
         (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
-      ).leftOuterJoin(initializer.leafData(ctx), VertexPartitioner(sc.defaultParallelism, problemTree))
+      ).leftOuterJoin(initializer.leafData(ctx), partitioner)
         .mapPartitions(
           _.map {
             case (v, e) =>
@@ -43,10 +48,11 @@ case class DirectionSolver(mesh: Mesh) {
               (v, element)
           },
           preservesPartitioning = true
-        ).localCheckpoint()
+        )
 
-    val graph = Graph(vertices, edges)
+    val graph = Graph(vertices, edges, null, MEMORY_ONLY_SER, MEMORY_ONLY_SER)
       .partitionBy(IgaPartitioner(problemTree))
+      .cache()
 
     graph.edges.isEmpty()
     graph.vertices.isEmpty()
@@ -61,7 +67,8 @@ case class DirectionSolver(mesh: Mesh) {
       Log.info("Trigger checkpoint")
     }
 
-    solvedGraph.unpersist(blocking = false)
+    solvedGraph.unpersist()
+    graph.unpersist()
     SplineSurface(solutionRows, mesh)
   }
 

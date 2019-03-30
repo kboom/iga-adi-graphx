@@ -34,7 +34,8 @@ object IgaPartitioner {
   }
 
   def partitionFor(dst: Vertex, numParts: PartitionID)(implicit tree: ProblemTree): Int = {
-    val segments = Math.ceil(strengthOf(dst)(tree) / numParts.toFloat)
+    val elements = strengthOf(dst)(tree)
+    val segments = Math.ceil(elements / numParts.toFloat)
     val offset = offsetLeft(dst)(tree)
 
     math.floor(offset / segments).toInt
