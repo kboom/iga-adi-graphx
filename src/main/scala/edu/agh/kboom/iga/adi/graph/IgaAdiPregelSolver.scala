@@ -1,5 +1,7 @@
 package edu.agh.kboom.iga.adi.graph
 
+import java.nio.file.{Files, Path, Paths}
+
 import edu.agh.kboom.iga.adi.graph.monitoring.{StageAccumulator, StageInfoReader}
 import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory}
 import edu.agh.kboom.iga.adi.graph.solver._
@@ -27,9 +29,15 @@ object IgaAdiPregelSolver {
         GraphXUtils.registerKryoClasses(conf)
         conf
       })
-      .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
+//      .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
       .map(conf => scfg.jars.map(conf.set("spark.jars", _)).getOrElse(conf))
       .map(new SparkContext(_)).get
+
+//    val checkpointPath = Paths.get(System.getenv("SPARK_YARN_STAGING_DIR"), "checkpoints").toString
+
+    //sc.setCheckpointDir(System.getenv("SPARK_YARN_STAGING_DIR"))
+
+    sc.setCheckpointDir("hdfs:///checkpoints")
 
     val networkListener = new StageAccumulator()
     if (cfg.logging.spark) {

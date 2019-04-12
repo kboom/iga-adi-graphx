@@ -11,7 +11,7 @@ import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel.{MEMORY_ONLY, MEMORY_ONLY_SER}
+import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
 import org.slf4j.LoggerFactory
 
 object DirectionSolver {
@@ -30,8 +30,10 @@ case class DirectionSolver(mesh: Mesh) {
         IgaTasks.generateOperations(problemTree)
           .map(e => Edge(e.src.id, e.dst.id, e))
       ).map(edge => (edge.dstId, edge))
-      .partitionBy(partitioner)
-      .mapPartitions({ _.map { case(_, edge) => edge } }, preservesPartitioning = true)
+        .partitionBy(partitioner)
+        .mapPartitions({
+          _.map { case (_, edge) => edge }
+        }, preservesPartitioning = true)
         .setName("Operation edges")
 
     val vertices: RDD[(VertexId, IgaElement)] =
@@ -50,12 +52,9 @@ case class DirectionSolver(mesh: Mesh) {
           preservesPartitioning = true
         )
 
-    val graph = Graph(vertices, edges, null, MEMORY_ONLY_SER, MEMORY_ONLY_SER)
-      .partitionBy(IgaPartitioner(problemTree))
-      .cache()
+    val graph = Graph(vertices, edges).cache()
 
-    graph.edges.isEmpty()
-    graph.vertices.isEmpty()
+//    graph.checkpoint() // How to make it work on kubernetes?
 
     rec.record(TimeEvent.initialized(ctx.direction))
 

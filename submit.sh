@@ -4,7 +4,10 @@
 # https://umbertogriffo.gitbooks.io/apache-spark-best-practices-and-tuning/content/which_storage_level_to_choose.html
 # https://jaceklaskowski.gitbooks.io/mastering-apache-spark/spark-rdd-partitions.html
 # https://databricks.com/blog/2015/06/22/understanding-your-spark-application-through-visualization.html
-bin/spark-submit \
+
+for NODE in 12 24 48 96 192 384 768 1536 3072 6144
+do
+bin/spark-submit --verbose \
     --master k8s://http://localhost:8001 \
     --deploy-mode cluster \
     --name iga-adi-graph \
@@ -27,15 +30,26 @@ bin/spark-submit \
     --conf spark.driver.extraClassPath=spark-influx-sink.jar:metrics-influxdb.jar  \
     --conf spark.executor.extraClassPath=/opt/spark-influx-sink.jar:/opt/metrics-influxdb.jar  \
     --conf spark.executor.extraJavaOptions="" \
-    --conf spark.driver.extraJavaOptions="-Dproblem.size=3072 -Dproblem.steps=1" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=$NODE -Dproblem.steps=1" \
     --conf spark.kryo.unsafe=true \
     --conf spark.kryoserializer.buffer=32m \
     --conf spark.network.timeout=360s \
     --conf spark.memory.fraction=0.5 \
-    --conf spark.locality.wait.node=0 \
     --conf spark.locality.wait=9999999 \
+    --conf spark.memory.fraction=0.6 \
+    --conf spark.cleaner.periodicGC.interval=10s \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
-    local:///opt/iga-adi-pregel.jar &
+    local:///opt/iga-adi-pregel.jar
+done
+
+Try out:
+
+    --conf spark.graphx.pregel.checkpointInterval=3 \
+    --conf spark.kubernetes.driver.volumes.emptyDir.checkpointpvc.mount.path=/tmp/checkpoints \
+    --conf spark.kubernetes.driver.volumes.emptyDir.checkpointpvc.mount.readOnly=false \
+    --conf spark.kubernetes.executor.volumes.emptyDir.checkpointpvc.mount.path=/tmp/checkpoints \
+    --conf spark.kubernetes.executor.volumes.emptyDir.checkpointpvc.mount.readOnly=false \
+
 
 
     --conf spark.locality.wait=9999999 \

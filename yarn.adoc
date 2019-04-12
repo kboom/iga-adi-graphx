@@ -1,0 +1,45 @@
+# Preparation
+
+. Create S3 bucket and upload ``
+. Run `sbt assembly` command to create a `target/scala-2.11/iga-adi-graphx-assembly-0.1.0.jar` file.
+. Add privileges for HDFS `sudo -u hdfs hdfs dfs -chmod 775 /`
+. Create a checkpoint directory in HDFS `hdfs dfs -mkdir /checkpoints`
+. Submit your application using
+```
+spark-submit \
+    --master yarn \
+    --deploy-mode cluster \
+    --name iga-adi-graph \
+    --driver-cores 1 \
+    --driver-memory 1G \
+    --executor-cores 1 \
+    --executor-memory 1G \
+    --num-executors 1 \
+    --conf spark.executor.extraJavaOptions="" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=12 -Dproblem.steps=1" \
+    --conf spark.kryo.unsafe=true \
+    --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
+    --jars iga-adi-graphx-assembly-0.1.0.jar \
+    s3n://iga-adi/iga-adi-graphx-assembly-0.1.0.jar
+```
+
+# Evaluating progress
+
+
+
+# Results
+
+```
+19/04/12 20:04:52 INFO Client:
+	 client token: N/A
+	 diagnostics: N/A
+	 ApplicationMaster host: ip-172-31-1-27.eu-west-1.compute.internal
+	 ApplicationMaster RPC port: 43707
+	 queue: default
+	 start time: 1555099429085
+	 final status: SUCCEEDED
+	 tracking URL: http://ip-172-31-4-9.eu-west-1.compute.internal:20888/proxy/application_1555092028361_0027/
+	 user: ec2-user
+```
+
+Take the application id and see the logs using `yarn logs -applicationId <APP_ID>`

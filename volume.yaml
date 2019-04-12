@@ -1,0 +1,54 @@
+kubectl create -f - <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+EOF
+
+kubectl create -f - <<EOF
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: spark-pvc-claim
+spec:
+  storageClassName: local-storage
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "2Gi"
+EOF
+
+for NODE in {2..13}
+do
+kubectl create -f - <<EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-$NODE
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /tmp
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - u$NODE
+EOF
+done
+
+  kubectl patch pv local-pv-3 -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+
+
