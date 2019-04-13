@@ -11,6 +11,7 @@ import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
 import org.slf4j.LoggerFactory
 
@@ -35,6 +36,8 @@ case class DirectionSolver(mesh: Mesh) {
           _.map { case (_, edge) => edge }
         }, preservesPartitioning = true)
         .setName("Operation edges")
+        .localCheckpoint()
+        .persist(MEMORY_ONLY)
 
     val vertices: RDD[(VertexId, IgaElement)] =
       sc.parallelize(
@@ -50,11 +53,16 @@ case class DirectionSolver(mesh: Mesh) {
               (v, element)
           },
           preservesPartitioning = true
-        )
+        ).localCheckpoint().persist(MEMORY_ONLY)
 
-    val graph = Graph(vertices, edges).cache()
+    vertices.isEmpty()
 
-//    graph.checkpoint() // How to make it work on kubernetes?
+    val graph = Graph(vertices, edges)
+
+//    graph.vertices.localCheckpoint()
+//    graph.edges.localCheckpoint()
+
+        //.checkpoint() // How to make it work on kubernetes?
 
     rec.record(TimeEvent.initialized(ctx.direction))
 

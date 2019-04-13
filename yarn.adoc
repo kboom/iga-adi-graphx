@@ -1,10 +1,49 @@
-# Preparation
+# Running on AWS EMR
 
 . Create S3 bucket and upload ``
 . Run `sbt assembly` command to create a `target/scala-2.11/iga-adi-graphx-assembly-0.1.0.jar` file.
 . Add privileges for HDFS `sudo -u hdfs hdfs dfs -chmod 775 /`
 . Create a checkpoint directory in HDFS `hdfs dfs -mkdir /checkpoints`
+. Export environment variable `SPARK_CHECKPOINT_DIR=hdfs:///checkpoints`
 . Submit your application using
+
+# Running on Azure HDInsight
+
+. Export environment variable `SPARK_CHECKPOINT_DIR=wasb:///checkpoints`
+
+
+# Run modes
+
+## Client mode
+
+```
+spark-submit \
+    --master yarn \
+    --deploy-mode client \
+    --name iga-adi-graph \
+    --driver-cores 2 \
+    --driver-memory 10G \
+    --num-executors 4 \
+    --executor-cores 2 \
+    --executor-memory 10G \
+    --conf spark.executor.extraJavaOptions="" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=1536 -Dproblem.steps=1" \
+    --conf spark.kryo.unsafe=true \
+    --conf spark.locality.wait=9999999s \
+    --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
+    --jars iga-adi-graphx-assembly-0.1.0.jar \
+    --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
+    --conf spark.scheduler.maxRegisteredResourcesWaitingTime=300s \
+    --conf spark.default.parallelism=16 \
+    --conf spark.ui.enhancement.maxGraphStages=5000 \
+    iga-adi-graphx-assembly-0.1.0.jar
+```
+
+    --conf spark.cleaner.periodicGC.interval=10s \
+    --conf spark.graphx.pregel.checkpointInterval=1 \
+
+## Cluster mode
+
 ```
 spark-submit \
     --master yarn \
@@ -23,11 +62,7 @@ spark-submit \
     s3n:///iga-adi/iga-adi-graphx-assembly-0.1.0.jar
 ```
 
-For azure use `wasb:///` rather than `s3n://`
-
-# Evaluating progress
-
-
+For azure use `wasb:///` rather than `s3n:///`
 
 # Results
 

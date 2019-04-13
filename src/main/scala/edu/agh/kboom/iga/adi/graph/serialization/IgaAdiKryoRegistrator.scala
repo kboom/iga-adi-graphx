@@ -54,7 +54,11 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       classOf[Edge[_]],
       classOf[Array[Edge[_]]],
       classOf[Array[IgaElement]],
-      classOf[Array[Array[Double]]]
+      classOf[Array[Array[Double]]],
+      classOf[scala.collection.mutable.WrappedArray.ofRef[_]],
+      classOf[java.lang.Class[_]],
+      classOf[ProductionMessage],
+      classOf[Array[ProductionMessage]]
     ).foreach(kryo.register)
 
     OptionSerializers.register(kryo)

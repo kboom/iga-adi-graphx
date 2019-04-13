@@ -37,7 +37,10 @@ object IgaAdiPregelSolver {
 
     //sc.setCheckpointDir(System.getenv("SPARK_YARN_STAGING_DIR"))
 
-    sc.setCheckpointDir("hdfs:///checkpoints")
+    // "hdfs:///checkpoints"
+    // "wasb:///checkpoints"
+
+    sc.setCheckpointDir(System.getenv("SPARK_CHECKPOINT_DIR"))
 
     val networkListener = new StageAccumulator()
     if (cfg.logging.spark) {
