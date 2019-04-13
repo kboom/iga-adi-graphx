@@ -20,8 +20,10 @@ spark-submit \
     --conf spark.kryo.unsafe=true \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     --jars iga-adi-graphx-assembly-0.1.0.jar \
-    s3n://iga-adi/iga-adi-graphx-assembly-0.1.0.jar
+    s3n:///iga-adi/iga-adi-graphx-assembly-0.1.0.jar
 ```
+
+For azure use `wasb:///` rather than `s3n://`
 
 # Evaluating progress
 
@@ -43,3 +45,15 @@ spark-submit \
 ```
 
 Take the application id and see the logs using `yarn logs -applicationId <APP_ID>`
+
+# Cluster sizing
+
+
+
+https://umbertogriffo.gitbooks.io/apache-spark-best-practices-and-tuning/content/sparksqlshufflepartitions_draft.html[Source]
+
+# Useful commands
+
+You can find out the link to the historic job in here:
+
+`yarn application -list -appStates ALL`
