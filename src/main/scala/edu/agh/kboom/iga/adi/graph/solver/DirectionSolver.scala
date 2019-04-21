@@ -11,7 +11,6 @@ import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel
 import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
 import org.slf4j.LoggerFactory
 
@@ -34,7 +33,7 @@ case class DirectionSolver(mesh: Mesh) {
         .partitionBy(partitioner)
         .mapPartitions({
           _.map { case (_, edge) => edge }
-        }, preservesPartitioning = true)
+        })
         .setName("Operation edges")
         .localCheckpoint()
         .persist(MEMORY_ONLY)
@@ -44,38 +43,40 @@ case class DirectionSolver(mesh: Mesh) {
         (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
       ).leftOuterJoin(initializer.leafData(ctx), partitioner)
         .mapPartitions(
-          _.map {
-            case (v, e) =>
-              val vertex = Vertex.vertexOf(v)(problemTree)
-              val element = e._2.map(IgaElement(vertex, _))
-                .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
+          _.map { case (v, e) =>
+            val vertex = Vertex.vertexOf(v)(problemTree)
+            val element = e._2.map(IgaElement(vertex, _))
+              .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
 
-              (v, element)
-          },
-          preservesPartitioning = true
-        ).localCheckpoint().persist(MEMORY_ONLY)
+            (v, element)
+          }
+          //         , preservesPartitioning = true
+        ).localCheckpoint()
+        .persist(MEMORY_ONLY)
 
     vertices.isEmpty()
 
     val graph = Graph(vertices, edges)
 
-//    graph.vertices.localCheckpoint()
-//    graph.edges.localCheckpoint()
+    //    graph.vertices.localCheckpoint()
+    //    graph.edges.localCheckpoint()
 
-        //.checkpoint() // How to make it work on kubernetes?
+    //.checkpoint() // How to make it work on kubernetes?
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
     val solvedGraph = execute(graph)(ctx)
     val solutionRows = extractSolutionRows(problemTree, solvedGraph)
       .localCheckpoint()
-      .persist(MEMORY_ONLY) // forget about lineage
+      .persist(MEMORY_ONLY)
     if (!solutionRows.isEmpty()) {
       Log.info("Trigger checkpoint")
     }
 
     solvedGraph.unpersist()
     graph.unpersist()
+    vertices.unpersist()
+    edges.unpersist()
     SplineSurface(solutionRows, mesh)
   }
 

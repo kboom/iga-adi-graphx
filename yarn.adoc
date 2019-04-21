@@ -16,31 +16,58 @@
 
 ## Client mode
 
+last 28
+
+```
+for EXEC in 10
+do
+spark-submit \
+    --master yarn \
+    --deploy-mode client \
+    --driver-cores 4 \
+    --driver-memory 20G \
+    --num-executors $EXEC \
+    --executor-cores 4 \
+    --executor-memory 20G \
+    --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=12288 -Dproblem.steps=1" \
+    --conf spark.kryo.unsafe=true \
+    --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
+    --jars iga-adi-graphx-assembly-0.1.0.jar \
+    --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
+    --conf spark.scheduler.maxRegisteredResourcesWaitingTime=300s \
+    --conf spark.default.parallelism=$(echo "$((4 * ${EXEC}))") \
+    iga-adi-graphx-assembly-0.1.0.jar
+done
+```
+
+One off
+
 ```
 spark-submit \
     --master yarn \
     --deploy-mode client \
     --name iga-adi-graph \
-    --driver-cores 2 \
-    --driver-memory 10G \
-    --num-executors 4 \
-    --executor-cores 2 \
-    --executor-memory 10G \
-    --conf spark.executor.extraJavaOptions="" \
-    --conf spark.driver.extraJavaOptions="-Dproblem.size=1536 -Dproblem.steps=1" \
+    --driver-cores 4 \
+    --driver-memory 20G \
+    --num-executors 10 \
+    --executor-cores 4 \
+    --executor-memory 20G \
+    --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=24576 -Dproblem.steps=1" \
     --conf spark.kryo.unsafe=true \
-    --conf spark.locality.wait=9999999s \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     --jars iga-adi-graphx-assembly-0.1.0.jar \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
     --conf spark.scheduler.maxRegisteredResourcesWaitingTime=300s \
-    --conf spark.default.parallelism=16 \
-    --conf spark.ui.enhancement.maxGraphStages=5000 \
+    --conf spark.default.parallelism=40 \
     iga-adi-graphx-assembly-0.1.0.jar
 ```
-
+    --conf spark.locality.wait=9999999s \
     --conf spark.cleaner.periodicGC.interval=10s \
-    --conf spark.graphx.pregel.checkpointInterval=1 \
+
+    // probably important
+
 
 ## Cluster mode
 

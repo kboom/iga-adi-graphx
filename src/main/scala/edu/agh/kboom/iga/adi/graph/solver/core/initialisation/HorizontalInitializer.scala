@@ -1,14 +1,14 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import edu.agh.kboom.iga.adi.graph.solver.{IgaContext, VertexPartitioner}
+import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
-import org.apache.spark.{HashPartitioner, SparkContext}
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.rdd.RDD
+import org.apache.spark.{HashPartitioner, SparkContext}
 
 sealed trait ValueProvider {
   def valueAt(i: Double, j: Double): Double
@@ -52,11 +52,10 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     implicit val tree: ProblemTree = ctx.xTree()
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     sc.parallelize(leafIndices.map((_, None)))
-      .partitionBy(VertexPartitioner(sc.defaultParallelism, tree))
       .mapPartitions(_.map { case (idx, _) =>
         val vertex = Vertex.vertexOf(idx)
         (idx, createElement(vertex, FromProblemValueProvider(problem))(ctx))
-      }, preservesPartitioning = true)
+      })
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {

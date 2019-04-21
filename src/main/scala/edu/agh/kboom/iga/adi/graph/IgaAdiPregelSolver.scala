@@ -29,13 +29,13 @@ object IgaAdiPregelSolver {
         GraphXUtils.registerKryoClasses(conf)
         conf
       })
-//      .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
+      .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
       .map(conf => scfg.jars.map(conf.set("spark.jars", _)).getOrElse(conf))
       .map(new SparkContext(_)).get
 
 //    val checkpointPath = Paths.get(System.getenv("SPARK_YARN_STAGING_DIR"), "checkpoints").toString
 
-    //sc.setCheckpointDir(System.getenv("SPARK_YARN_STAGING_DIR"))
+//    sc.setCheckpointDir(System.getenv("SPARK_YARN_STAGING_DIR"))
 
     // "hdfs:///checkpoints"
     // "wasb:///checkpoints"
