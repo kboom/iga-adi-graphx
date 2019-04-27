@@ -55,9 +55,9 @@ object StepSolver {
       .partitionBy(m.partitioner.get)
       .cache()
 
-    if (!transposedRowsRDD.isEmpty()) {
-      // trigger operation
-    }
+//    if (!transposedRowsRDD.isEmpty()) {
+//       trigger operation
+//    }
 
     transposedRowsRDD
   }

@@ -24,6 +24,9 @@ object IgaAdiPregelSolver {
           .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
           .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
           .set("spark.kryo.registrationRequired", "true")
+          .set("spark.eventLog.dir", "file:///Users/kbhit/Downloads")
+          .set("spark.eventLog.enabled", "true")
+          .set("spark.graphx.pregel.checkpointInterval", "1")
       )
       .map(conf => {
         GraphXUtils.registerKryoClasses(conf)

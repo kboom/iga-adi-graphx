@@ -4,6 +4,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.{offsetLeft, strength
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{ProblemTree, Vertex}
 import org.apache.spark.Partitioner
 import org.apache.spark.graphx.{PartitionID, PartitionStrategy, VertexId}
+import org.apache.spark.util.Utils
 
 
 /**
@@ -40,4 +41,5 @@ object IgaPartitioner {
 
     math.floor(offset / segments).toInt
   }
+
 }

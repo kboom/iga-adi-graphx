@@ -37,6 +37,10 @@ spark-submit \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
     --conf spark.scheduler.maxRegisteredResourcesWaitingTime=300s \
     --conf spark.default.parallelism=$(echo "$((4 * ${EXEC}))") \
+    --conf spark.locality.wait=99999999999s \
+    --conf spark.locality.wait.process=0 \
+    --conf spark.memory.fraction=0.8 \
+    --conf spark.memory.storageFraction=0.3 \
     iga-adi-graphx-assembly-0.1.0.jar
 done
 ```

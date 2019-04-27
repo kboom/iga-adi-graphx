@@ -1,5 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
+import java.util.concurrent.{ExecutorService, Executors, TimeUnit}
+
 import breeze.linalg.DenseVector
 import edu.agh.kboom.iga.adi.graph.solver.DirectionSolver.Log
 import edu.agh.kboom.iga.adi.graph.solver.core._
@@ -13,6 +15,9 @@ import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel.MEMORY_ONLY
 import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
+import scala.concurrent._
+import scala.concurrent.duration._
 
 object DirectionSolver {
   private val Log = LoggerFactory.getLogger(classOf[IterativeSolver])
@@ -21,8 +26,9 @@ object DirectionSolver {
 case class DirectionSolver(mesh: Mesh) {
 
   def solve(ctx: IgaContext, initializer: LeafInitializer, rec: TimeRecorder)(implicit sc: SparkContext): SplineSurface = {
+    val pool: ExecutorService = Executors.newFixedThreadPool(2)
+    implicit val xc: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(pool)
     val problemTree = ctx.tree()
-
     val partitioner = VertexPartitioner(sc.defaultParallelism, problemTree)
 
     val edges: RDD[Edge[IgaOperation]] =
@@ -33,48 +39,39 @@ case class DirectionSolver(mesh: Mesh) {
         .partitionBy(partitioner)
         .mapPartitions({
           _.map { case (_, edge) => edge }
-        })
+        }, preservesPartitioning = true) // added preserves partitioning, not sure if it helps
         .setName("Operation edges")
-        .localCheckpoint()
-        .persist(MEMORY_ONLY)
+        .cache()
+//        .localCheckpoint()
 
     val vertices: RDD[(VertexId, IgaElement)] =
       sc.parallelize(
         (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
       ).leftOuterJoin(initializer.leafData(ctx), partitioner)
+      .setName("Vertices")
         .mapPartitions(
           _.map { case (v, e) =>
             val vertex = Vertex.vertexOf(v)(problemTree)
             val element = e._2.map(IgaElement(vertex, _))
               .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
-
             (v, element)
           }
-          //         , preservesPartitioning = true
-        ).localCheckpoint()
-        .persist(MEMORY_ONLY)
+        ).cache()
 
-    vertices.isEmpty()
-
-    val graph = Graph(vertices, edges)
-
-    //    graph.vertices.localCheckpoint()
-    //    graph.edges.localCheckpoint()
-
-    //.checkpoint() // How to make it work on kubernetes?
+    val vertexInitialisation = Future { vertices.isEmpty() }
+    val edgeInitialisation = Future { edges.isEmpty() }
+    Await.result(Future.sequence(Seq(vertexInitialisation, edgeInitialisation)), Duration(365, DAYS))
+    pool.shutdown()
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
-    val solvedGraph = execute(graph)(ctx)
-    val solutionRows = extractSolutionRows(problemTree, solvedGraph)
-      .localCheckpoint()
-      .persist(MEMORY_ONLY)
-    if (!solutionRows.isEmpty()) {
-      Log.info("Trigger checkpoint")
-    }
+    val solvedGraph = execute(Graph(vertices.localCheckpoint(), edges.localCheckpoint()))(ctx)
+    val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint()
+//    if (!solutionRows.isEmpty()) {
+//      Log.info("Trigger checkpoint")
+//    }
 
     solvedGraph.unpersist()
-    graph.unpersist()
     vertices.unpersist()
     edges.unpersist()
     SplineSurface(solutionRows, mesh)
