@@ -49,7 +49,7 @@ object StepSolver {
       .mapPartitions(_.flatten) // now we have triplets (newRowIndex, (newColIndex, value))
       .groupByKey
       .mapPartitions(
-        _.map { case (a, b) => buildRow(a, b) }
+        _.map { case (a, b) => buildRow(a, b) }, preservesPartitioning = true
       )
 
   def rowToTransposedTriplet(i: Iterator[(Long, DenseVector[Double])]): Iterator[Array[(Long, (Long, Double))]] =

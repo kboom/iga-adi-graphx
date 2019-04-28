@@ -90,7 +90,7 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
             dx(1),
             dx(2) // todo this might sl be a problem due to column major approach
           ))(ctx))
-        }
+        }, preservesPartitioning = true
       )
   }
 
