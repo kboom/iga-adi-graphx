@@ -15,7 +15,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
-import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
+import org.apache.spark.storage.StorageLevel.{MEMORY_AND_DISK, MEMORY_ONLY_SER}
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable
@@ -44,7 +44,8 @@ case class DirectionSolver(mesh: Mesh) {
         .partitionBy(partitioner)
         .mapPartitions(_.map(_._2), preservesPartitioning = true)
         .setName("Operation edges")
-        .persist(MEMORY_AND_DISK)
+        .cache()
+        .localCheckpoint()
 
     val vertices: RDD[(VertexId, IgaElement)] =
       sc.parallelize(vertexTemplate)
@@ -57,20 +58,14 @@ case class DirectionSolver(mesh: Mesh) {
               .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
             (v, element)
           }, preservesPartitioning = true
-        ).persist(MEMORY_AND_DISK)
+        ).cache().localCheckpoint()
 
-    val vertexInitialisation = Future {
-      vertices.isEmpty()
-    }
-    val edgeInitialisation = Future {
-      edges.isEmpty()
-    }
-    Await.result(Future.sequence(Seq(vertexInitialisation, edgeInitialisation)), Duration(365, DAYS))
-    pool.shutdown()
+    vertices.isEmpty()
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
-    val graph = Graph(vertices.localCheckpoint(), edges.localCheckpoint())
+    val graph = Graph(vertices, edges).partitionBy(IgaPartitioner(problemTree))
+
     val solvedGraph = execute(graph)(ctx)
     val solutionRows = extractSolutionRows(problemTree, solvedGraph)
       .persist(MEMORY_AND_DISK)
@@ -80,8 +75,7 @@ case class DirectionSolver(mesh: Mesh) {
       Log.info("Trigger checkpoint")
     }
 
-    vertices.unpersist()
-    edges.unpersist()
+    graph.unpersist()
     solvedGraph.unpersist()
     SplineSurface(solutionRows, mesh)
   }
@@ -108,8 +102,7 @@ case class DirectionSolver(mesh: Mesh) {
         }.flatMap { case (vid, be) => (0 until be.rows).view.map(be(_, ::).inner.copy)
           .zipWithIndex
           .map { case (v, i) => if (vid == 0) (i.toLong, v) else (5 + (vid - 1) * 3 + i, v) }
-        },
-        preservesPartitioning = true
+        }
       )
   }
 }

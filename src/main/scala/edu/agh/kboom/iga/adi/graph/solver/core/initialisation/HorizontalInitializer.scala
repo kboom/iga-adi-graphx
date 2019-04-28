@@ -54,22 +54,18 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     val partitioner = VertexPartitioner(sc.defaultParallelism, tree)
 
     sc.parallelize(leafIndices.map((_, None)))
-      .partitionBy(partitioner)
       .mapPartitions(_.map { case (idx, _) =>
         val vertex = Vertex.vertexOf(idx)
         (idx, createElement(vertex, FromProblemValueProvider(problem))(ctx))
-      }, preservesPartitioning = true)
+      })
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
 
-    // better distribute the shit!!!! as of now only 2 nodes involved, locality=0 helps but will crash for greater problem sizes!
-    val partitioner = ss.m.partitioner.getOrElse(new HashPartitioner(sc.defaultParallelism))
-
     ss.m
       .mapPartitions(collocate(_)(ctx))
-      .reduceByKey(partitioner, _ ++ _)
+      .reduceByKey(_ ++ _)
       .mapPartitions(
         _.map { case (vid, s) =>
           val v = Vertex.vertexOf(vid)

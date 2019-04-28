@@ -78,11 +78,9 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
   override def leafData(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.yTree()
 
-    val partitioner = hsi.m.partitioner.getOrElse(new HashPartitioner(sc.defaultParallelism))
-
     hsi.m
       .mapPartitions(collocate(_)(ctx))
-      .reduceByKey(partitioner, _ ++ _)
+      .reduceByKey(_ ++ _)
       .mapPartitions(
         _.map { case (idx, d) =>
           val vertex = Vertex.vertexOf(idx)
@@ -92,8 +90,7 @@ case class VerticalInitializer(hsi: SplineSurface) extends LeafInitializer {
             dx(1),
             dx(2) // todo this might sl be a problem due to column major approach
           ))(ctx))
-        },
-        preservesPartitioning = true
+        }
       )
   }
 
