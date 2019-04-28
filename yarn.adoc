@@ -19,7 +19,7 @@
 last 28
 
 ```
-for EXEC in 10
+for EXEC in 4 3 2 1
 do
 spark-submit \
     --master yarn \
@@ -27,20 +27,19 @@ spark-submit \
     --driver-cores 4 \
     --driver-memory 20G \
     --num-executors $EXEC \
-    --executor-cores 4 \
-    --executor-memory 20G \
-    --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication" \
+    --executor-cores 16 \
+    --executor-memory 90000M \
+    --conf spark.executor.extraJavaOptions="-XX:+UseG1GC " \
     --conf spark.driver.extraJavaOptions="-Dproblem.size=12288 -Dproblem.steps=1" \
     --conf spark.kryo.unsafe=true \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     --jars iga-adi-graphx-assembly-0.1.0.jar \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
     --conf spark.scheduler.maxRegisteredResourcesWaitingTime=300s \
-    --conf spark.default.parallelism=$(echo "$((4 * ${EXEC}))") \
-    --conf spark.locality.wait=99999999999s \
+    --conf spark.default.parallelism=$(echo "$((16 * ${EXEC}))") \
+    --conf spark.locality.wait=99999999s \
     --conf spark.locality.wait.process=0 \
-    --conf spark.memory.fraction=0.8 \
-    --conf spark.memory.storageFraction=0.3 \
+    --conf spark.kryoserializer.buffer.max=2000m \
     iga-adi-graphx-assembly-0.1.0.jar
 done
 ```
@@ -54,19 +53,34 @@ spark-submit \
     --name iga-adi-graph \
     --driver-cores 4 \
     --driver-memory 20G \
-    --num-executors 10 \
-    --executor-cores 4 \
-    --executor-memory 20G \
-    --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication" \
-    --conf spark.driver.extraJavaOptions="-Dproblem.size=24576 -Dproblem.steps=1" \
+    --num-executors 4 \
+    --executor-cores 16 \
+    --executor-memory 90000M \
+    --conf spark.executor.extraJavaOptions="-XX:+UseG1GC" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=12288 -Dproblem.steps=1" \
     --conf spark.kryo.unsafe=true \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     --jars iga-adi-graphx-assembly-0.1.0.jar \
     --conf spark.scheduler.minRegisteredResourcesRatio=1.0 \
     --conf spark.scheduler.maxRegisteredResourcesWaitingTime=300s \
-    --conf spark.default.parallelism=40 \
+    --conf spark.default.parallelism=64 \
+    --conf spark.memory.useLegacyMode=true \
+    --conf spark.storage.memoryFraction=0.3 \
+    --conf spark.kryoserializer.buffer.max=2000m \
     iga-adi-graphx-assembly-0.1.0.jar
 ```
+
+
+    --conf spark.graphx.pregel.checkpointInterval=1 \
+    --conf spark.memory.fraction=0.8 \
+    --conf spark.memory.storageFraction=0.7 \
+    --conf spark.memory.fraction=0.8 \
+    --conf spark.memory.storageFraction=0.3 \
+    --conf spark.locality.wait=9999999s \
+    --conf spark.locality.wait.process=0s \
+
+
+
     --conf spark.locality.wait=9999999s \
     --conf spark.cleaner.periodicGC.interval=10s \
 

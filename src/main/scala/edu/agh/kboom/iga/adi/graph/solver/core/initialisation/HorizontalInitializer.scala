@@ -1,7 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import edu.agh.kboom.iga.adi.graph.solver.IgaContext
+import edu.agh.kboom.iga.adi.graph.solver.{IgaContext, VertexPartitioner}
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
@@ -51,11 +51,14 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   private def initializeSurface(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
+    val partitioner = VertexPartitioner(sc.defaultParallelism, tree)
+
     sc.parallelize(leafIndices.map((_, None)))
+      .partitionBy(partitioner)
       .mapPartitions(_.map { case (idx, _) =>
         val vertex = Vertex.vertexOf(idx)
         (idx, createElement(vertex, FromProblemValueProvider(problem))(ctx))
-      })
+      }, preservesPartitioning = true)
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {

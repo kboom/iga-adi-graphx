@@ -2,10 +2,10 @@ package edu.agh.kboom.iga.adi.graph.solver
 
 import breeze.linalg.DenseVector
 import edu.agh.kboom.iga.adi.graph.TimeEventType._
+import edu.agh.kboom.iga.adi.graph.TimeRecorder
 import edu.agh.kboom.iga.adi.graph.solver.StepSolver.transposeRowMatrix
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.{HorizontalInitializer, VerticalInitializer}
 import edu.agh.kboom.iga.adi.graph.solver.core.{SplineSurface, Surface}
-import edu.agh.kboom.iga.adi.graph.{SparkUtil, TimeRecorder}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
@@ -44,23 +44,13 @@ case class StepSolver(directionSolver: DirectionSolver) {
 
 object StepSolver {
 
-  def transposeRowMatrix(m: RDD[(Long, DenseVector[Double])]): RDD[(Long, DenseVector[Double])] = {
-    val transposedRowsRDD = m.mapPartitions(rowToTransposedTriplet)
-      .mapPartitions(_.flatten, preservesPartitioning = true) // now we have triplets (newRowIndex, (newColIndex, value))
+  def transposeRowMatrix(m: RDD[(Long, DenseVector[Double])]): RDD[(Long, DenseVector[Double])] =
+    m.mapPartitions(rowToTransposedTriplet)
+      .mapPartitions(_.flatten) // now we have triplets (newRowIndex, (newColIndex, value))
       .groupByKey
       .mapPartitions(
-        _.map { case (a, b) => buildRow(a, b) },
-        preservesPartitioning = true
+        _.map { case (a, b) => buildRow(a, b) }
       )
-      .partitionBy(m.partitioner.get)
-      .cache()
-
-//    if (!transposedRowsRDD.isEmpty()) {
-//       trigger operation
-//    }
-
-    transposedRowsRDD
-  }
 
   def rowToTransposedTriplet(i: Iterator[(Long, DenseVector[Double])]): Iterator[Array[(Long, (Long, Double))]] =
     i.map(row => row._2.data.zipWithIndex.map {
@@ -69,7 +59,7 @@ object StepSolver {
 
   def buildRow(rowIndex: Long, rowWithIndexes: Iterable[(Long, Double)]): (Long, DenseVector[Double]) = {
     val it = rowWithIndexes.iterator
-    val resArr =  DenseVector.zeros[Double](rowWithIndexes.size)
+    val resArr = DenseVector.zeros[Double](rowWithIndexes.size)
 
     while (it.hasNext) {
       val n = it.next()

@@ -32,12 +32,13 @@ package object production {
     */
   def partialBackwardsSubstitution(elim: Int, size: Int)(implicit p: IgaElement): Unit = {
     for (irhs <- 0 until p.dofs) {
+      val irhsRange = irhs to irhs
       for (irow <- (elim - 1) to 0 by -1) {
-        p.mX(irow, irhs to irhs) := p.mB(irow, irhs)
+        p.mX(irow, irhsRange) := p.mB(irow, irhs)
         for (icol <- irow + 1 until size) {
-          p.mX(irow, irhs to irhs) :+= -p.mA(irow, icol) * p.mX(icol, irhs)
+          p.mX(irow, irhsRange) :+= -p.mA(irow, icol) * p.mX(icol, irhs)
         }
-        p.mX(irow, irhs to irhs) :/= p.mA(irow, irow)
+        p.mX(irow, irhsRange) :/= p.mA(irow, irow)
       }
     }
   }

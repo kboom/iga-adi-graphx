@@ -1,7 +1,5 @@
 package edu.agh.kboom.iga.adi.graph
 
-import java.nio.file.{Files, Path, Paths}
-
 import edu.agh.kboom.iga.adi.graph.monitoring.{StageAccumulator, StageInfoReader}
 import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory}
 import edu.agh.kboom.iga.adi.graph.solver._
@@ -26,7 +24,7 @@ object IgaAdiPregelSolver {
           .set("spark.kryo.registrationRequired", "true")
           .set("spark.eventLog.dir", "file:///Users/kbhit/Downloads")
           .set("spark.eventLog.enabled", "true")
-          .set("spark.graphx.pregel.checkpointInterval", "1")
+          .set("spark.locality.wait", "9999999s") // the data structure is well-known and evenly partitioned
       )
       .map(conf => {
         GraphXUtils.registerKryoClasses(conf)
