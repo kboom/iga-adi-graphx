@@ -1,7 +1,7 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
 import java.util.concurrent.TimeUnit.DAYS
-import java.util.concurrent.{ExecutorService, Executors, TimeUnit}
+import java.util.concurrent.{ExecutorService, Executors}
 
 import breeze.linalg.DenseVector
 import edu.agh.kboom.iga.adi.graph.solver.DirectionSolver.Log
@@ -14,8 +14,7 @@ import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel
-import org.apache.spark.storage.StorageLevel.{MEMORY_AND_DISK, MEMORY_ONLY_SER}
+import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable
@@ -60,20 +59,31 @@ case class DirectionSolver(mesh: Mesh) {
           }, preservesPartitioning = true
         ).cache().localCheckpoint()
 
-    vertices.isEmpty()
+    val vertexInitialisation = Future {
+      vertices.count() // this has to be operation involving all partitions (not isEmpty which triggers just one which causes (at least) 2x speed degradation
+    }
+    val edgeInitialisation = Future {
+      edges.count() // this has to be operation involving all partitions (not isEmpty which triggers just one which causes (at least) 2x speed degradation
+    }
+    Await.result(Future.sequence(Seq(vertexInitialisation, edgeInitialisation)), Duration(365, DAYS))
+    pool.shutdown()
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
-    val graph = Graph(vertices, edges).partitionBy(IgaPartitioner(problemTree))
+    val graph = Graph(
+      vertices = vertices,
+      edges = edges,
+      defaultVertexAttr = null,
+      edgeStorageLevel = MEMORY_AND_DISK,
+      vertexStorageLevel = MEMORY_AND_DISK
+    ).partitionBy(IgaPartitioner(problemTree))
 
     val solvedGraph = execute(graph)(ctx)
     val solutionRows = extractSolutionRows(problemTree, solvedGraph)
       .persist(MEMORY_AND_DISK)
       .localCheckpoint()
 
-    if (!solutionRows.isEmpty()) {
-      Log.info("Trigger checkpoint")
-    }
+    solutionRows.count()
 
     graph.unpersist()
     solvedGraph.unpersist()

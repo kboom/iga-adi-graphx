@@ -22,9 +22,13 @@ object IgaAdiPregelSolver {
           .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
           .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
           .set("spark.kryo.registrationRequired", "true")
-//          .set("spark.eventLog.dir", "file:///Users/kbhit/Downloads")
-//          .set("spark.eventLog.enabled", "true")
-//          .set("spark.locality.wait", "9999999s") // the data structure is well-known and evenly partitioned
+          .set("spark.eventLog.dir", "file:///Users/kbhit/Downloads")
+          .set("spark.eventLog.enabled", "true")
+          .set("spark.memory.fraction", "0.8")
+          .set("spark.memory.storageFraction", "0.3")
+//          .set("spark.graphx.pregel.checkpointInterval", "1")
+          .set("spark.eventLog.enabled", "true")
+          .set("spark.locality.wait", "9999999s") // the data structure is well-known and evenly partitioned
       )
       .map(conf => {
         GraphXUtils.registerKryoClasses(conf)
