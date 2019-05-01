@@ -62,5 +62,6 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
     ).foreach(kryo.register)
 
     OptionSerializers.register(kryo)
+    BreezeSerializers.register(kryo)
   }
 }
