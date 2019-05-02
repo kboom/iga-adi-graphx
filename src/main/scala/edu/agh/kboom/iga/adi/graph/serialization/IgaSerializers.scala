@@ -15,32 +15,10 @@ object IgaSerializers {
 //    kryo.register(classOf[Array[IgaOperation]])
 //    kryo.register(classOf[Production])
 //    kryo.register(classOf[Production], ProductionSerializer)
-//    kryo.register(MergeAndEliminateRoot.getClass, ProductionSerializer)
-//    kryo.register(MergeAndEliminateInterim.getClass, ProductionSerializer)
-//    kryo.register(MergeAndEliminateBranch.getClass, ProductionSerializer)
-//    kryo.register(MergeAndEliminateLeaf.getClass, ProductionSerializer)
-//    kryo.register(BackwardsSubstituteRoot.getClass, ProductionSerializer)
-//    kryo.register(BackwardsSubstituteBranch.getClass, ProductionSerializer)
-//    kryo.register(BackwardsSubstituteInterim.getClass, ProductionSerializer)
+
   }
 }
 
-object IgaOperationSerializer extends Serializer[IgaOperation] {
-
-  override def write(kryo: Kryo, output: Output, o: IgaOperation): Unit = {
-    kryo.writeObject(output, o.src)
-    kryo.writeObject(output, o.dst)
-    kryo.writeObject(output, o.p)
-  }
-
-  override def read(kryo: Kryo, input: Input, `type`: Class[IgaOperation]): IgaOperation = {
-    val src = kryo.readObject(input, classOf[Vertex])
-    val dst = kryo.readObject(input, classOf[Vertex])
-    val p = kryo.readObject(input, classOf[Production])
-    IgaOperation(src, dst, p)
-  }
-
-}
 
 
 

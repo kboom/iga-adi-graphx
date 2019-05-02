@@ -27,13 +27,6 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       classOf[IgaOperation],
       classOf[Array[IgaOperation]],
       classOf[Production],
-      classOf[MergeAndEliminateInterimMessage],
-      classOf[MergeAndEliminateRootMessage],
-      classOf[MergeAndEliminateLeafMessage],
-      classOf[MergeAndEliminateBranchMessage],
-      classOf[BackwardsSubstituteInterimMessage],
-      classOf[BackwardsSubstituteRootMessage],
-      classOf[BackwardsSubstituteBranchMessage],
       MergeAndEliminateRoot.getClass,
       MergeAndEliminateInterim.getClass,
       MergeAndEliminateBranch.getClass,
@@ -46,9 +39,7 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       classOf[Array[IgaElement]],
       classOf[Array[Array[Double]]],
       classOf[scala.collection.mutable.WrappedArray.ofRef[_]],
-      classOf[java.lang.Class[_]],
-      classOf[ProductionMessage],
-      classOf[Array[ProductionMessage]]
+      classOf[java.lang.Class[_]]
     ).foreach(kryo.register)
 
     OptionSerializers.register(kryo)
@@ -56,6 +47,8 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
     VertexSerializer.register(kryo)
     ElementSerializer.register(kryo)
     IgaElementSerializer.register(kryo)
+    IgaOperationSerializer.register(kryo)
     IgaSerializers.register(kryo)
+    ProductionMessageSerializer.register(kryo)
   }
 }
