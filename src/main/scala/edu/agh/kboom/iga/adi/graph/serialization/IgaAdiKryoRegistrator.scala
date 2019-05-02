@@ -1,6 +1,5 @@
 package edu.agh.kboom.iga.adi.graph.serialization
 
-import breeze.linalg.{DenseMatrix, DenseVector}
 import com.esotericsoftware.kryo.Kryo
 import edu.agh.kboom.iga.adi.graph.solver.core.IgaOperation
 import edu.agh.kboom.iga.adi.graph.solver.core.production._
@@ -10,12 +9,11 @@ import org.apache.spark.mllib.linalg.distributed.IndexedRow
 import org.apache.spark.serializer.KryoRegistrator
 
 class IgaAdiKryoRegistrator extends KryoRegistrator {
-  override def registerClasses(kryo: Kryo) = {
-    val loader = getClass().getClassLoader()
+
+  override def registerClasses(kryo: Kryo): Unit = {
+    val loader = getClass.getClassLoader
     Array(
       Class.forName("scala.reflect.ClassTag$$anon$1", false, loader),
-      Class.forName("breeze.linalg.DenseMatrix$mcD$sp", false, loader),
-      Class.forName("breeze.linalg.DenseVector$mcD$sp", false, loader),
       Class.forName("scala.reflect.ManifestFactory$$anon$10", false, loader),
       Class.forName("scala.reflect.ManifestFactory$$anon$9", false, loader),
       Class.forName("org.apache.spark.graphx.util.collection.GraphXPrimitiveKeyOpenHashMap$mcJI$sp", false, loader),
@@ -26,16 +24,8 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       Class.forName("org.apache.spark.graphx.impl.RoutingTablePartition", false, loader),
       classOf[IndexedRow],
       classOf[Array[IndexedRow]],
-      classOf[DenseMatrix[Double]],
-      classOf[DenseVector[Double]],
-      classOf[IgaElement],
-      classOf[Element],
       classOf[IgaOperation],
       classOf[Array[IgaOperation]],
-      classOf[RootVertex],
-      classOf[LeafVertex],
-      classOf[BranchVertex],
-      classOf[InterimVertex],
       classOf[Production],
       classOf[MergeAndEliminateInterimMessage],
       classOf[MergeAndEliminateRootMessage],
@@ -63,5 +53,9 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
 
     OptionSerializers.register(kryo)
     BreezeSerializers.register(kryo)
+    VertexSerializer.register(kryo)
+    ElementSerializer.register(kryo)
+    IgaElementSerializer.register(kryo)
+    IgaSerializers.register(kryo)
   }
 }
