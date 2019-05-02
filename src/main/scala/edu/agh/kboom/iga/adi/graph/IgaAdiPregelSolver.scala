@@ -24,9 +24,10 @@ object IgaAdiPregelSolver {
           .set("spark.kryo.registrationRequired", "true")
           .set("spark.eventLog.dir", "file:///Users/kbhit/Downloads")
           .set("spark.eventLog.enabled", "true")
+          .set("spark.cleaner.referenceTracking.blocking", "false")
           .set("spark.memory.fraction", "0.8")
           .set("spark.memory.storageFraction", "0.3")
-//          .set("spark.graphx.pregel.checkpointInterval", "1")
+          .set("spark.graphx.pregel.checkpointInterval", "1")
           .set("spark.eventLog.enabled", "true")
           .set("spark.locality.wait", "9999999s") // the data structure is well-known and evenly partitioned
       )

@@ -1,11 +1,8 @@
 package edu.agh.kboom.iga.adi.graph.serialization
 
 import com.esotericsoftware.kryo.Kryo
-import edu.agh.kboom.iga.adi.graph.solver.core.IgaOperation
 import edu.agh.kboom.iga.adi.graph.solver.core.production._
-import edu.agh.kboom.iga.adi.graph.solver.core.tree._
 import org.apache.spark.graphx.Edge
-import org.apache.spark.mllib.linalg.distributed.IndexedRow
 import org.apache.spark.serializer.KryoRegistrator
 
 class IgaAdiKryoRegistrator extends KryoRegistrator {
@@ -22,11 +19,6 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       Class.forName("org.apache.spark.util.collection.OpenHashSet$LongHasher", false, loader),
       Class.forName("org.apache.spark.graphx.impl.ShippableVertexPartition", false, loader),
       Class.forName("org.apache.spark.graphx.impl.RoutingTablePartition", false, loader),
-      classOf[IndexedRow],
-      classOf[Array[IndexedRow]],
-      classOf[IgaOperation],
-      classOf[Array[IgaOperation]],
-      classOf[Production],
       MergeAndEliminateRoot.getClass,
       MergeAndEliminateInterim.getClass,
       MergeAndEliminateBranch.getClass,
@@ -36,7 +28,6 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       BackwardsSubstituteInterim.getClass,
       classOf[Edge[_]],
       classOf[Array[Edge[_]]],
-      classOf[Array[IgaElement]],
       classOf[Array[Array[Double]]],
       classOf[scala.collection.mutable.WrappedArray.ofRef[_]],
       classOf[java.lang.Class[_]]

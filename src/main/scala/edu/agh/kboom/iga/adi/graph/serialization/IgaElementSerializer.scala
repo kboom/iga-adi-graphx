@@ -8,6 +8,7 @@ object IgaElementSerializer extends Serializer[IgaElement] {
 
   def register(kryo: Kryo) {
     kryo.register(classOf[IgaElement], IgaElementSerializer)
+    kryo.register(classOf[Array[IgaElement]])
   }
 
   override def write(kryo: Kryo, output: Output, o: IgaElement): Unit = {

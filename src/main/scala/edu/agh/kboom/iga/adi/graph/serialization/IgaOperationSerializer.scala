@@ -10,6 +10,7 @@ object IgaOperationSerializer extends Serializer[IgaOperation] {
 
   def register(kryo: Kryo) {
     kryo.register(classOf[IgaOperation], IgaOperationSerializer)
+    kryo.register(classOf[Array[IgaOperation]])
   }
 
   override def write(kryo: Kryo, output: Output, o: IgaOperation): Unit = {
