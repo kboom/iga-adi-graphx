@@ -26,9 +26,6 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       BackwardsSubstituteRoot.getClass,
       BackwardsSubstituteBranch.getClass,
       BackwardsSubstituteInterim.getClass,
-      classOf[Edge[_]],
-      classOf[Array[Edge[_]]],
-      classOf[Array[Array[Double]]],
       classOf[scala.collection.mutable.WrappedArray.ofRef[_]],
       classOf[java.lang.Class[_]]
     ).foreach(kryo.register)

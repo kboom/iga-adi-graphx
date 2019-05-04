@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit.DAYS
 import java.util.concurrent.{ExecutorService, Executors}
 
 import breeze.linalg.DenseVector
-import edu.agh.kboom.iga.adi.graph.solver.DirectionSolver.Log
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.LeafInitializer
 import edu.agh.kboom.iga.adi.graph.solver.core.production.{InitialMessage, ProductionMessage}
@@ -43,7 +42,7 @@ case class DirectionSolver(mesh: Mesh) {
         .partitionBy(partitioner)
         .mapPartitions(_.map(_._2), preservesPartitioning = true)
         .setName("Operation edges")
-        .cache()
+        .persist(MEMORY_AND_DISK)
         .localCheckpoint()
 
     val vertices: RDD[(VertexId, IgaElement)] =
@@ -57,7 +56,7 @@ case class DirectionSolver(mesh: Mesh) {
               .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
             (v, element)
           }, preservesPartitioning = true
-        ).cache().localCheckpoint()
+        ).persist(MEMORY_AND_DISK).localCheckpoint()
 
     val vertexInitialisation = Future {
       vertices.count() // this has to be operation involving all partitions (not isEmpty which triggers just one which causes (at least) 2x speed degradation
@@ -85,8 +84,10 @@ case class DirectionSolver(mesh: Mesh) {
 
     solutionRows.count()
 
-    graph.unpersist()
-    solvedGraph.unpersist()
+    graph.unpersist(blocking = false)
+    solvedGraph.unpersist(blocking = false)
+    vertices.unpersist(blocking = false)
+    edges.unpersist(blocking = false)
     SplineSurface(solutionRows, mesh)
   }
 
