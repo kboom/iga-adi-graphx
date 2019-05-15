@@ -5,6 +5,8 @@ import edu.agh.kboom.iga.adi.graph.solver.core.production._
 import org.apache.spark.graphx.Edge
 import org.apache.spark.serializer.KryoRegistrator
 
+import scala.reflect.ClassTag
+
 class IgaAdiKryoRegistrator extends KryoRegistrator {
 
   override def registerClasses(kryo: Kryo): Unit = {
@@ -13,6 +15,14 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       Class.forName("scala.reflect.ClassTag$$anon$1", false, loader),
       Class.forName("scala.reflect.ManifestFactory$$anon$10", false, loader),
       Class.forName("scala.reflect.ManifestFactory$$anon$9", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$8", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$7", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$6", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$5", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$4", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$3", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$2", false, loader),
+      Class.forName("scala.reflect.ManifestFactory$$anon$1", false, loader),
       Class.forName("org.apache.spark.graphx.util.collection.GraphXPrimitiveKeyOpenHashMap$mcJI$sp", false, loader),
       Class.forName("org.apache.spark.graphx.util.collection.GraphXPrimitiveKeyOpenHashMap$$anonfun$1", false, loader),
       Class.forName("org.apache.spark.graphx.util.collection.GraphXPrimitiveKeyOpenHashMap$$anonfun$2", false, loader),
@@ -27,8 +37,11 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
       BackwardsSubstituteBranch.getClass,
       BackwardsSubstituteInterim.getClass,
       classOf[scala.collection.mutable.WrappedArray.ofRef[_]],
-      classOf[java.lang.Class[_]]
+      classOf[java.lang.Class[_]],
+      classOf[java.lang.Object]
     ).foreach(kryo.register)
+
+    kryo.register(ClassTag(Class.forName("org.apache.spark.util.collection.CompactBuffer")).wrap.runtimeClass)
 
     OptionSerializers.register(kryo)
     BreezeSerializers.register(kryo)

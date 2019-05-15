@@ -51,13 +51,14 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
   private def initializeSurface(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
     val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
+    val provider = FromProblemValueProvider(problem)
 
     sc.parallelize(leafIndices.map((_, None)))
       .partitionBy(VertexPartitioner(sc.defaultParallelism, tree))
       .mapPartitions(_.map { case (idx, _) =>
         val vertex = Vertex.vertexOf(idx)
-        (idx, createElement(vertex, FromProblemValueProvider(problem))(ctx))
-      })
+        (idx, createElement(vertex, provider)(ctx))
+      }, preservesPartitioning = true)
   }
 
   private def projectSurface(ctx: IgaContext, ss: SplineSurface)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {

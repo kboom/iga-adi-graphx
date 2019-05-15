@@ -39,16 +39,15 @@ case class DirectionSolver(mesh: Mesh) {
 
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(edgesTemplate)
-        .partitionBy(partitioner)
-        .mapPartitions(_.map(_._2), preservesPartitioning = true)
+        .mapPartitions(_.map(_._2))
         .setName("Operation edges")
-        .persist(MEMORY_AND_DISK)
         .localCheckpoint()
 
     val vertices: RDD[(VertexId, IgaElement)] =
       sc.parallelize(vertexTemplate)
         .leftOuterJoin(initializer.leafData(ctx), partitioner)
         .setName("Vertices")
+        .repartition(sc.defaultParallelism)
         .mapPartitions(
           _.map { case (v, e) =>
             val vertex = Vertex.vertexOf(v)(problemTree)
@@ -56,7 +55,7 @@ case class DirectionSolver(mesh: Mesh) {
               .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
             (v, element)
           }, preservesPartitioning = true
-        ).persist(MEMORY_AND_DISK).localCheckpoint()
+        ).localCheckpoint()
 
     val vertexInitialisation = Future {
       vertices.count() // this has to be operation involving all partitions (not isEmpty which triggers just one which causes (at least) 2x speed degradation
@@ -78,9 +77,7 @@ case class DirectionSolver(mesh: Mesh) {
     ).partitionBy(IgaPartitioner(problemTree))
 
     val solvedGraph = execute(graph)(ctx)
-    val solutionRows = extractSolutionRows(problemTree, solvedGraph)
-      .persist(MEMORY_AND_DISK)
-      .localCheckpoint()
+    val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint()
 
     solutionRows.count()
 
