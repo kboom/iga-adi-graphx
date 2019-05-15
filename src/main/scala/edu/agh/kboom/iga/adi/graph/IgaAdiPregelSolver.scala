@@ -5,6 +5,7 @@ import edu.agh.kboom.iga.adi.graph.problems.{HeatTransferProblem, ProblemFactory
 import edu.agh.kboom.iga.adi.graph.solver._
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import org.apache.spark.graphx.GraphXUtils
+import org.apache.spark.streaming.api.java.JavaStreamingContext
 import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
 
@@ -22,7 +23,11 @@ object IgaAdiPregelSolver {
           .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
           .set("spark.kryo.registrator", "edu.agh.kboom.iga.adi.graph.serialization.IgaAdiKryoRegistrator")
           .set("spark.kryo.registrationRequired", "true")
-//          .set("spark.eventLog.dir", "file:///Users/kbhit/Downloads")
+          .setIfMissing("spark.kryo.unsafe", "true")
+          .setIfMissing("spark.cleaner.referenceTracking.blocking", "false")
+          .setIfMissing("spark.scheduler.minRegisteredResourcesRatio", "1.0")
+          .setIfMissing("spark.scheduler.maxRegisteredResourcesWaitingTime", "300s")
+//          .set("spark.eventLog.dir", "file:///tmp/data/logs")
 //          .set("spark.eventLog.enabled", "true")
       )
       .map(conf => {
@@ -30,8 +35,10 @@ object IgaAdiPregelSolver {
         conf
       })
       .map(conf => scfg.master.map(conf.setMaster).getOrElse(conf))
-      .map(conf => scfg.jars.map(conf.set("spark.jars", _)).getOrElse(conf))
+      .map(conf => scfg.jars.map(conf.setIfMissing("spark.jars", _)).getOrElse(conf))
+      .map(conf => conf.setJars(JavaStreamingContext.jarOfClass(getClass)))
       .map(new SparkContext(_)).get
+
 
 //    val checkpointPath = Paths.get(System.getenv("SPARK_YARN_STAGING_DIR"), "checkpoints").toString
 
