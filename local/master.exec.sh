@@ -1,2 +1,2 @@
 #!/bin/bash
-docker exec -it docker-spark_master_1 /bin/bash
+docker exec -it local_master_1 /bin/bash

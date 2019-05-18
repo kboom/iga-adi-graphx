@@ -47,7 +47,7 @@ case class DirectionSolver(mesh: Mesh) {
       sc.parallelize(vertexTemplate)
         .leftOuterJoin(initializer.leafData(ctx), partitioner)
         .setName("Vertices")
-        .repartition(sc.defaultParallelism)
+//        .repartition(sc.defaultParallelism)
         .mapPartitions(
           _.map { case (v, e) =>
             val vertex = Vertex.vertexOf(v)(problemTree)
