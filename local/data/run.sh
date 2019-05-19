@@ -14,7 +14,7 @@ spark-submit \
     --executor-cores $EXEC_CORES \
     --executor-memory $EXEC_MEMORY \
     --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:+UseCompressedOops -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:InitiatingHeapOccupancyPercent=0 -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=8 -XX:G1ReservePercent=10 -XX:G1HeapRegionSize=16m" \
-    --conf spark.driver.extraJavaOptions="-Dproblem.size=48 -XX:+UseCompressedOops -Dproblem.steps=1 -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:InitiatingHeapOccupancyPercent=0 -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=8 -XX:G1ReservePercent=10 -XX:G1HeapRegionSize=8m" \
+    --conf spark.driver.extraJavaOptions="-Dproblem.size=1536 -XX:+UseCompressedOops -Dproblem.steps=1 -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:InitiatingHeapOccupancyPercent=0 -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=8 -XX:G1ReservePercent=10 -XX:G1HeapRegionSize=8m" \
     --class edu.agh.kboom.iga.adi.graph.IgaAdiPregelSolver \
     --conf spark.default.parallelism=$(echo "$((${EXEC_CORES} * ${EXEC}))") \
     --conf spark.eventLog.enabled=true \
