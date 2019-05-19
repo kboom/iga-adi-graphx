@@ -60,7 +60,7 @@ case class DirectionSolver(mesh: Mesh) {
       defaultVertexAttr = null,
       edgeStorageLevel = MEMORY_AND_DISK,
       vertexStorageLevel = MEMORY_AND_DISK
-    ).partitionBy(IgaPartitioner(problemTree))
+    ).partitionBy(IgaPartitioner(problemTree)) // partitioner must be here
 
     val solvedGraph = execute(graph)(ctx)
     val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint()

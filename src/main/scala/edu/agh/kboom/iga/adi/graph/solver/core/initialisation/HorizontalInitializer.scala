@@ -54,7 +54,7 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     val provider = FromProblemValueProvider(problem)
 
     sc.parallelize(leafIndices.map((_, None)))
-      .partitionBy(VertexPartitioner(sc.defaultParallelism, tree))
+      .partitionBy(VertexPartitioner(sc.defaultParallelism, tree)) // this lets spark group the next operation under the same stage as the join from the calling class
       .mapPartitions(_.map { case (idx, _) =>
         val vertex = Vertex.vertexOf(idx)
         (idx, createElement(vertex, provider)(ctx))
