@@ -35,7 +35,7 @@ case class StepSolver(directionSolver: DirectionSolver) {
       SplineSurface.print(newProjection)
     }
 
-    transposedPartialSolution.m.unpersist(blocking = false)
+    transposedPartialSolution.m.unpersist()
 
     newProjection
   }

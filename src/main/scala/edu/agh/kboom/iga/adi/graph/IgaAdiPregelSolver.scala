@@ -13,10 +13,11 @@ object IgaAdiPregelSolver {
 
   private val Log = LoggerFactory.getLogger(IgaAdiPregelSolver.getClass)
 
+  private val InfiniteWait = "9999999999s"
+
   def main(args: Array[String]) {
     implicit val cfg: SolverConfig = SolverConfig.LoadedSolverConfig
     val scfg = cfg.spark
-
     implicit val sc = Some(new SparkConf())
       .map(
         _.setAppName("IGA ADI Pregel Solver")
@@ -26,8 +27,8 @@ object IgaAdiPregelSolver {
           .set("spark.kryo.unsafe", "true")
           .set("spark.cleaner.referenceTracking.blocking", "false")
           .set("spark.scheduler.minRegisteredResourcesRatio", "1.0")
-          .setIfMissing("spark.scheduler.maxRegisteredResourcesWaitingTime", "300s")
-          .set("spark.locality.wait", "9999999999s")
+          .setIfMissing("spark.scheduler.maxRegisteredResourcesWaitingTime", InfiniteWait)
+          .set("spark.locality.wait", InfiniteWait)
           .setIfMissing("spark.eventLog.enabled", "true")
           .setIfMissing("spark.eventLog.dir", s"file:///${System.getProperty("java.io.tmpdir")}")
       )

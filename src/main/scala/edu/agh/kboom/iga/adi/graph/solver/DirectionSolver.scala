@@ -1,8 +1,5 @@
 package edu.agh.kboom.iga.adi.graph.solver
 
-import java.util.concurrent.TimeUnit.DAYS
-import java.util.concurrent.{ExecutorService, Executors}
-
 import breeze.linalg.DenseVector
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.LeafInitializer
@@ -17,8 +14,6 @@ import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
 import org.slf4j.LoggerFactory
 
 import scala.collection.immutable
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutorService, Future}
 
 object DirectionSolver {
   private val Log = LoggerFactory.getLogger(classOf[IterativeSolver])
@@ -32,8 +27,6 @@ case class DirectionSolver(mesh: Mesh) {
   val vertexTemplate: immutable.IndexedSeq[(VertexId, None.type)] = (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
 
   def solve(ctx: IgaContext, initializer: LeafInitializer, rec: TimeRecorder)(implicit sc: SparkContext): SplineSurface = {
-    val pool: ExecutorService = Executors.newFixedThreadPool(2)
-    implicit val xc: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(pool)
     val problemTree = ctx.tree()
     val partitioner = VertexPartitioner(sc.defaultParallelism, problemTree)
 
@@ -47,7 +40,6 @@ case class DirectionSolver(mesh: Mesh) {
       sc.parallelize(vertexTemplate)
         .leftOuterJoin(initializer.leafData(ctx), partitioner)
         .setName("Vertices")
-        .repartition(sc.defaultParallelism)
         .mapPartitions(
           _.map { case (v, e) =>
             val vertex = Vertex.vertexOf(v)(problemTree)
@@ -57,14 +49,8 @@ case class DirectionSolver(mesh: Mesh) {
           }, preservesPartitioning = true
         ).localCheckpoint()
 
-    val vertexInitialisation = Future {
-      vertices.count() // this has to be operation involving all partitions (not isEmpty which triggers just one which causes (at least) 2x speed degradation
-    }
-    val edgeInitialisation = Future {
-      edges.count() // this has to be operation involving all partitions (not isEmpty which triggers just one which causes (at least) 2x speed degradation
-    }
-    Await.result(Future.sequence(Seq(vertexInitialisation, edgeInitialisation)), Duration(365, DAYS))
-    pool.shutdown()
+    vertices.count()
+    edges.count()
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
@@ -83,8 +69,8 @@ case class DirectionSolver(mesh: Mesh) {
 
     graph.unpersist(blocking = false)
     solvedGraph.unpersist(blocking = false)
-    vertices.unpersist(blocking = false)
     edges.unpersist(blocking = false)
+    vertices.unpersist(blocking = false)
     SplineSurface(solutionRows, mesh)
   }
 
