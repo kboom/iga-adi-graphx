@@ -6,6 +6,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
+import edu.agh.kboom.iga.adi.graph.spark.EvenlyDistributedRDD
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{HashPartitioner, SparkContext}
@@ -50,11 +51,11 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
 
   private def initializeSurface(ctx: IgaContext)(implicit sc: SparkContext): RDD[(VertexId, Element)] = {
     implicit val tree: ProblemTree = ctx.xTree()
-    val leafIndices = firstIndexOfLeafRow to lastIndexOfLeafRow
     val provider = FromProblemValueProvider(problem)
 
-    sc.parallelize(leafIndices.map((_, None)))
+    new EvenlyDistributedRDD(sc, firstIndexOfLeafRow, lastIndexOfLeafRow)
       .partitionBy(VertexPartitioner(sc.defaultParallelism, tree)) // this lets spark group the next operation under the same stage as the join from the calling class
+      .repartition(sc.defaultParallelism)
       .mapPartitions(_.map { case (idx, _) =>
         val vertex = Vertex.vertexOf(idx)
         (idx, createElement(vertex, provider)(ctx))

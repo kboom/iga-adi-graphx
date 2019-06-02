@@ -6,10 +6,12 @@ import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.LeafInitializer
 import edu.agh.kboom.iga.adi.graph.solver.core.production.{InitialMessage, ProductionMessage}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfBranchingRow, lastIndexOfBranchingRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{Element, IgaElement, ProblemTree, Vertex}
+import edu.agh.kboom.iga.adi.graph.spark.EvenlyDistributedRDD
 import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
 import org.slf4j.LoggerFactory
 
@@ -21,10 +23,10 @@ object DirectionSolver {
 
 case class DirectionSolver(mesh: Mesh) {
 
-  val edgesTemplate: Seq[(VertexId, Edge[IgaOperation])] = IgaTasks.generateOperations(ProblemTree(mesh.xSize))
-    .map(e => (e.src.id, Edge(e.src.id, e.dst.id, e)))
+  val edgesTemplate: Seq[Edge[IgaOperation]] = IgaTasks.generateOperations(ProblemTree(mesh.xSize))
+    .map(e => Edge(e.src.id, e.dst.id, e))
 
-  val vertexTemplate: immutable.IndexedSeq[(VertexId, None.type)] = (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
+//  val vertexTemplate: immutable.IndexedSeq[(VertexId, None.type)] = (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
 
   def solve(ctx: IgaContext, initializer: LeafInitializer, rec: TimeRecorder)(implicit sc: SparkContext): SplineSurface = {
     val problemTree = ctx.tree()
@@ -32,13 +34,18 @@ case class DirectionSolver(mesh: Mesh) {
 
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(edgesTemplate)
-        .mapPartitions(_.map(_._2))
         .setName("Operation edges")
-        .localCheckpoint()
+        .localCheckpoint() // this is pretty random
+
+    val init = initializer.leafData(ctx)
+      .persist(MEMORY_AND_DISK)
+      .localCheckpoint()
+
+    init.count()
 
     val vertices: RDD[(VertexId, IgaElement)] =
-      sc.parallelize(vertexTemplate)
-        .leftOuterJoin(initializer.leafData(ctx), partitioner)
+      new EvenlyDistributedRDD(sc, 1, mesh.totalNodes())
+        .leftOuterJoin(init, partitioner)
         .setName("Vertices")
         .mapPartitions(
           _.map { case (v, e) =>
@@ -54,13 +61,16 @@ case class DirectionSolver(mesh: Mesh) {
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
+//    val g = GraphImpl.fromExistingRDDs(vertices, edges)
+
     val graph = Graph(
       vertices = vertices,
       edges = edges,
       defaultVertexAttr = null,
       edgeStorageLevel = MEMORY_AND_DISK,
       vertexStorageLevel = MEMORY_AND_DISK
-    ).partitionBy(IgaPartitioner(problemTree)) // partitioner must be here
+    )
+      //.partitionBy(IgaPartitioner(problemTree)) // partitioner must be here, this is going to be random till we hit the partitioner
 
     val solvedGraph = execute(graph)(ctx)
     val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint()

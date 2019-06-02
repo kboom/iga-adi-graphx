@@ -2,7 +2,6 @@ package edu.agh.kboom.iga.adi.graph.serialization
 
 import com.esotericsoftware.kryo.Kryo
 import edu.agh.kboom.iga.adi.graph.solver.core.production._
-import org.apache.spark.graphx.Edge
 import org.apache.spark.serializer.KryoRegistrator
 
 import scala.reflect.ClassTag
@@ -49,7 +48,7 @@ class IgaAdiKryoRegistrator extends KryoRegistrator {
     ElementSerializer.register(kryo)
     IgaElementSerializer.register(kryo)
     IgaOperationSerializer.register(kryo)
-    IgaSerializers.register(kryo)
+    SparkSerializers.register(kryo)
     ProductionMessageSerializer.register(kryo)
   }
 }

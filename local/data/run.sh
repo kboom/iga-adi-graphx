@@ -29,3 +29,15 @@ spark-submit \
     --driver-java-options "-Dproblem.size=${PROBLEM_SIZE} ${JVM_OPTS} -XX:+UseCompressedOops -Dproblem.steps=1 -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:InitiatingHeapOccupancyPercent=0 -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=8 -XX:G1ReservePercent=10 -XX:G1HeapRegionSize=8m" \
     ${@} \
     iga-adi-graphx-assembly-0.1.0.jar #&> "${EXEC}-nodes-48-${EXEC_CORES}-${RUN}.txt"
+
+
+
+#    --conf spark.shuffle.file.buffer=128k \
+#    --conf spark.reducer.maxSizeInFlight=128k \
+#    --conf spark.memory.useLegacyMode=true \
+#    --conf spark.shuffle.memoryFraction=0.4 \
+#    --conf spark.storage.memoryFraction=0.4 \
+#    --conf spark.shuffle.consolidateFiles=true \
+#    --conf spark.reducer.maxMbInFlight=192 \
+#    --conf spark.cleaner.referenceTracking=false \
+#    --conf spark.files.useFetchCache=false \

@@ -27,8 +27,10 @@ object IgaAdiPregelSolver {
           .set("spark.kryo.unsafe", "true")
           .set("spark.cleaner.referenceTracking.blocking", "false")
           .set("spark.scheduler.minRegisteredResourcesRatio", "1.0")
-          .setIfMissing("spark.scheduler.maxRegisteredResourcesWaitingTime", InfiniteWait)
           .set("spark.locality.wait", InfiniteWait)
+          .setIfMissing("spark.scheduler.maxRegisteredResourcesWaitingTime", InfiniteWait)
+          .setIfMissing("spark.worker.cleanup.enabled", "true")
+          .setIfMissing("spark.deploy.spreadOut", "false") // align partitions next to each other, worker by worker rather than doing round robin
           .setIfMissing("spark.eventLog.enabled", "true")
           .setIfMissing("spark.eventLog.dir", s"file:///${System.getProperty("java.io.tmpdir")}")
       )
@@ -40,7 +42,6 @@ object IgaAdiPregelSolver {
       .map(conf => scfg.jars.map(conf.setIfMissing("spark.jars", _)).getOrElse(conf))
       .map(conf => conf.setJars(JavaStreamingContext.jarOfClass(getClass)))
       .map(new SparkContext(_)).get
-
 
 //    val checkpointPath = Paths.get(System.getenv("SPARK_YARN_STAGING_DIR"), "checkpoints").toString
 
