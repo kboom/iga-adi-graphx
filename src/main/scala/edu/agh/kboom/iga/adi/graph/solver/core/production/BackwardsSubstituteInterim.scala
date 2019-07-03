@@ -4,6 +4,8 @@ import edu.agh.kboom.iga.adi.graph.solver.core.MatrixX.MatrixX
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD, Vertex}
 import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixFactory}
 
+import scala.annotation.switch
+
 sealed case class BackwardsSubstituteInterimMessage(cx: MatrixX) extends ProductionMessage {
   override val production: Production = BackwardsSubstituteInterim
 }
@@ -18,7 +20,7 @@ case object BackwardsSubstituteInterim extends Production
     swapDofs(0, 2, 6)(copiedElement)
     swapDofs(1, 3, 6)(copiedElement)
 
-    Vertex.childPositionOf(dst.v)(ctx.tree) match {
+    (Vertex.childPositionOf(dst.v)(ctx.tree): @switch) match {
       case LEFT_CHILD => Some(BackwardsSubstituteInterimMessage(
         MatrixFactory.ofDim(copiedElement.mX) {
           _ (2 to -1, ::) += copiedElement.mX(0 until 4, ::)

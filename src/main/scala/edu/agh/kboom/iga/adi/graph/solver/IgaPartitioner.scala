@@ -5,6 +5,8 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.{ProblemTree, Vertex}
 import org.apache.spark.Partitioner
 import org.apache.spark.graphx.{PartitionID, PartitionStrategy, VertexId}
 
+import scala.annotation.switch
+
 
 /**
   * Collocates edges with same destination vertices.
@@ -12,13 +14,11 @@ import org.apache.spark.graphx.{PartitionID, PartitionStrategy, VertexId}
 case class IgaPartitioner(tree: ProblemTree) extends PartitionStrategy {
   val mixingPrime: VertexId = 1125899906842597L
 
-  override def getPartition(src: VertexId, dst: VertexId, numParts: PartitionID): PartitionID = {
-    if (src > dst) {
-      IgaPartitioner.partitionFor(dst, numParts)(tree)
-    } else {
-      IgaPartitioner.partitionFor(src, numParts)(tree)
+  override def getPartition(src: VertexId, dst: VertexId, numParts: PartitionID): PartitionID =
+    (src - dst: @switch) match {
+      case x if x > 0 => IgaPartitioner.partitionFor(dst, numParts)(tree)
+      case _ => IgaPartitioner.partitionFor(src, numParts)(tree)
     }
-  }
 }
 
 case class VertexPartitioner(numPartitions: Int, tree: ProblemTree) extends Partitioner {

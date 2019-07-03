@@ -100,14 +100,12 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     implicit val problemTree: ProblemTree = ctx.tree()
     implicit val mesh: Mesh = ctx.mesh
 
-    @switch
     val left = (r: @switch) match {
       case 0 => GaussPoint.S31
       case 1 => GaussPoint.S21
       case 2 => GaussPoint.S11
     }
 
-    @switch
     val center = (r: @switch) match {
       case 0 => GaussPoint.S32
       case 1 => GaussPoint.S22

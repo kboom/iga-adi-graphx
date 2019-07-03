@@ -6,6 +6,8 @@ import edu.agh.kboom.iga.adi.graph.solver.core.tree.Vertex.childPositionOf
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{IgaElement, LEFT_CHILD, RIGHT_CHILD}
 import edu.agh.kboom.iga.adi.graph.solver.core.{IgaTaskContext, MatrixFactory}
 
+import scala.annotation.switch
+
 sealed case class MergeAndEliminateRootMessage(ca: MatrixA, cb: MatrixB) extends ProductionMessage {
   override val production: Production = MergeAndEliminateRoot
 }
@@ -14,7 +16,7 @@ case object MergeAndEliminateRoot extends Production
   with BaseProduction[MergeAndEliminateRootMessage]
   with MergingProduction[MergeAndEliminateRootMessage] {
 
-  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateRootMessage] = childPositionOf(src.v)(ctx.tree) match {
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateRootMessage] = (childPositionOf(src.v)(ctx.tree): @switch) match {
     case LEFT_CHILD => Some(MergeAndEliminateRootMessage(
       MatrixFactory.ofDim(src.mA) {
         _ (0 until 4, 0 until 4) += src.mA(2 until 6, 2 until 6)
