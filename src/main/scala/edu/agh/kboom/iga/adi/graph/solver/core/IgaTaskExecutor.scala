@@ -11,7 +11,7 @@ object IgaTaskExecutor {
 
   val LoggingConfig = LoadedSolverConfig.logging
 
-  def sendMessage(op: IgaOperation)(src: IgaElement, dst: IgaElement)(implicit taskCtx: IgaTaskContext): Option[ProductionMessage] = {
+  def sendMessage(op: IgaOperation)(src: IgaElement, dst: IgaElement)(implicit taskCtx: IgaTaskContext): ProductionMessage = {
     if (LoggingConfig.operations) {
       Log.trace(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Determining messages")
     }
@@ -20,9 +20,7 @@ object IgaTaskExecutor {
         Log.info(s"[$taskCtx] ${op.p}: (${op.src})/(${src.p}) => (${op.dst})/(${dst.p}): Sending messages")
       }
       op.p.asInstanceOf[BaseProduction[ProductionMessage]].emit(src, dst)
-    } else {
-      None
-    }
+    } else null
   }
 
   def mergeMessages(a: ProductionMessage, b: ProductionMessage): ProductionMessage = {

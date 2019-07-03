@@ -16,23 +16,23 @@ sealed case class BackwardsSubstituteBranchMessage(cx: MatrixX) extends Producti
 case object BackwardsSubstituteBranch extends Production
   with BaseProduction[BackwardsSubstituteBranchMessage] {
 
-  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteBranchMessage] = {
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): BackwardsSubstituteBranchMessage = {
     val copiedSource = IgaElement.copy(src)
     partialBackwardsSubstitution(2, 6)(copiedSource)
     swapDofs(0, 2, 6)(copiedSource)
     swapDofs(1, 3, 6)(copiedSource)
 
     (Vertex.childPositionOf(dst.v)(ctx.tree): @switch) match {
-      case LEFT_CHILD => Some(BackwardsSubstituteBranchMessage(
+      case LEFT_CHILD => BackwardsSubstituteBranchMessage(
         MatrixFactory.ofDim(copiedSource.mX) {
           _ (1 until 5, ::) += copiedSource.mX(0 until 4, ::)
         }
-      ))
-      case RIGHT_CHILD => Some(BackwardsSubstituteBranchMessage(
+      )
+      case RIGHT_CHILD => BackwardsSubstituteBranchMessage(
         MatrixFactory.ofDim(copiedSource.mX) {
           _ (1 until 5, ::) += copiedSource.mX(2 until 6, ::)
         }
-      ))
+      )
     }
   }
 

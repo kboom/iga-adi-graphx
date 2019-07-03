@@ -13,18 +13,18 @@ sealed case class BackwardsSubstituteRootMessage(cx: MatrixX) extends Production
 case object BackwardsSubstituteRoot extends Production
   with BaseProduction[BackwardsSubstituteRootMessage] {
 
-  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[BackwardsSubstituteRootMessage] = {
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): BackwardsSubstituteRootMessage = {
     (Vertex.childPositionOf(dst.v)(ctx.tree): @switch) match {
-      case LEFT_CHILD => Some(BackwardsSubstituteRootMessage(
+      case LEFT_CHILD => BackwardsSubstituteRootMessage(
         MatrixFactory.ofDim(src.mX) {
           _ (2 to -1, ::) += src.mX(0 until 4, ::)
         }
-      ))
-      case RIGHT_CHILD => Some(BackwardsSubstituteRootMessage(
+      )
+      case RIGHT_CHILD => BackwardsSubstituteRootMessage(
         MatrixFactory.ofDim(src.mX) {
           _ (2 to -1, ::) += src.mX(2 until 6, ::)
         }
-      ))
+      )
     }
   }
 

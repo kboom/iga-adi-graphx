@@ -26,11 +26,11 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(null)
       }
 
       "emits A" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).ca should equal(
           fromVector(6, 6)(
             0.0, 0.01, 0.02, 0.0, 0.0, 0.0,
             1.0, 1.01, 1.02, 0.0, 0.0, 0.0,
@@ -43,7 +43,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits B" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).cb should equal(
           fromVector(6, 14)(
             0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13,
             1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13,
@@ -65,11 +65,11 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(null)
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).ca should equal(
           fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.01, +00.02, +00.00, +00.00,
@@ -82,7 +82,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).cb should equal(
           fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.01, +00.02, +00.03, +00.04, +00.05, +00.06, +00.07, +00.08, +00.09, +00.10, +00.11, +00.12, +00.13,
@@ -103,11 +103,11 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateLeaf.emit(srcElement, dstElement) shouldNot be(null)
       }
 
       "emits matrix A translated by 2,2" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.ca).get should equal(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).ca should equal(
           fromVector(6, 6)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
@@ -120,7 +120,7 @@ class MergeAndEliminateLeafTest extends SubjectSpec
       }
 
       "emits matrix B translated by two rows" in {
-        MergeAndEliminateLeaf.emit(srcElement, dstElement).map(_.cb).get should be(
+        MergeAndEliminateLeaf.emit(srcElement, dstElement).cb should be(
           fromVector(6, 14)(
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
             +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,

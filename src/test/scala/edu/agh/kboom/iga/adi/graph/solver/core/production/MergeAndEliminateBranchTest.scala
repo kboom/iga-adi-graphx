@@ -3,7 +3,7 @@ package edu.agh.kboom.iga.adi.graph.solver.core.production
 import edu.agh.kboom.ElementUtils.elementBoundTo
 import edu.agh.kboom.MatrixUtils._
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.{BranchVertex, InterimVertex}
-import edu.agh.kboom.{DummyProblem, MatrixColors, MatrixUtils, SubjectSpec}
+import edu.agh.kboom.{DummyProblem, MatrixColors, SubjectSpec}
 
 class MergeAndEliminateBranchTest extends SubjectSpec
   with DummyProblem
@@ -25,11 +25,11 @@ class MergeAndEliminateBranchTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateBranch.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateBranch.emit(srcElement, dstElement) shouldNot be(null)
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateBranch.emit(srcElement, dstElement).map(_.ca).get shouldBe fromVector(6, 6)(
+        MergeAndEliminateBranch.emit(srcElement, dstElement).ca shouldBe fromVector(6, 6)(
           +01.01, +01.02, +01.03, +01.04, +00.00, +00.00,
           +02.01, +02.02, +02.03, +02.04, +00.00, +00.00,
           +03.01, +03.02, +03.03, +03.04, +00.00, +00.00,
@@ -40,7 +40,7 @@ class MergeAndEliminateBranchTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateBranch.emit(srcElement, dstElement).map(_.cb).get shouldBe fromVector(6, 14)(
+        MergeAndEliminateBranch.emit(srcElement, dstElement).cb shouldBe fromVector(6, 14)(
           +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,
           +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
           +03.00, +03.01, +03.02, +03.03, +03.04, +03.05, +03.06, +03.07, +03.08, +03.09, +03.10, +03.11, +03.12, +03.13,
@@ -59,11 +59,11 @@ class MergeAndEliminateBranchTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateBranch.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateBranch.emit(srcElement, dstElement) shouldNot be(null)
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateBranch.emit(srcElement, dstElement).map(_.ca).get shouldBe fromVector(6, 6)(
+        MergeAndEliminateBranch.emit(srcElement, dstElement).ca shouldBe fromVector(6, 6)(
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +01.01, +01.02, +01.03, +01.04,
@@ -74,7 +74,7 @@ class MergeAndEliminateBranchTest extends SubjectSpec
       }
 
       "emits matrix B translated by two rows" in {
-        MergeAndEliminateBranch.emit(srcElement, dstElement).map(_.cb).get shouldBe fromVector(6, 14)(
+        MergeAndEliminateBranch.emit(srcElement, dstElement).cb shouldBe fromVector(6, 14)(
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +01.00, +01.01, +01.02, +01.03, +01.04, +01.05, +01.06, +01.07, +01.08, +01.09, +01.10, +01.11, +01.12, +01.13,

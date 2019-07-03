@@ -11,7 +11,9 @@ sealed case class VertexProgram(ctx: IgaContext)
 object VertexProgram {
   def sendMsg(t: EdgeTriplet[IgaElement, IgaOperation])(implicit program: VertexProgram): Iterator[(VertexId, ProductionMessage)] = {
     implicit val taskCtx: IgaTaskContext = IgaTaskContext.create(t.srcId)
-    IgaTaskExecutor.sendMessage(t.attr)(t.srcAttr, t.dstAttr).map((t.dstId, _)).iterator
+    val msg = IgaTaskExecutor.sendMessage(t.attr)(t.srcAttr, t.dstAttr)
+    if (msg != null) Seq((t.dstId, msg)).iterator
+    else Iterator.empty
   }
 
   def mergeMsg(a: ProductionMessage, b: ProductionMessage)(implicit program: VertexProgram): ProductionMessage =

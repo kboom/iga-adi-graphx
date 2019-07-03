@@ -16,23 +16,23 @@ case object MergeAndEliminateInterim extends Production
   with BaseProduction[MergeAndEliminateInterimMessage]
   with MergingProduction[MergeAndEliminateInterimMessage] {
 
-  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateInterimMessage] = (childPositionOf(src.v)(ctx.tree): @switch) match {
-    case LEFT_CHILD => Some(MergeAndEliminateInterimMessage(
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): MergeAndEliminateInterimMessage = (childPositionOf(src.v)(ctx.tree): @switch) match {
+    case LEFT_CHILD => MergeAndEliminateInterimMessage(
       MatrixFactory.ofDim(src.mA) {
         _ (0 until 4, 0 until 4) += src.mA(2 until 6, 2 until 6)
       },
       MatrixFactory.ofDim(src.mB) {
         _ (0 until 4, ::) += src.mB(2 until 6, ::)
       }
-    ))
-    case RIGHT_CHILD => Some(MergeAndEliminateInterimMessage(
+    )
+    case RIGHT_CHILD => MergeAndEliminateInterimMessage(
       MatrixFactory.ofDim(src.mA) {
         _ (2 until 6, 2 until 6) += src.mA(2 until 6, 2 until 6)
       },
       MatrixFactory.ofDim(src.mB) {
         _ (2 until 6, ::) += src.mB(2 until 6, ::)
       }
-    ))
+    )
   }
 
   override def merge(a: MergeAndEliminateInterimMessage, b: MergeAndEliminateInterimMessage): MergeAndEliminateInterimMessage = MergeAndEliminateInterimMessage(

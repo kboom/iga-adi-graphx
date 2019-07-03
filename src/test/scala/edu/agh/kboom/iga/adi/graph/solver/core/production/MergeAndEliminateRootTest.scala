@@ -25,11 +25,11 @@ class MergeAndEliminateRootTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateRoot.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateRoot.emit(srcElement, dstElement) shouldNot be(null)
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateRoot.emit(srcElement, dstElement).map(_.ca).get shouldBe fromVector(6, 6)(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).ca shouldBe fromVector(6, 6)(
           +02.02, +02.03, +02.04, +02.05, +00.00, +00.00,
           +03.02, +03.03, +03.04, +03.05, +00.00, +00.00,
           +04.02, +04.03, +04.04, +04.05, +00.00, +00.00,
@@ -40,7 +40,7 @@ class MergeAndEliminateRootTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateRoot.emit(srcElement, dstElement).map(_.cb).get shouldBe fromVector(6, 14)(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).cb shouldBe fromVector(6, 14)(
           +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,
           +03.00, +03.01, +03.02, +03.03, +03.04, +03.05, +03.06, +03.07, +03.08, +03.09, +03.10, +03.11, +03.12, +03.13,
           +04.00, +04.01, +04.02, +04.03, +04.04, +04.05, +04.06, +04.07, +04.08, +04.09, +04.10, +04.11, +04.12, +04.13,
@@ -59,11 +59,11 @@ class MergeAndEliminateRootTest extends SubjectSpec
       )
 
       "is not empty" in {
-        MergeAndEliminateRoot.emit(srcElement, dstElement) shouldNot be(empty)
+        MergeAndEliminateRoot.emit(srcElement, dstElement) shouldNot be(null)
       }
 
       "emits matrix A translated by 1,1" in {
-        MergeAndEliminateRoot.emit(srcElement, dstElement).map(_.ca).get shouldBe fromVector(6, 6)(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).ca shouldBe fromVector(6, 6)(
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +02.02, +02.03, +02.04, +02.05,
@@ -74,7 +74,7 @@ class MergeAndEliminateRootTest extends SubjectSpec
       }
 
       "emits matrix B translated by one row" in {
-        MergeAndEliminateRoot.emit(srcElement, dstElement).map(_.cb).get shouldBe fromVector(6, 14)(
+        MergeAndEliminateRoot.emit(srcElement, dstElement).cb shouldBe fromVector(6, 14)(
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00, +00.00,
           +02.00, +02.01, +02.02, +02.03, +02.04, +02.05, +02.06, +02.07, +02.08, +02.09, +02.10, +02.11, +02.12, +02.13,

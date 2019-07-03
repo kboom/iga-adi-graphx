@@ -20,31 +20,31 @@ case object MergeAndEliminateLeaf extends Production
   with BaseProduction[MergeAndEliminateLeafMessage]
   with MergingProduction[MergeAndEliminateLeafMessage] {
 
-  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): Option[MergeAndEliminateLeafMessage] = (childPositionOf(src.v)(ctx.tree): @switch) match {
-    case LEFT_CHILD => Some(MergeAndEliminateLeafMessage(
+  override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): MergeAndEliminateLeafMessage = (childPositionOf(src.v)(ctx.tree): @switch) match {
+    case LEFT_CHILD => MergeAndEliminateLeafMessage(
       ofDim(src.mA) {
         _ (0 until 3, 0 until 3) += src.mA(0 until 3, 0 until 3)
       },
       ofDim(src.mB) {
         _ (0 until 3, ::) += src.mB(0 until 3, ::)
       }
-    ))
-    case MIDDLE_CHILD => Some(MergeAndEliminateLeafMessage(
+    )
+    case MIDDLE_CHILD => MergeAndEliminateLeafMessage(
       ofDim(src.mA) {
         _ (1 until 4, 1 until 4) += src.mA(0 until 3, 0 until 3)
       },
       ofDim(src.mB) {
         _ (1 until 4, ::) += src.mB(0 until 3, ::)
       }
-    ))
-    case RIGHT_CHILD => Some(MergeAndEliminateLeafMessage(
+    )
+    case RIGHT_CHILD => MergeAndEliminateLeafMessage(
       ofDim(src.mA) {
         _ (2 until 5, 2 until 5) += src.mA(0 until 3, 0 until 3)
       },
       ofDim(src.mB) {
         _ (2 until 5, ::) += src.mB(0 until 3, ::)
       }
-    ))
+    )
   }
 
   override def merge(a: MergeAndEliminateLeafMessage, b: MergeAndEliminateLeafMessage): MergeAndEliminateLeafMessage = MergeAndEliminateLeafMessage(
