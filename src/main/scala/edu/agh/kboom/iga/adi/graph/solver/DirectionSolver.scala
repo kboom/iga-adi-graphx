@@ -11,11 +11,8 @@ import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel
-import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
+import org.apache.spark.storage.StorageLevel.{MEMORY_AND_DISK, MEMORY_ONLY}
 import org.slf4j.LoggerFactory
-
-import scala.collection.immutable
 
 object DirectionSolver {
   private val Log = LoggerFactory.getLogger(classOf[IterativeSolver])
@@ -67,8 +64,8 @@ case class DirectionSolver(mesh: Mesh) {
       vertices = vertices,
       edges = edges,
       defaultVertexAttr = null,
-      edgeStorageLevel = MEMORY_AND_DISK,
-      vertexStorageLevel = MEMORY_AND_DISK
+      edgeStorageLevel = MEMORY_ONLY,
+      vertexStorageLevel = MEMORY_ONLY
     )
       //.partitionBy(IgaPartitioner(problemTree)) // partitioner must be here, this is going to be random till we hit the partitioner
 

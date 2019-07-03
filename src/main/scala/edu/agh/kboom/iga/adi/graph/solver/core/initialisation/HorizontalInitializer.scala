@@ -1,15 +1,17 @@
 package edu.agh.kboom.iga.adi.graph.solver.core.initialisation
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import edu.agh.kboom.iga.adi.graph.solver.{IgaContext, VertexPartitioner}
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.HorizontalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree.ProblemTree.{firstIndexOfLeafRow, lastIndexOfLeafRow}
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
+import edu.agh.kboom.iga.adi.graph.solver.{IgaContext, VertexPartitioner}
 import edu.agh.kboom.iga.adi.graph.spark.EvenlyDistributedRDD
+import org.apache.spark.SparkContext
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.rdd.RDD
-import org.apache.spark.{HashPartitioner, SparkContext}
+
+import scala.annotation.switch
 
 sealed trait ValueProvider {
   def valueAt(i: Double, j: Double): Double
@@ -98,20 +100,21 @@ case class HorizontalInitializer(surface: Surface, problem: Problem) extends Lea
     implicit val problemTree: ProblemTree = ctx.tree()
     implicit val mesh: Mesh = ctx.mesh
 
-
-    val left = r match {
+    @switch
+    val left = (r: @switch) match {
       case 0 => GaussPoint.S31
       case 1 => GaussPoint.S21
       case 2 => GaussPoint.S11
     }
 
-    val center = r match {
+    @switch
+    val center = (r: @switch) match {
       case 0 => GaussPoint.S32
       case 1 => GaussPoint.S22
       case 2 => GaussPoint.S12
     }
 
-    val right = r match {
+    val right = (r: @switch) match {
       case 0 => GaussPoint.S33
       case 1 => GaussPoint.S23
       case 2 => GaussPoint.S13
