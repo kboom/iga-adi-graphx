@@ -16,21 +16,24 @@ case object MergeAndEliminateRoot extends Production
   with BaseProduction[MergeAndEliminateRootMessage]
   with MergingProduction[MergeAndEliminateRootMessage] {
 
+  private val r0u4 = 0 until 4
+  private val r2u6 = 2 until 6
+
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): MergeAndEliminateRootMessage = (childPositionOf(src.v)(ctx.tree): @switch) match {
     case LEFT_CHILD => MergeAndEliminateRootMessage(
       MatrixFactory.ofDim(src.mA) {
-        _ (0 until 4, 0 until 4) += src.mA(2 until 6, 2 until 6)
+        _ (r0u4, r0u4) += src.mA(r2u6, r2u6)
       },
       MatrixFactory.ofDim(src.mB) {
-        _ (0 until 4, ::) += src.mB(2 until 6, ::)
+        _ (r0u4, ::) += src.mB(r2u6, ::)
       }
     )
     case RIGHT_CHILD => MergeAndEliminateRootMessage(
       MatrixFactory.ofDim(src.mA) {
-        _ (2 until 6, 2 until 6) += src.mA(2 until 6, 2 until 6)
+        _ (r2u6, r2u6) += src.mA(r2u6, r2u6)
       },
       MatrixFactory.ofDim(src.mB) {
-        _ (2 until 6, ::) += src.mB(2 until 6, ::)
+        _ (r2u6, ::) += src.mB(r2u6, ::)
       }
     )
   }

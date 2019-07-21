@@ -67,7 +67,7 @@ case class DirectionSolver(mesh: Mesh) {
       edgeStorageLevel = MEMORY_ONLY,
       vertexStorageLevel = MEMORY_ONLY
     )
-      //.partitionBy(IgaPartitioner(problemTree)) // partitioner must be here, this is going to be random till we hit the partitioner
+//      .partitionBy(IgaPartitioner(problemTree)) // partitioner must be here, this is going to be random till we hit the partitioner
 
     val solvedGraph = execute(graph)(ctx)
     val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint()

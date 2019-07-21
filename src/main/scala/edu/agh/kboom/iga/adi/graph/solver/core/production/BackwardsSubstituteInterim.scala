@@ -13,6 +13,10 @@ sealed case class BackwardsSubstituteInterimMessage(cx: MatrixX) extends Product
 case object BackwardsSubstituteInterim extends Production
   with BaseProduction[BackwardsSubstituteInterimMessage] {
 
+  private val r2tom1 = 2 to -1
+  private val r0u4 = 0 until 4
+  private val r2u6 = 2 until 6
+
   override def emit(src: IgaElement, dst: IgaElement)(implicit ctx: IgaTaskContext): BackwardsSubstituteInterimMessage = {
     val copiedElement = IgaElement.copy(src)
 
@@ -23,12 +27,12 @@ case object BackwardsSubstituteInterim extends Production
     (Vertex.childPositionOf(dst.v)(ctx.tree): @switch) match {
       case LEFT_CHILD => BackwardsSubstituteInterimMessage(
         MatrixFactory.ofDim(copiedElement.mX) {
-          _ (2 to -1, ::) += copiedElement.mX(0 until 4, ::)
+          _ (r2tom1, ::) += copiedElement.mX(r0u4, ::)
         }
       )
       case RIGHT_CHILD => BackwardsSubstituteInterimMessage(
         MatrixFactory.ofDim(copiedElement.mX) {
-          _ (2 to -1, ::) += copiedElement.mX(2 until 6, ::)
+          _ (r2tom1, ::) += copiedElement.mX(r2u6, ::)
         }
       )
     }

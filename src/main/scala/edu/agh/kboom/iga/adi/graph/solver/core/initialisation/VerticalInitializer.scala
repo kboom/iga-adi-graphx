@@ -5,7 +5,7 @@ import edu.agh.kboom.iga.adi.graph.solver.IgaContext
 import edu.agh.kboom.iga.adi.graph.solver.core._
 import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.VerticalInitializer.collocate
 import edu.agh.kboom.iga.adi.graph.solver.core.tree._
-import org.apache.spark.{HashPartitioner, SparkContext}
+import org.apache.spark.SparkContext
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.rdd.RDD
 

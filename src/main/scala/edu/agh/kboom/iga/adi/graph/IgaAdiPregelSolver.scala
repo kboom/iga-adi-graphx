@@ -32,7 +32,7 @@ object IgaAdiPregelSolver {
           .setIfMissing("spark.worker.cleanup.enabled", "true")
           .setIfMissing("spark.deploy.spreadOut", "false") // align partitions next to each other, worker by worker rather than doing round robin
           .setIfMissing("spark.eventLog.enabled", "true")
-          .setIfMissing("spark.eventLog.dir", s"file:///${System.getProperty("java.io.tmpdir")}")
+          .setIfMissing("spark.eventLog.dir", s"file:///${System.getProperty("sparklogs", System.getProperty("java.io.tmpdir"))}")
       )
       .map(conf => {
         GraphXUtils.registerKryoClasses(conf)
