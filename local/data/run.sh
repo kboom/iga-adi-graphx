@@ -30,6 +30,7 @@ spark-submit \
     --conf spark.default.parallelism=$(echo "$((${EXEC_CORES} * ${EXEC}))") \
     --conf spark.eventLog.enabled=true \
     --conf spark.eventLog.dir=/tmp/data/logs \
+    --conf spark.memory.offHeap.size=500mb \
     --driver-java-options "-Dproblem.size=${PROBLEM_SIZE} -Dproblem.steps=${PROBLEM_STEPS} -Dsparklogs=/tmp/data ${JVM_OPTS}" \
     ${@} \
     iga-adi-graphx-assembly-0.1.0.jar #&> "${EXEC}-nodes-48-${EXEC_CORES}-${RUN}.txt"
