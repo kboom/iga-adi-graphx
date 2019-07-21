@@ -11,7 +11,7 @@ import edu.agh.kboom.iga.adi.graph.{TimeEvent, TimeRecorder, VertexProgram}
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{Edge, EdgeDirection, Graph, VertexId}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel.{MEMORY_AND_DISK, MEMORY_ONLY}
+import org.apache.spark.storage.StorageLevel.OFF_HEAP
 import org.slf4j.LoggerFactory
 
 object DirectionSolver {
@@ -31,11 +31,12 @@ case class DirectionSolver(mesh: Mesh) {
 
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(edgesTemplate)
+        .persist(OFF_HEAP)
         .setName("Operation edges")
         .localCheckpoint() // this is pretty random
 
     val init = initializer.leafData(ctx)
-      .persist(MEMORY_AND_DISK)
+      .persist(OFF_HEAP)
       .localCheckpoint()
 
     init.count()
@@ -64,8 +65,8 @@ case class DirectionSolver(mesh: Mesh) {
       vertices = vertices,
       edges = edges,
       defaultVertexAttr = null,
-      edgeStorageLevel = MEMORY_ONLY,
-      vertexStorageLevel = MEMORY_ONLY
+      edgeStorageLevel = OFF_HEAP,
+      vertexStorageLevel = OFF_HEAP
     )
 //      .partitionBy(IgaPartitioner(problemTree)) // partitioner must be here, this is going to be random till we hit the partitioner
 

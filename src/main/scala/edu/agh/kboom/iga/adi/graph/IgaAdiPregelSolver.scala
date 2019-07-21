@@ -28,6 +28,17 @@ object IgaAdiPregelSolver {
           .set("spark.cleaner.referenceTracking.blocking", "false")
           .set("spark.scheduler.minRegisteredResourcesRatio", "1.0")
           .set("spark.locality.wait", InfiniteWait)
+          .set("spark.storage.memoryFraction", "0")
+          .set("spark.memory.offHeap.enabled", "true")
+          .set("spark.memory.offHeap.size", "5g")
+//          .set("spark.unsafe.sorter.spill.reader.buffer.size", "1MB")
+//          .set("spark.shuffle.unsafe.file.output.buffer", "5MB")
+//          .set("spark.io.compression.lz4.blockSize", "4KB")
+//          .set("spark.file.transferTo", "false")
+//          .set("spark.shuffle.file.buffer", "32k")
+          //.set("spark.reducer.maxSizeInFlight", "32k") // interesting as the reduce is the slowest...
+//          .set("spark.shuffle.service.index.cache.size", "2048")
+          //.set("spark.kryo.referenceTracking", "false") // would fail
           .setIfMissing("spark.scheduler.maxRegisteredResourcesWaitingTime", InfiniteWait)
           .setIfMissing("spark.worker.cleanup.enabled", "true")
           .setIfMissing("spark.deploy.spreadOut", "false") // align partitions next to each other, worker by worker rather than doing round robin
@@ -42,6 +53,7 @@ object IgaAdiPregelSolver {
       .map(conf => scfg.jars.map(conf.setIfMissing("spark.jars", _)).getOrElse(conf))
       .map(conf => conf.setJars(JavaStreamingContext.jarOfClass(getClass)))
       .map(new SparkContext(_)).get
+
 
 //    val checkpointPath = Paths.get(System.getenv("SPARK_YARN_STAGING_DIR"), "checkpoints").toString
 
