@@ -1,3 +1,0 @@
-= Observations
-
-* Changing the number of tasks to be 2x or 3x destroys the distribution uniformity

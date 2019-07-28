@@ -11,7 +11,7 @@ unmanagedResourceDirectories in Test += baseDirectory.value / "conf"
 fork := true
 parallelExecution in Test := false
 
-val sparkVersion = "2.4.0"
+val sparkVersion = "2.4.3"
 val scalaTestVersion = "3.0.5"
 val scalaCheckVersion = "1.13.4"
 val pureConfigVersion = "0.10.1"

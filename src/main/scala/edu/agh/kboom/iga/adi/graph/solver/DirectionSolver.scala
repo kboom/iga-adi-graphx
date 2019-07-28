@@ -23,7 +23,7 @@ case class DirectionSolver(mesh: Mesh) {
   val edgesTemplate: Seq[Edge[IgaOperation]] = IgaTasks.generateOperations(ProblemTree(mesh.xSize))
     .map(e => Edge(e.src.id, e.dst.id, e))
 
-//  val vertexTemplate: immutable.IndexedSeq[(VertexId, None.type)] = (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
+  //  val vertexTemplate: immutable.IndexedSeq[(VertexId, None.type)] = (1 to mesh.totalNodes).map(x => (x.asInstanceOf[VertexId], None))
 
   def solve(ctx: IgaContext, initializer: LeafInitializer, rec: TimeRecorder)(implicit sc: SparkContext): SplineSurface = {
     val problemTree = ctx.tree()
@@ -31,15 +31,11 @@ case class DirectionSolver(mesh: Mesh) {
 
     val edges: RDD[Edge[IgaOperation]] =
       sc.parallelize(edgesTemplate)
-        .persist(OFF_HEAP)
         .setName("Operation edges")
-        .localCheckpoint() // this is pretty random
+        .persist(OFF_HEAP)
 
     val init = initializer.leafData(ctx)
       .persist(OFF_HEAP)
-      .localCheckpoint()
-
-    init.count()
 
     val vertices: RDD[(VertexId, IgaElement)] =
       new EvenlyDistributedRDD(sc, 1, mesh.totalNodes())
@@ -52,14 +48,14 @@ case class DirectionSolver(mesh: Mesh) {
               .getOrElse(IgaElement(vertex, Element.createForX(mesh)))
             (v, element)
           }, preservesPartitioning = true
-        ).localCheckpoint()
+        ).persist(OFF_HEAP)
 
     vertices.count()
     edges.count()
 
     rec.record(TimeEvent.initialized(ctx.direction))
 
-//    val g = GraphImpl.fromExistingRDDs(vertices, edges)
+    //    val g = GraphImpl.fromExistingRDDs(vertices, edges)
 
     val graph = Graph(
       vertices = vertices,
@@ -67,10 +63,14 @@ case class DirectionSolver(mesh: Mesh) {
       defaultVertexAttr = null,
       edgeStorageLevel = OFF_HEAP,
       vertexStorageLevel = OFF_HEAP
-    ).partitionBy(IgaPartitioner(problemTree)) // partitioner must be here, this is going to be random till we hit the partitioner
+    )
+
+    //.partitionBy(IgaPartitioner(problemTree)) // partitioner must be here, this is going to be random till we hit the partitioner
 
     val solvedGraph = execute(graph)(ctx)
-    val solutionRows = extractSolutionRows(problemTree, solvedGraph).localCheckpoint()
+    val solutionRows = extractSolutionRows(problemTree, solvedGraph)
+      .persist(OFF_HEAP)
+      .localCheckpoint()
 
     solutionRows.count()
 

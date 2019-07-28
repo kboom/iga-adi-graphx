@@ -8,6 +8,7 @@ import edu.agh.kboom.iga.adi.graph.solver.core.initialisation.{HorizontalInitial
 import edu.agh.kboom.iga.adi.graph.solver.core.{SplineSurface, Surface}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.storage.StorageLevel.OFF_HEAP
 
 case class StepSolver(directionSolver: DirectionSolver) {
 
@@ -20,6 +21,10 @@ case class StepSolver(directionSolver: DirectionSolver) {
     rec.record(TRANSPOSITION_STARTED)
 
     val transposedMatrix = transposeRowMatrix(partialSolution.m)
+      .persist(OFF_HEAP)
+      .localCheckpoint()
+
+    transposedMatrix.count()
 
     val transposedPartialSolution = SplineSurface(transposedMatrix, ctx.mesh)
 
@@ -35,7 +40,8 @@ case class StepSolver(directionSolver: DirectionSolver) {
       SplineSurface.print(newProjection)
     }
 
-    transposedPartialSolution.m.unpersist()
+    transposedMatrix.unpersist(blocking = false)
+    transposedPartialSolution.m.unpersist(blocking = false)
 
     newProjection
   }
